@@ -1,0 +1,24 @@
+name: dartrix
+description: Dart Templates
+version: 0.1.0
+
+dependencies:
+  ansicolor: ^1.0.2
+  args: ^1.5.3
+  glob: ^1.2.0
+  logging: ^0.11.4
+  mustache_template: ^1.0.0+1
+  package_resolver: ^1.0.10
+  path: ^1.6.4
+  process_run: ^0.10.7
+  pub_cache: ^0.2.3
+  resource: ^2.1.6
+  strings: ^0.1.2
+
+dev_dependencies:
+
+environment:
+  sdk: '>=2.6.0 <3.0.0'
+
+executables:
+  new:
