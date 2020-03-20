@@ -11,7 +11,6 @@ import 'package:package_resolver/package_resolver.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/dartbin.dart';
-import 'package:process_run/shell.dart';
 import 'package:process_run/which.dart';
 import 'package:pub_cache/pub_cache.dart';
 import 'package:resource/resource.dart';
@@ -21,7 +20,7 @@ import 'package:strings/strings.dart';
 import 'package:dartrix/src/builtins.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/externals.dart';
+import 'package:dartrix/src/plugins.dart';
 import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('new');
@@ -211,6 +210,24 @@ String getInDir(String template) {
   }
 }
 
+void printUsage(ArgParser argParser) {
+  print("\n\t\tDartrix Templating System - 'new' command\n");
+  print("Usage: \$ pub global run dartrix:new [args]\n");
+  print(argParser.usage);
+  print("\nBuiltin templates:");
+  print("\tplugin");
+  print("\tsplitplugin");
+  print("\tapp-dart");
+  print("\tapp-flutter");
+  print("\tpackage");
+  print("\tlib");
+  print("\ttool\n");
+  print("Other commands:\n");
+  // print("\tdartrix:dev\t\tDocumentation for template development\n");
+  print("\tdartrix:list\t\tList available template libraries");
+  print("\tdartrix:man\t\tDisplay manual pages\n");
+}
+
 void main(List<String> args) async {
   Logger.root.level = Level.ALL;
   Logger.root..onRecord.listen((record) {
@@ -255,7 +272,7 @@ void main(List<String> args) async {
     help: "CamelCased name. Used as class/type name.\nDefaults to --package value, CamelCased (i.e. 'Hello').\nE.g. -p foo_bar => -c FooBar.",
     callback: (name) => validateCamelCase(name)
   );
-  argParser.addOption('xpackage', abbr: 'x',
+  argParser.addOption('plugin', abbr: 'x',
     valueHelp: "path:path/to/local/pkg | package:pkg_name",
     help: "External template package"
     // defaultsTo: 'plugin',
@@ -277,32 +294,8 @@ void main(List<String> args) async {
 
   options = argParser.parse(args);
 
-  if (options['help']) {
-    print("\n\t\tDartrix Templating System - 'new' command\n");
-    print("Usage: \$ pub global run dartrix:new [args]\n");
-    print(argParser.usage);
-    print("\nBuiltin templates:");
-    print("\tplugin");
-    print("\tsplitplugin");
-    print("\tapp-dart");
-    print("\tapp-flutter");
-    print("\tpackage");
-    print("\tlib\n");
-    print("\nOther commands available:\n");
-    print("\tdartrix:doc\t\tMore detailed documentation");
-    print("\tdartrix:list\t\tList available templates");
-    print("\tdartrix:dev\t\tDocumentation for template development\n");
-    exit(0);
-    // if (options['xpackage'] == null) {
-    // }
-  }
-
-  bool runInShell = true; //Platform.isWindows;
-  if (options['manpage']) {
-    // ProcessCmd cmd = processCmd('man', ['ls'], runInShell: runInShell);
-    // await runCmd(cmd, stdout: stdout);
-    var shell = Shell();
-    await shell.run("man ls");
+  if (options['help'] || args.isEmpty) {
+    printUsage(argParser);
     exit(0);
   }
 
@@ -364,7 +357,9 @@ void main(List<String> args) async {
 
   // linux, macos, windows, android, ios, fuchsia
   tData['platform'] = Platform.operatingSystem;
-  tData['segmap']['platform'] = Platform.operatingSystem;
+  tData['segmap']['PLATFORM'] = Platform.operatingSystem;
+
+  tData['segmap']['PKG'] = options['package'];
 
   // Theses properties are for android/local.properties.
   // _log.finer("resolvedExecutable: ${Platform.resolvedExecutable}");
@@ -384,12 +379,6 @@ void main(List<String> args) async {
     ..removeLast()
     ..removeLast());
   tData['sdk']['flutter'] = flutterSdk;
-
-  if (debug.debug) {
-    _log.finer("dart executable: $dartExecutable");
-    _log.finer("dartSdkBinDirPath: $dartSdkBinDirPath");
-    _log.finer("dartSdkDirPath: $dartSdkDirPath");
-  }
 
   // var outPathPrefix = options['outpath'];
   // _log.finer("outPathPrefix: $outPathPrefix");
@@ -412,16 +401,16 @@ void main(List<String> args) async {
 
   var template = options['template'];
   tData['template'] = template;
-  tData['xpackage'] = options['xpackage'];
+  tData['plugin'] = options['plugin'];
 
   if (debug.debug) debug.debugOptions();
 
-  if (tData['xpackage'] != null) {
-    generateFromXPackage(tData['xpackage'], template,
+  if (tData['plugin'] != null) {
+    generateFromPlugin(tData['plugin'], template,
       (options.command == null)? null : options.command.arguments);
   } else {
     initBuiltinTemplates();
-    if ( builtinTemplates.contains(template) ) {
+    if ( builtinTemplates.keys.contains(template) ) {
       // process builtin
     } else {
       _log.finer("EXCEPTION: template $template not found.");

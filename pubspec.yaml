@@ -13,6 +13,7 @@ dependencies:
   process_run: ^0.10.7
   pub_cache: ^0.2.3
   resource: ^2.1.6
+  sprintf: ^4.0.2
   strings: ^0.1.2
 
 dev_dependencies:

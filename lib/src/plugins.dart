@@ -12,7 +12,7 @@ import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
 
-var _log = Logger('Externals');
+var _log = Logger('plugins');
 
 // Terminology:
 // userDartConfigDir :  $HOME/.dart.d
@@ -100,7 +100,7 @@ void initXTemplates(String packagePath) {
   _externalPkgPath = path.canonicalize(packagePath);
   // _log.finer("_externalPkgPath path: $_externalPkgPath");
 
-  String templatesRoot = packagePath + "/lib/templates";
+  String templatesRoot = packagePath + "/templates";
   _templatesRoot = path.canonicalize(templatesRoot);
 
   List externals = Directory(_templatesRoot).listSync();
@@ -324,8 +324,13 @@ void spawnExternalFromPackage(String pkg, String template, List<String> args) as
 
   // Step 2. target pkg is listed as a dep in the packageConfig2;
   // find it
-  var pkgPackageConfig2 = userPackageConfig2.packages.singleWhere(
-    (pkg) => pkg.name == pkgName);
+  Package pkgPackageConfig2 = userPackageConfig2.packages.firstWhere(
+    (pkg) => pkg.name == pkgName,
+    orElse: () {
+      _log.severe("Package $pkgName is not configured. To install, add it as a package or path dependency in \$HOME/.dart.d/pubspec.yaml and run 'pub get' from that directory.");
+      exit(0);
+    }
+  );
   _log.info("pkgPackageConfig2: $pkgPackageConfig2");
 
   // Step 3.  Get the (file) root of the package. We need this to
@@ -388,8 +393,8 @@ void _externalOnDone() {
 //   _log.finer("_onStopDone");
 // }
 
-void generateFromXPackage(String pkg, String template, List<String> args) {
-  // _log.finer("generateFromXPackage: $pkg, $template, args: $args");
+void generateFromPlugin(String pkg, String template, List<String> args) {
+  // _log.finer("generateFromPlugin: $pkg, $template, args: $args");
   if (pkg.startsWith("path:")) {
     spawnExternalFromPath(pkg, template, args);
   } else {

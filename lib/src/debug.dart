@@ -44,7 +44,7 @@ void debugData(Map xData) {
   // _log.config("tData['domain']['user']: ${tData['domain']['user']}");
   // _log.config("tData['root']: ${tData['root']}");
   // _log.config("tData['outpath']: ${tData['outpath']}");
-  // _log.config("tData['xpackage']: ${tData['xpackage']}");
+  // _log.config("tData['plugin']: ${tData['plugin']}");
   // _log.config("tData['sdk']['android']: ${tData['sdk']['android']}");
   // _log.config("tData['sdk']['flutter']: ${tData['sdk']['flutter']}");
   // _log.config("tData['segmap']: ${tData['segmap']}");
@@ -65,10 +65,16 @@ void debugPathRewriting(Map xData) {
 
 void debugOptions() {
   _log.config("Options:");
-  _log.config("\tname: ${options.name}");
   _log.config("\targs: ${options.arguments}");
   _log.config("\toptions: ${options.options}");
-  _log.config("\trest: ${options.rest} (isEmpty? ${options.rest.isEmpty})");
+  _log.config("\trest: ${options.rest}");
+  // _log.config("\tname: ${options.name}");
+}
 
-
+void debugListBuiltins() {
+  _log.config("Available builtin templates:");
+  builtinTemplates.forEach((k,v) {
+      var spacer = (k.length < 8) ? "\t\t" : "\t";
+      _log.config("\t${k}${spacer}${v}");
+  });
 }

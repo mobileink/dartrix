@@ -9,6 +9,9 @@ var _log = Logger('data');
 ArgParser argParser;
 ArgResults options;
 
+/// Builtin templates.
+Map<String,String> builtinTemplates = Map<String,String>();
+
 Map xData;  // external data
 
 // Default rewrites useful for path seg rewriting.
@@ -21,7 +24,7 @@ Map xData;  // external data
 //     can force it.  'package' and 'root' are Dartrix options.
 
 // E.g. on a mac:
-//   root/platform/org/example/package => root/macos/org/example/hello
+//   ROOTPATH/PLATFORM/RDOMAINPATH/PKG => root/macos/org/example/hello
 // if user passes --root acme --domain foo.bar.com --package goodbye
 //   root/platform/org/example/package => acme/macos/com/bar/foo/goodbye
 
