@@ -13,9 +13,10 @@ import 'package:path/path.dart' as path;
 import 'package:process_run/shell.dart';
 import 'package:strings/strings.dart';
 
+import 'package:dartrix_lib/dartrix_lib.dart';
+
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/resolver.dart';
 import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('man');
@@ -24,7 +25,7 @@ void getManPages(String rootDir) {
 }
 
 void printManpage(String lib, String rootDir, String manPage) async {
-  String manDir = rootDir + "/man";
+  String manDir = rootDir + "/lib/man";
   manDir = path.normalize(manDir);
   // _log.info("manDir: $manDir");
   // _log.info("lib: $lib");

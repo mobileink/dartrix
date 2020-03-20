@@ -7,14 +7,13 @@ import 'dart:isolate';
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:mustache_template/mustache_template.dart';
-import 'package:package_resolver/package_resolver.dart';
+// import 'package:package_resolver/package_resolver.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/dartbin.dart';
 import 'package:process_run/which.dart';
 import 'package:pub_cache/pub_cache.dart';
-import 'package:resource/resource.dart';
-// import 'package:scratch_space/scratch_space.dart';
+// import 'package:resource/resource.dart';
 import 'package:strings/strings.dart';
 
 import 'package:dartrix/src/builtins.dart';
@@ -31,72 +30,72 @@ var _log = Logger('new');
 String http_parser_pkg = "package:http_parser";
 String hello_pkg = "package:hello_template";
 
-void getResource (String _pkg) async {
+// void getResource (String _pkg) async {
 
-  // 1. try pubcache
-  //   a. globals
-  //   b. hosted
-  // 2. .packages?
+//   // 1. try pubcache
+//   //   a. globals
+//   //   b. hosted
+//   // 2. .packages?
 
-  _log.finer("pubcache: ${PubCache.getSystemCacheLocation()}");
+//   _log.finer("pubcache: ${PubCache.getSystemCacheLocation()}");
 
-  PubCache pc = PubCache();
-  var cachedPkgs = pc.getCachedPackages();
-  // cachedPkgs.forEach((pkg) => _log.finer("pkg: $pkg"));
-  var globalApps = pc.getGlobalApplications();
-  globalApps.forEach((global) => _log.finer("global name: ${global.name}"));
-  Application gapp = globalApps.firstWhere((app) => app.name == "hello_template");
+//   PubCache pc = PubCache();
+//   var cachedPkgs = pc.getCachedPackages();
+//   // cachedPkgs.forEach((pkg) => _log.finer("pkg: $pkg"));
+//   var globalApps = pc.getGlobalApplications();
+//   globalApps.forEach((global) => _log.finer("global name: ${global.name}"));
+//   Application gapp = globalApps.firstWhere((app) => app.name == "hello_template");
 
-  // var pkgs = globalApps.map((app) => app.getDefiningPackageRef().resolve());
-  // pkgs.forEach((pkg) => _log.finer("pkg/locn : ${pkg.name}/${pkg.location}"));
+//   // var pkgs = globalApps.map((app) => app.getDefiningPackageRef().resolve());
+//   // pkgs.forEach((pkg) => _log.finer("pkg/locn : ${pkg.name}/${pkg.location}"));
 
-  Package thePkg = gapp.getDefiningPackageRef().resolve();
-  _log.finer("name/locn:  ${thePkg.name} / ${thePkg.location}");
+//   Package thePkg = gapp.getDefiningPackageRef().resolve();
+//   _log.finer("name/locn:  ${thePkg.name} / ${thePkg.location}");
 
-  var icfg = await Isolate.packageConfig;
-  _log.finer("icfg: $icfg");
+//   var icfg = await Isolate.packageConfig;
+//   _log.finer("icfg: $icfg");
 
-  String pkg = "package:${_pkg}/dartrix.dart";
-  var resource = new Resource(pkg);
-  _log.finer("dep uri: ${resource.uri}");
+//   String pkg = "package:${_pkg}/dartrix.dart";
+//   var resource = new Resource(pkg);
+//   _log.finer("dep uri: ${resource.uri}");
 
-  // String pkgResolver = "file:///
-  // var resolver = SyncPackageResolver.root(resource.uri);
-  // _log.finer("resolver: ${resolver}");
-  // _log.finer("resolver packageConfigMap: ${resolver.packageConfigMap}");
-  // _log.finer("resolver packageConfigUri: ${resolver.packageConfigUri}");
-  // _log.finer("resolver packageRoot: ${resolver.packageRoot}");
-  // var pkgPath = resolver.packageUriFor(pkg);
-  // _log.finer("resolver packagePath(): ${pkgPath}");
-  // var x = resolver.packagePath('package:hello_template/'); // .then((x) => _log.finer("X $x"));
-  // _log.finer("pkg path: $x");
-  // // var hiUri = await resolver.resolveUri('package:hello_template/');
-  // // _log.finer("hiUri: $hiUri");
+//   // String pkgResolver = "file:///
+//   // var resolver = SyncPackageResolver.root(resource.uri);
+//   // _log.finer("resolver: ${resolver}");
+//   // _log.finer("resolver packageConfigMap: ${resolver.packageConfigMap}");
+//   // _log.finer("resolver packageConfigUri: ${resolver.packageConfigUri}");
+//   // _log.finer("resolver packageRoot: ${resolver.packageRoot}");
+//   // var pkgPath = resolver.packageUriFor(pkg);
+//   // _log.finer("resolver packagePath(): ${pkgPath}");
+//   // var x = resolver.packagePath('package:hello_template/'); // .then((x) => _log.finer("X $x"));
+//   // _log.finer("pkg path: $x");
+//   // // var hiUri = await resolver.resolveUri('package:hello_template/');
+//   // // _log.finer("hiUri: $hiUri");
 
 
-  // var string = await resource.readAsString(encoding: utf8);
-  // _log.finer("FOO: $manifest")  _log.finer("manifest: ${resource.uri}");
+//   // var string = await resource.readAsString(encoding: utf8);
+//   // _log.finer("FOO: $manifest")  _log.finer("manifest: ${resource.uri}");
 
-  Uri theUri = Uri.parse("file://" + thePkg.location.path + "/lib/dartrix.dart");
-  _log.finer("theUri: $theUri");
+//   Uri theUri = Uri.parse("file://" + thePkg.location.path + "/lib/dartrix.dart");
+//   _log.finer("theUri: $theUri");
 
-  final rPort = ReceivePort();
-  // await Isolate.spawnUri(resource.uri, [], null);
-  await Isolate.spawnUri(theUri, [resource.uri.path], null, onExit: rPort.sendPort);
-  // await Isolate.spawn(entryPoint, null, onExit: rPort.sendPort);
-  await rPort.first;
+//   final rPort = ReceivePort();
+//   // await Isolate.spawnUri(resource.uri, [], null);
+//   await Isolate.spawnUri(theUri, [resource.uri.path], null, onExit: rPort.sendPort);
+//   // await Isolate.spawn(entryPoint, null, onExit: rPort.sendPort);
+//   await rPort.first;
 
-  // sleep(const Duration(seconds:1));
+//   // sleep(const Duration(seconds:1));
 
-  // var pkgcfg = await Isolate.packageConfig;
-  // _log.finer("Uri pkg config: $pkgcfg");
+//   // var pkgcfg = await Isolate.packageConfig;
+//   // _log.finer("Uri pkg config: $pkgcfg");
 
-  // var xuri = Uri.dataFromString('package:hello_template/');
-  // var uri = await Isolate.resolvePackageUri(xuri);
-  // // var uri2 = uri.resolve(uri);
-  // _log.finer("URI: $uri");
+//   // var xuri = Uri.dataFromString('package:hello_template/');
+//   // var uri = await Isolate.resolvePackageUri(xuri);
+//   // // var uri2 = uri.resolve(uri);
+//   // _log.finer("URI: $uri");
 
-}
+// }
 
 
 void transformDirectory(String source, String destination, Map data) {
@@ -409,9 +408,11 @@ void main(List<String> args) async {
     generateFromPlugin(tData['plugin'], template,
       (options.command == null)? null : options.command.arguments);
   } else {
-    initBuiltinTemplates();
+    await initBuiltinTemplates();
     if ( builtinTemplates.keys.contains(template) ) {
-      // process builtin
+      _log.info("FIXME: run builtin");
+      // generateFromBuiltin(template,
+      //   (options.command == null)? null : options.command.arguments);
     } else {
       _log.finer("EXCEPTION: template $template not found.");
       exit(0);

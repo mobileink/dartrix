@@ -15,10 +15,11 @@ import 'package:process_run/which.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:strings/strings.dart';
 
+//import 'package:dartrix_lib/dartrix_lib.dart';
+
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/handler_template.dart';
-import 'package:dartrix/src/resolver.dart';
 import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('list');
@@ -55,7 +56,7 @@ Set<String> templateSet;
 
 void listTemplates(ArgResults options) async {
   // print("listTemplates ${options.arguments}");
-  templates = Directory(Directory.current.path + "/templates").listSync();
+  templates = Directory(Directory.current.path + "/lib/templates").listSync();
   templates.retainWhere((f) => f is Directory);
   templateSet = templates.map((t)=>path.basename(t.path)).toSet();
 
@@ -83,7 +84,7 @@ void updateDocstrings() {
   // _log.info("updateDocstrings");
   var package = path.basename(Directory.current.path);
   package = package.replaceAll(RegExp(r"_dartrix$"), '');
-  var templates = Directory(Directory.current.path + "/templates").listSync();
+  var templates = Directory(Directory.current.path + "/lib/templates").listSync();
   var docstrings = List.from(templates);
   RegExp dsext = RegExp(r'\.docstring$');
   templates.removeWhere((fse) {
@@ -114,7 +115,7 @@ void updateDocstrings() {
   if (missingDocstrings.isNotEmpty) {
     if (debug.verbose) _log.warning("missing docstrings: $missingDocstrings");
     missingDocstrings.forEach((ds) {
-        String fname = Directory.current.path + "/templates/" + ds + ".docstring";
+        String fname = Directory.current.path + "/lib/templates/" + ds + ".docstring";
         // double-check to ensure no overwrites:
         // var exists = FileSystemEntity.typeSync(fname);
         // if (exists != FileSystemEntityType.notFound) {
@@ -192,7 +193,7 @@ void updateManuals() {
   // _log.info("updateManuals");
   var package = path.basename(Directory.current.path);
   package = package.replaceAll(RegExp(r"_dartrix$"), '');
-  var manpages = Directory(Directory.current.path + "/man").listSync();
+  var manpages = Directory(Directory.current.path + "/lib/man").listSync();
   RegExp manext = RegExp(r'\.[0-9][a-z]?$');
   manpages.retainWhere((fse) {
       return manext.hasMatch(fse.path);
@@ -219,7 +220,7 @@ void updateManuals() {
     }
   }
   missingManpages.forEach((mp) {
-      String fname = Directory.current.path + "/man/" + mp + ".1";
+      String fname = Directory.current.path + "/lib/man/" + mp + ".1";
       // double-check to ensure no overwrites:
       var exists = FileSystemEntity.typeSync(fname);
       if (exists != FileSystemEntityType.notFound) {

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
@@ -10,15 +11,26 @@ var _log = Logger('builtin');
 
 /// Initialize builtinTemplates variable (Set).
 ///
-/// Read the <root>/templates directory, retaining only directory entries. Each
+/// Read the <root>/lib/templates directory, retaining only directory entries. Each
 /// subdirectory represents one template.
-void initBuiltinTemplates() {
-  // _log.info("builtin.initBuiltinTemplates");
+void initBuiltinTemplates() async {
+  _log.info("builtins.initBuiltinTemplates");
+
+  // Procedure: get path to pkg root, then templates subdir, then read the
+  // latter and filter.
+
+  // Isolate.packageConfig gives abs. file uri;
+  // Platform.script gives relative path
+  // Alternative: Package.root?
+  // Uri packageConfigUri = await Isolate.packageConfig;
+  // // e.g. file:///Users/gar/mobileink/dartrix/.packages
+  // _log.info("packageConfigUri $packageConfigUri");
 
   String scriptPath = path.prettyUri(Platform.script.toString());
-  // print("scriptPath: ${scriptPath}");
+  // e.g. ../../mobileink/dartrix/bin/new.dart
+  _log.info("scriptPath: ${scriptPath}");
 
-  String templatesRoot = path.dirname(scriptPath) + "/../templates";
+  String templatesRoot = path.dirname(scriptPath) + "/../lib/templates";
   templatesRoot = path.canonicalize(templatesRoot);
 
   List builtins = Directory(templatesRoot).listSync();

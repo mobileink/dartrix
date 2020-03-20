@@ -15,12 +15,6 @@ AnsiPen warningPen = new AnsiPen()..red();
 AnsiPen infoPen = new AnsiPen()..green(bold: false);
 AnsiPen configPen = new AnsiPen()..green(bold: true);
 
-
-bool verifyExists(String fsePath) {
-  FileSystemEntityType fse = FileSystemEntity.typeSync(fsePath);
-  return (fse != FileSystemEntityType.notFound);
-}
-
 String getDocstring(Package pkg) {
   var rootDir = pkg.root.path;
   var libName  = pkg.name.replaceFirst(RegExp('_dartrix'),'');
@@ -47,19 +41,19 @@ void sanityCheck() {
   }
   if (debug.verbose) _log.info("... ./lib/dartrix.dart exists - ok");
 
-  exists = FileSystemEntity.typeSync(cwd + "/templates");
+  exists = FileSystemEntity.typeSync(cwd + "/lib/templates");
   if (exists == FileSystemEntityType.notFound) {
-    _log.severe("./templates directory not found");
+    _log.severe("./lib/templates directory not found");
     exit(0);
   }
-  if (debug.verbose) _log.info("... ./templates directory exists - ok");
+  if (debug.verbose) _log.info("... ./lib/templates directory exists - ok");
 
-  exists = FileSystemEntity.typeSync(cwd + "/man");
+  exists = FileSystemEntity.typeSync(cwd + "/lib/man");
   if (exists == FileSystemEntityType.notFound) {
-    _log.severe("./man directory not found");
+    _log.severe("./lib/man directory not found");
     exit(0);
   }
-  if (debug.verbose) _log.info("... ./man directory exists - ok");
+  if (debug.verbose) _log.info("... ./lib/man directory exists - ok");
 
   if (debug.verbose) _log.info("Sanity check passed.");
 }

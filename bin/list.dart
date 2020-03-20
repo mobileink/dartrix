@@ -13,9 +13,10 @@ import 'package:process_run/which.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:strings/strings.dart';
 
+import 'package:dartrix_lib/dartrix_lib.dart';
+
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/resolver.dart';
 import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('list');
@@ -26,19 +27,12 @@ void listBuiltins(ArgResults options) async {
   // _log.info("packageConfigUri $packageConfigUri");
   // this is a v1 pkg config, i.e. a .packages file, so back up one segment:
   String libDir = path.dirname(packageConfigUri.path);
-  var templatesRoot = path.dirname(packageConfigUri.path) + "/templates";
+  var templatesRoot = path.dirname(packageConfigUri.path) + "/lib/templates";
   List templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
   print("Builtin templates:");
   templates.forEach((t) {
       var tName = path.basename(t.path);
-      // var spacer =
-      // tName.length < 5
-      // ? "\t\t"
-      // : tName.length < 10
-      // ? "\t\t"
-      // : "\t";
-      // spacer = tName.length < 8 ? spacer + "\t" : spacer;
       String docString;
       try {
       docString = File(templatesRoot + "/" + tName + ".docstring")
@@ -56,13 +50,32 @@ void listBuiltins(ArgResults options) async {
   });
 }
 
-void listPlugins(ArgResults options) async {
-  print("listPlugins");
+void listPlugins(String lib, ArgResults options) async {
+  // print("listPlugins");
   var lib = options.rest[0];
-  var libDir = await resolvePkgRoot("package:" + lib + "_dartrix");
+  String libDir = await resolvePkgRoot("package:" + lib + "_dartrix");
   if (debug.verbose) _log.info("resolved $lib to package:${lib}_dartrix to $libDir");
-  // var template = options['template'];
-  // printManpage(lib, libDir, template);
+  String templatesRoot = libDir + "/lib/templates";
+  List templates = Directory(templatesRoot).listSync();
+  templates.retainWhere((f) => f is Directory);
+  print("package:${lib}_dartrix templates:");
+  templates.forEach((t) {
+      var tName = path.basename(t.path);
+      String docString;
+      try {
+      docString = File(templatesRoot + "/" + tName + ".docstring")
+      .readAsStringSync();
+      } on FileSystemException {
+        // if (debug.debug)
+        // _log.info("docstring not found for ${builtin.path}");
+        if (debug.debug) {
+          docString = warningPen("${tName}.docstring not found");
+          // tName = warningPen(sprintf("%-18s", [tName]));
+        }
+      }
+      tName = sprintf("%-18s", [tName]);
+      print("\t${tName} ${docString}");
+  });
 }
 
 void printUsage(ArgParser argParser) async {
@@ -73,12 +86,12 @@ void printUsage(ArgParser argParser) async {
 
   print("\nAvailable template libraries:");
   List<Package> pkgs = await getPlugins("_dartrix");
-  print("\tdartrix\t\tBuiltin templates");
+  print("\t${sprintf('%-18s', ['dartrix'])} Builtin templates");
   pkgs.forEach((pkg) {
       var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'),'');
-      var spacer = pkgName.length < 8 ? "\t\t" : "\t";
       var docString = getDocstring(pkg);
-      print("\t${pkgName}${spacer}${docString}");
+      pkgName= sprintf("%-18s", [pkgName]);
+      print("\t${pkgName} ${docString}");
   });
   print("");
   // print("\tdartrix\t\tBuiltin templates. Optional; if no <libname> specified,");
@@ -138,7 +151,7 @@ void main(List<String> args) async {
       case "help":
       case "-h":
       case "--help": await printUsage(argParser); exit(0); break;
-      default: listPlugins(options);
+      default: listPlugins(args[0], options);
     }
   }
 }
