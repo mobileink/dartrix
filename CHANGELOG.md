@@ -1,3 +1,7 @@
+## 0.1.6-alpha
+
+- Initial commit of template dart_clix
+
 ## 0.1.5-alpha
 
 - lint fixes
