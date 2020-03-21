@@ -1,7 +1,7 @@
 name: dartrix
 description: An Extensible Template Engine for Dart
 homepage: https://github.com/mobileink/dartrix
-version: 0.1.0
+version: 0.1.0-alpha
 
 dependencies:
   ansicolor: ^1.0.2
