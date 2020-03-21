@@ -112,7 +112,7 @@ foobar_dartrix/
   that handles template requests.
 * Template files are written in the
   [{{mustache}}](https://mustache.github.io/) syntax, have a `.mustache`
-  extension, and are stored in `lib/templates`, under the appropriate
+  extension, and are stored in `templates/`, under the appropriate
   <template-name> subdirectory. In other words, each "template" may
   consist of multiple template files (and non-template assets, which
   are just coppied) organized under the template name.
@@ -123,11 +123,11 @@ foobar_dartrix/
     handler for template `foo` should be in `lib/src/foo.dart`.  It
     would be called from the `main` routine in
     `lib/foobar_dartrix.dart`.
-  * Docstrings, stored in `lib/templates` in files with the same name
+  * Docstrings, stored in `templates/` in files with the same name
     as the template but with suffix `.docstring`. A docstring file
     should contain a brief description of the template it documents,
     suitable for display by the `dartrix:list` command.
-  * Manpages, stored in `lib/man`.  A manpage should be provided for
+  * Manpages, stored in `man/`.  A manpage should be provided for
     the library itself and for each template it contains, with
     corresponding names suffixed by `.1`.  Manpages should provide
     detailed documentation.
@@ -143,14 +143,14 @@ For example, if library `foobar_dartrix` contains templates `foo` and
 ```
 foobar_dartrix/
   lib/foobar_dartrix.dart
-     /man/foo.1
-     /man/bar.1
-     /src/foo.dart
-     /src/bar.dart
-     /templates/foo/   # contains foo templates and assets
-     /templates/foo.docstring
-     /templates/bar/   # contains bar templates and assets
-     /templates/bar.docstring
+  lib/src/foo.dart
+  lib/src/bar.dart
+  man/foo.1
+  man/bar.1
+  templates/foo/   # contains foo templates and assets
+  templates/foo.docstring
+  templates/bar/   # contains bar templates and assets
+  templates/bar.docstring
   pubspec.yaml
 ```
 

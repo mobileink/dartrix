@@ -13,8 +13,9 @@ import 'package:process_run/which.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:strings/strings.dart';
 
-import 'package:dartrix_lib/dartrix_lib.dart';
+import 'package:dartrix/dartrix.dart';
 
+import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
@@ -27,7 +28,7 @@ void listBuiltins(ArgResults options) async {
   // _log.info("packageConfigUri $packageConfigUri");
   // this is a v1 pkg config, i.e. a .packages file, so back up one segment:
   String libDir = path.dirname(packageConfigUri.path);
-  var templatesRoot = path.dirname(packageConfigUri.path) + "/lib/templates";
+  var templatesRoot = path.dirname(packageConfigUri.path) + "/templates";
   List templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
   print("Builtin templates:");
@@ -54,8 +55,8 @@ void listPlugins(String lib, ArgResults options) async {
   // print("listPlugins");
   var lib = options.rest[0];
   String libDir = await resolvePkgRoot("package:" + lib + "_dartrix");
-  if (debug.verbose) _log.info("resolved $lib to package:${lib}_dartrix to $libDir");
-  String templatesRoot = libDir + "/lib/templates";
+  if (Config.verbose) _log.info("resolved $lib to package:${lib}_dartrix to $libDir");
+  String templatesRoot = libDir + "/templates";
   List templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
   print("package:${lib}_dartrix templates:");
@@ -94,6 +95,13 @@ void printUsage(ArgParser argParser) async {
       print("\t${pkgName} ${docString}");
   });
   print("");
+  print("\nOther Dartrix commands:");
+  print("\tdartrix:list\t\t this command");
+  print("\tdartrix:new\t\t generate new files from template");
+  print("\tdartrix:man\t\t print dartrix manpages");
+  print("\tdartrix:sanity\t\t sanity check (for template developers)");
+  print("\tdartrix:update\t\t update template lib (for template developers)");
+
   // print("\tdartrix\t\tBuiltin templates. Optional; if no <libname> specified,");
   // print("\t\t\tthe -t option refers to a builtin template.");
   // print("\t<libname>\tDocumentation for template library plugin.\n");
@@ -127,31 +135,31 @@ void main(List<String> args) async {
   argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
   argParser.addFlag('debug', defaultsTo: false);
 
-  options = argParser.parse(args);
+  Config.options = argParser.parse(args);
 
-  debug.verbose = options['verbose'];
-  debug.debug   = options['debug'];
+  Config.verbose = Config.options['verbose'];
+  debug.debug   = Config.options['debug'];
 
   if (debug.debug) debug.debugOptions();
 
   // var root = path.dirname(Platform.script.toString());
   // print("proj root: $root");
 
-  if (options['help']) {
+  if (Config.options['help']) {
     await printUsage(argParser);
     exit(0);
   }
 
-  if (options.rest.isEmpty) {
-    //listBuiltins(options);
+  if (Config.options.rest.isEmpty) {
+    //listBuiltins(Config.options);
     printUsage(argParser);
   } else {
-    switch (options.rest[0]) {
-      case "dartrix": listBuiltins(options); break;
+    switch (Config.options.rest[0]) {
+      case "dartrix": listBuiltins(Config.options); break;
       case "help":
       case "-h":
       case "--help": await printUsage(argParser); exit(0); break;
-      default: listPlugins(args[0], options);
+      default: listPlugins(args[0], Config.options);
     }
   }
 }

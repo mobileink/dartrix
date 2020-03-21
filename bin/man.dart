@@ -13,8 +13,9 @@ import 'package:path/path.dart' as path;
 import 'package:process_run/shell.dart';
 import 'package:strings/strings.dart';
 
-import 'package:dartrix_lib/dartrix_lib.dart';
+import 'package:dartrix/dartrix.dart';
 
+import 'package:dartrix/src/config.dart' as config;
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
@@ -25,7 +26,7 @@ void getManPages(String rootDir) {
 }
 
 void printManpage(String lib, String rootDir, String manPage) async {
-  String manDir = rootDir + "/lib/man";
+  String manDir = rootDir + "/man";
   manDir = path.normalize(manDir);
   // _log.info("manDir: $manDir");
   // _log.info("lib: $lib");
@@ -69,7 +70,7 @@ void manPlugins(ArgResults options) async {
   // print("manPlugins");
   var lib = options.rest[0];
   var libDir = await resolvePkgRoot("package:" + lib + "_dartrix");
-  if (debug.verbose) _log.info("resolved $lib to package:${lib}_dartrix to $libDir");
+  if (config.verbose) _log.info("resolved $lib to package:${lib}_dartrix to $libDir");
   var template = options['template'];
   printManpage(lib, libDir, template);
 }
@@ -143,7 +144,7 @@ void main(List<String> args) async {
   options = argParser.parse(args); // .sublist(1));
   // debug.debugOptions();
 
-  if (options['verbose']) debug.verbose = true;
+  if (options['verbose']) config.verbose = true;
 
   // if (options.rest.isEmpty) {
     if (options['help']) {

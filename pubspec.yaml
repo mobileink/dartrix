@@ -4,7 +4,7 @@ homepage: https://github.com/mobileink/dartrix
 version: 0.1.0
 
 dependencies:
-  dartrix_lib:
+  dartrix_lib: # ^0.1.0
     path: ../dartrix_lib
   ansicolor: ^1.0.2
   args: ^1.5.3

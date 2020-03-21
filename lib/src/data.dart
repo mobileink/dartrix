@@ -2,12 +2,10 @@ import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 
+import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 
 var _log = Logger('data');
-
-ArgParser argParser;
-ArgResults options;
 
 /// Builtin templates.
 Map<String,String> builtinTemplates = Map<String,String>();
@@ -75,9 +73,16 @@ String rewritePath(String _path) {
   var sm = segs.map((seg) {
       // _log.fine("seg: $seg");
       if (tData['segmap'][seg] == null) {
+        // no rewrite for full seg, check for partial
         var base = path.basenameWithoutExtension(seg);
         if (tData['segmap'][base] == null) {
-          return seg;
+          // no rewrite for FOO of FOO.bar, check for BAR of foo.BAR
+          var ext = path.extension(seg);
+          if (tData['segmap'][ext] == null) {
+            return seg;
+          } else {
+            var rw = base + tData['segmap'][ext];
+          }
         } else {
           // e.g. CLASS.java matches CLASS
           var rw = tData['segmap'][base] + path.extension(seg);
@@ -95,16 +100,16 @@ String domain2RDomPath(String domain) {
 }
 
 void mergeUserOptions() {
-  if (options['root'] != argParser.getDefault("root")) {
-    tData['segmap']['ROOT'] = options['root'];
+  if (Config.options['root'] != Config.argParser.getDefault("root")) {
+    tData['segmap']['ROOT'] = Config.options['root'];
   }
-  if (options['domain'] != argParser.getDefault("domain")) {
+  if (Config.options['domain'] != Config.argParser.getDefault("domain")) {
     // user specified domain
     tData['segmap']['RDOMAINPATH']
-    = options['domain'].split('.').reversed.join('/');
+    = Config.options['domain'].split('.').reversed.join('/');
   }
-  if (options['class'] != argParser.getDefault("class")) {
-    tData['segmap']['CLASS'] = options['class'];
+  if (Config.options['class'] != Config.argParser.getDefault("class")) {
+    tData['segmap']['CLASS'] = Config.options['class'];
   }
 }
 
@@ -188,7 +193,7 @@ Map tData = {
     // "user"    : "foo.com"
   },
   "package" : {
-    // "dart" : options['package'],
+    // "dart" : Config.options['package'],
     // "java" : javaPackage
   },
   // "plugin-class" : pluginClass,
@@ -199,5 +204,5 @@ Map tData = {
   // segmap keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
 
-  "segmap" : {}
+  "segmap" : {'DOTFILE' : ''} // rewrite DOTFILE.foo as .foo
 };

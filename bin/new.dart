@@ -12,11 +12,13 @@ import 'package:path/path.dart' as path;
 import 'package:process_run/cmd_run.dart';
 import 'package:process_run/dartbin.dart';
 import 'package:process_run/which.dart';
-import 'package:pub_cache/pub_cache.dart';
+// import 'package:pub_cache/pub_cache.dart';
 // import 'package:resource/resource.dart';
 import 'package:strings/strings.dart';
 
+import 'package:dartrix/dartrix.dart';
 import 'package:dartrix/src/builtins.dart';
+import 'package:dartrix/src/config.dart' as config;
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/plugins.dart';
@@ -211,23 +213,31 @@ String getInDir(String template) {
 
 void printUsage(ArgParser argParser) {
   print("\n\t\tDartrix Templating System - 'new' command\n");
-  print("Usage: \$ pub global run dartrix:new [args]\n");
+  print("Usage:");
+  print("  Builtins: pub global run dartrix:new [ordpcfhvt]\n");
+  print("  Plugins: pub global run dartrix:new [ordpcfv] plugin [th][toptions]\n");
+  print("\t plugin:  pkg:package_name | package:package_name | path:path/to/package_name\n");
+  print("\t toptions:  per template; pass -h or use dartrix:man to view.\n");
+  print("Options:");
   print(argParser.usage);
-  print("\nBuiltin templates:");
-  print("\tplugin");
-  print("\tsplitplugin");
-  print("\tapp-dart");
-  print("\tapp-flutter");
-  print("\tpackage");
-  print("\tlib");
-  print("\ttool\n");
-  print("Other commands:\n");
-  // print("\tdartrix:dev\t\tDocumentation for template development\n");
-  print("\tdartrix:list\t\tList available template libraries");
-  print("\tdartrix:man\t\tDisplay manual pages\n");
+
+  print("\nTo list available commands and templates: pub global run dartrix:list\n");
+  // print("\nBuiltin templates:");
+  // print("\tplugin");
+  // print("\tsplitplugin");
+  // print("\tapp-dart");
+  // print("\tapp-flutter");
+  // print("\tpackage");
+  // print("\tlib");
+  // print("\ttool\n");
+  // print("Other commands:\n");
+  // // print("\tdartrix:dev\t\tDocumentation for template development\n");
+  // print("\tdartrix:list\t\tList available template libraries");
+  // print("\tdartrix:man\t\tDisplay manual pages\n");
 }
 
 void main(List<String> args) async {
+  Config.config("dartrix");
   Logger.root.level = Level.ALL;
   Logger.root..onRecord.listen((record) {
       var level;
@@ -242,123 +252,152 @@ void main(List<String> args) async {
       print('${record.loggerName} ${level}: ${record.message}');
   });
 
-  argParser = ArgParser(allowTrailingOptions: false);
-  argParser.addOption('template', abbr: 't', // defaultsTo: 'hello',
+  Config.argParser = ArgParser(allowTrailingOptions: true);
+  Config.argParser.addOption('template', abbr: 't', // defaultsTo: 'hello',
     valueHelp: "[a-z][a-z0-9_]*",
     help: "Template name.",
     // callback: (t) => validateTemplateName(t)
   );
-  argParser.addOption('outpath', abbr: 'o', defaultsTo: './',
-    help: "Output path.  Prefixed to --root dir.",
-    valueHelp: "path."
-  );
-  argParser.addOption('root', abbr: 'r',
+  Config.argParser.addOption('root', abbr: 'r',
     valueHelp: "directory, without '/'.",
     help: "Root output segment.  Defaults to value of --package arg (i.e. 'hello')."
     // callback: (pkg) => validateSnakeCase(pkg)
   );
-  argParser.addOption('domain', abbr: 'd', defaultsTo: 'example.org',
+  Config.argParser.addOption('domain', abbr: 'd', defaultsTo: 'example.org',
     help: "Domain name. Must be legal as a Java package name;\ne.g. must not begin with a number, or match a Java keyword.",
     valueHelp: "segmented.domain.name"
   );
-  argParser.addOption('package', abbr: 'p', defaultsTo: 'hello',
+  Config.argParser.addOption('package', abbr: 'p', defaultsTo: 'hello',
     valueHelp: "[_a-z][a-z0-9_]*",
     help: "snake_cased name.  Used e.g. as Dart package name.",
     callback: (pkg) => validateSnakeCase(pkg)
   );
-  argParser.addOption('class', abbr: 'c', defaultsTo: 'Hello',
+  Config.argParser.addOption('class', abbr: 'c', defaultsTo: 'Hello',
     valueHelp: "[A-Z][a-zA-Z0-9_]*",
-    help: "CamelCased name. Used as class/type name.\nDefaults to --package value, CamelCased (i.e. 'Hello').\nE.g. -p foo_bar => -c FooBar.",
+    help: "CamelCased name. Used as class/type name for Java, Kotline, etc.\nDefaults to --package value, CamelCased (i.e. 'Hello').\nE.g. -p foo_bar => -c FooBar.",
     callback: (name) => validateCamelCase(name)
   );
-  argParser.addOption('plugin', abbr: 'x',
-    valueHelp: "path:path/to/local/pkg | package:pkg_name",
-    help: "External template package"
-    // defaultsTo: 'plugin',
-    // callback: (t) => validateTemplateName(t)
+  Config.argParser.addOption('out', abbr: 'o', defaultsTo: './',
+    help: "Output path.  Prefixed to --root dir.",
+    valueHelp: "path."
   );
-  // argParser.addFlag('list', abbr: 'l',
+  // Config.argParser.addOption('plugin', abbr: 'x',
+  //   valueHelp: "path:path/to/local/pkg | package:pkg_name",
+  //   help: "External template package"
+  //   // defaultsTo: 'plugin',
+  //   // callback: (t) => validateTemplateName(t)
+  // );
+  // Config.argParser.addFlag('list', abbr: 'l',
   //   help: "List plugins.",
   //   defaultsTo: false,
   // );
-  argParser.addFlag('force', abbr: 'f', defaultsTo: false);
-  argParser.addFlag('help', abbr: 'h', defaultsTo: false);
-  argParser.addFlag('debug', defaultsTo: false);
-  argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
+  Config.argParser.addFlag('dry-run', abbr: 'n', defaultsTo: false);
+  Config.argParser.addFlag('force', abbr: 'f', defaultsTo: false);
+  Config.argParser.addFlag('help', abbr: 'h', defaultsTo: false);
+  Config.argParser.addFlag('debug', defaultsTo: false);
+  Config.argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
 
-  argParser.addFlag('manpage', defaultsTo: false);
+  // Config.argParser.addFlag('manpage', defaultsTo: false);
 
-  var command = ArgParser.allowAnything();
-  argParser.addCommand('data:', command);
+  var pluginCmd = ArgParser.allowAnything();
+  Config.argParser.addCommand('pkg:', pluginCmd);
+  var packageCmd = ArgParser.allowAnything();
+  Config.argParser.addCommand('package:', pluginCmd);
+  var pathCmd = ArgParser.allowAnything();
+  Config.argParser.addCommand('path:', pluginCmd);
 
-  options = argParser.parse(args);
-
-  if (options['help'] || args.isEmpty) {
-    printUsage(argParser);
+  try {
+    Config.options = Config.argParser.parse(args);
+  } catch (e) {
+    _log.severe(e);
     exit(0);
   }
 
-  if (options['debug']) debug.debug = true;
+  if (args.isEmpty) {
+    printUsage(Config.argParser);
+    exit(0);
+  }
 
-  var cmd = options.command;
-  // _log.finer("cmd: $cmd");
+  if (Config.options['debug']) debug.debug = true;
 
-  if ( options.rest.isNotEmpty && (cmd == null)) {
-    if ( options.rest[0] == 'data' ) {
-      print("Error: unrecognized args: ${options.rest} (did you forget the : in 'data:' ?)");
-    } else {
-      print("Error: unrecognized args: ${options.rest}");
+  if (debug.debug) debug.debugOptions();
+
+  if (Config.options['help']) {
+    print("h: ${args.indexOf('-h')}");
+    print("help: ${args.indexOf('--help')}");
+    print("t: ${args.indexOf('-t')}");
+    print("template: ${args.indexOf('--template')}");
+    if (args.contains('-t') || args.contains('template')) {
+      if (args.indexOf('-h') >= 0
+        && ( (args.indexOf('-h') < args.indexOf('-t'))
+          || (args.indexOf('-h') < args.indexOf('--template'))))
+      {
+        print("a");
+        printUsage(Config.argParser);
+        exit(0);
+      } else {
+        if (args.indexOf('--help') >= 0
+          && ( (args.indexOf('--help') < args.indexOf('-t'))
+            || (args.indexOf('--help') < args.indexOf('--template'))))
+        {
+          print("b");
+          printUsage(Config.argParser);
+          exit(0);
+        }
+      }
     }
-    exit(0);
   }
+
+  var cmd = Config.options.command;
+  _log.finer("cmd: $cmd");
 
   var cmdOptions;
-  if (cmd != null) {
-    cmdOptions = command.parse(options.command.arguments);
-    _log.finer("command: ${options.command.name}");
-    _log.finer("command args: ${options.command.arguments}");
-    _log.finer("command opts: ${options.command.options}");
-    // _log.finer("command rest: ${options.command.rest}");
+  if (Config.options.command != null) {
+    cmdOptions = pluginCmd.parse(Config.options.command.arguments);
+    _log.finer("command: ${Config.options.command.name}");
+    _log.finer("command args: ${Config.options.command.arguments}");
+    _log.finer("command opts: ${Config.options.command.options}");
+    // _log.finer("command rest: ${Config.options.command.rest}");
   }
 
-  debug.verbose = options['verbose'];
+  Config.verbose = Config.options['verbose'];
 
-  tData['domain'] = options['domain'];
+  tData['domain'] = Config.options['domain'];
 
-  if (options['root'] == null) {
+  if (Config.options['root'] == null) {
     tData['segmap']['ROOTPATH'] = './';
   } else {
-    tData['segmap']['ROOTPATH'] = options['root'];
+    tData['segmap']['ROOTPATH'] = Config.options['root'];
   }
 
-  tData['package']['dart'] = options['package'];
+  tData['package']['dart'] = Config.options['package'];
   // "package.java" = Java package string, e.g. org.example.foo
-  String dartPackage = options['package'];
+  String dartPackage = Config.options['package'];
   String rdomain = tData['domain'].split('.').reversed.join(".");
   String javaPackage = rdomain + "." + dartPackage;
   tData['package']['java'] = javaPackage;
 
   tData['segmap']['RDOMAINPATH'] = rdomain.replaceAll('.', '/');
 
-  var pluginClass = (options['class'] == 'Hello')
+  var pluginClass = (Config.options['class'] == 'Hello')
   ? dartPackage.split("_").map(
     (s)=> capitalize(s)).join()
-  : options['class'];
+  : Config.options['class'];
 
   tData['plugin-class'] = pluginClass;
   tData['class'] = pluginClass;
-  tData['segmap']['CLASS'] = options['class'];
+  tData['segmap']['CLASS'] = Config.options['class'];
 
-  tData['root'] = options['root'];
-  tData['outpath'] = options['outpath'];
+  tData['root'] = Config.options['root'];
+  tData['out'] = Config.options['out'];
 
-  tData['dartrix']['force'] = options['force'];
+  tData['dartrix']['force'] = Config.options['force'];
 
   // linux, macos, windows, android, ios, fuchsia
   tData['platform'] = Platform.operatingSystem;
   tData['segmap']['PLATFORM'] = Platform.operatingSystem;
 
-  tData['segmap']['PKG'] = options['package'];
+  tData['segmap']['PKG'] = Config.options['package'];
 
   // Theses properties are for android/local.properties.
   // _log.finer("resolvedExecutable: ${Platform.resolvedExecutable}");
@@ -379,18 +418,18 @@ void main(List<String> args) async {
     ..removeLast());
   tData['sdk']['flutter'] = flutterSdk;
 
-  // var outPathPrefix = options['outpath'];
+  // var outPathPrefix = Config.options['outpath'];
   // _log.finer("outPathPrefix: $outPathPrefix");
 
-  // var rootDir = (options['root'] == null)
+  // var rootDir = (Config.options['root'] == null)
   // ? "/"
-  // : "/" + options['root'];
+  // : "/" + Config.options['root'];
 
   // var outPath = outPathPrefix + rootDir;
 
   // if (outPathPrefix != "./") {
   //   if (Directory(outPath).existsSync()) {
-  //     if ( !options['force'] ) {
+  //     if ( !Config.options['force'] ) {
   //       _log.severe("Directory '$outPath' already exists. Use -f to force overwrite.");
   //       exit(0);
   //     }
@@ -398,30 +437,47 @@ void main(List<String> args) async {
   //   }
   // }
 
-  var template = options['template'];
+  var template = Config.options['template'];
   tData['template'] = template;
-  tData['plugin'] = options['plugin'];
+  // tData['plugin'] = Config.options['plugin'];
 
-  if (debug.debug) debug.debugOptions();
-
-  if (tData['plugin'] != null) {
-    generateFromPlugin(tData['plugin'], template,
-      (options.command == null)? null : options.command.arguments);
-  } else {
-    await initBuiltinTemplates();
-    if ( builtinTemplates.keys.contains(template) ) {
-      _log.info("FIXME: run builtin");
-      // generateFromBuiltin(template,
-      //   (options.command == null)? null : options.command.arguments);
+  if ( Config.options.rest.isNotEmpty && (Config.options.command == null)) {
+    var pkgSpec = Config.options.rest[0];
+    if (pkgSpec.startsWith('pkg:')) {
+      print("PKG"); exit(0);
     } else {
-      _log.finer("EXCEPTION: template $template not found.");
-      exit(0);
+      if (pkgSpec.startsWith('package:')) {
+      print("PACKAGE"); exit(0);
+      } else {
+        if (pkgSpec.startsWith('patn:')) {
+          print("PATH"); exit(0);
+        } else {
+          _log.severe("Unrecognized param: $pkgSpec. Exiting.");
+          exit(0);
+        }
+      }
     }
   }
+
+  // if (tData['plugin'] != null) {
+  //   generateFromPlugin(tData['plugin'], template,
+  //     (Config.options.command == null)? null : Config.options.command.arguments);
+  // } else {
+    //FIXME: we don't need to list all, just get the one we want!
+    // await initBuiltinTemplates();
+    // if ( builtinTemplates.keys.contains(template) ) {
+    //   _log.info("FIXME: run builtin");
+    dispatchBuiltin(template);
+    //     (Config.options.command == null)? null : Config.options.command.arguments);
+    // } else {
+    //   _log.finer("EXCEPTION: template $template not found.");
+    //   exit(0);
+    // }
+  // }
   // _log.finer("script locn: ${Platform.script.toString()}");
   // _log.finer("built-ins: $builtinTemplates");
 
-  String inDir = getInDir(options['template']);
+  // String inDir = getInDir(Config.options['template']);
   // _log.finer("inDir: $inDir");
 
   // getResource("hello_template");

@@ -2,14 +2,16 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:package_config/package_config.dart';
 // import 'package:package_resolver/package_resolver.dart';
 import 'package:path/path.dart' as path;
 
-import 'package:dartrix_lib/dartrix_lib.dart';
+import 'package:dartrix/dartrix.dart';
 
+import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
@@ -71,7 +73,7 @@ void spawnCallback(dynamic _xData) {
   // step one: merge data maps
   if (_xData['dartrix']['mergeData']) {
     mergeExternalData(tData, _xData);
-    if (tData['class'] != argParser.getDefault("class")) {
+    if (tData['class'] != Config.argParser.getDefault("class")) {
 
     }
   }
@@ -91,7 +93,7 @@ void spawnCallback(dynamic _xData) {
   tFileset.removeWhere((f) => f.path.endsWith("~"));
   tFileset.retainWhere((f) => f is File);
 
-  if (debug.verbose) _log.fine("Generating files from templates and copying assets (cwd: ${Directory.current.path}):");
+  if (Config.verbose) _log.fine("Generating files from templates and copying assets (cwd: ${Directory.current.path}):");
 
   tFileset.forEach((tfile) {
       // _log.finer("tfile: $tfile");
@@ -114,7 +116,7 @@ void spawnCallback(dynamic _xData) {
       // _log.finer("dirname: $dirname");
       Directory(dirname).createSync(recursive:true);
 
-      if (debug.verbose) _log.fine("   " + tfile.path);
+      if (Config.verbose) _log.fine("   " + tfile.path);
       if (tfile.path.endsWith("mustache")) {
         var contents;
         contents = tfile.readAsStringSync();
@@ -123,10 +125,10 @@ void spawnCallback(dynamic _xData) {
           htmlEscapeValues: false);
         var newContents = template.renderString(tData);
         // _log.finer(newContents);
-        if (debug.verbose) _log.fine("=> ${Directory.current.path}/$outSubpath");
+        if (Config.verbose) _log.fine("=> ${Directory.current.path}/$outSubpath");
         File(outSubpath).writeAsStringSync(newContents);
       } else {
-        if (debug.verbose) _log.fine("=> ${Directory.current.path}/$outSubpath");
+        if (Config.verbose) _log.fine("=> ${Directory.current.path}/$outSubpath");
         tfile.copySync(outSubpath);
       }
   });
@@ -196,7 +198,7 @@ async {
 
     final stopPort = ReceivePort();
 
-    if (options['help']) {
+    if (Config.options['help']) {
       if (args == null) {
         args = ["--help"];
       } else {
@@ -204,7 +206,7 @@ async {
       }
     }
 
-    if (debug.verbose) _log.info("${infoPen('Spawning')} $packageUri with args $args");
+    if (Config.verbose) _log.info("${infoPen('Spawning')} $packageUri with args $args");
     Isolate externIso = await Isolate.spawnUri(
       packageUri,
       // Uri.parse("package:hello_template/dartrix.dart"),
@@ -254,7 +256,8 @@ void generateFromPlugin(String pkg, String template, List<String> args) {
     if (pkg.startsWith("package:")
       || pkg.startsWith("pkg:")) {
       initPluginTemplates(pkg);
-      spawnPluginFromPackage(spawnCallback, externalOnDone, pkg,
+      spawnPluginFromPackage(
+        spawnCallback, externalOnDone, pkg,
         [template, ...?args]);
         // template, args);
     } else {
