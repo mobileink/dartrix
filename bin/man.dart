@@ -15,7 +15,7 @@ import 'package:strings/strings.dart';
 
 import 'package:dartrix/dartrix.dart';
 
-import 'package:dartrix/src/config.dart' as config;
+import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
@@ -70,7 +70,7 @@ void manPlugins(ArgResults options) async {
   // print("manPlugins");
   var lib = options.rest[0];
   var libDir = await resolvePkgRoot("package:" + lib + "_dartrix");
-  if (config.verbose) _log.info("resolved $lib to package:${lib}_dartrix to $libDir");
+  if (Config.verbose) _log.info("resolved $lib to package:${lib}_dartrix to $libDir");
   var template = options['template'];
   printManpage(lib, libDir, template);
 }
@@ -141,20 +141,20 @@ void main(List<String> args) async {
     exit(0);
   }
 
-  options = argParser.parse(args); // .sublist(1));
+  Config.options = argParser.parse(args); // .sublist(1));
   // debug.debugOptions();
 
-  if (options['verbose']) config.verbose = true;
+  if (Config.options['verbose']) Config.verbose = true;
 
-  // if (options.rest.isEmpty) {
-    if (options['help']) {
+  // if (Config.options.rest.isEmpty) {
+    if (Config.options['help']) {
       await printUsage(argParser);
       exit(0);
     }
   // }
 
-  if (options.rest.isNotEmpty) {
-    switch (options.rest[0]) {
+  if (Config.options.rest.isNotEmpty) {
+    switch (Config.options.rest[0]) {
       case "dartrix_config": _log.warning("dartrix_config manpage not implemented"); break;
       case "dev": _log.warning("manpage dev not implemented"); break;
       case "man": _log.warning("manpage man not implemented"); break;
@@ -164,13 +164,13 @@ void main(List<String> args) async {
       case "-h":
       case "--help": await printUsage(argParser); exit(0); break;
       default:
-      if (options.rest[0] == 'dartrix') {
-        manBuiltins(options);
+      if (Config.options.rest[0] == 'dartrix') {
+        manBuiltins(Config.options);
       } else {
         // if (args[0].startsWith("-")) {
-        //   manBuiltin(options);
+        //   manBuiltin(Config.options);
         // } else {
-          manPlugins(options);
+          manPlugins(Config.options);
         // }
       }
     }
