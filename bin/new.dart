@@ -123,7 +123,7 @@ void transformDirectory(String source, String destination, Map data) {
       // _log.finer("out: $out");
       var outDir = Directory(out);
 
-      _log.finer(outDir);
+      // _log.finer(outDir);
       outDir.createSync(recursive: true);
   });
 
@@ -145,7 +145,7 @@ void transformDirectory(String source, String destination, Map data) {
       of = "plugins/" + data['package']['dart'] + "/" + of;
       var outFile = File(of);
       // _log.finer("COPY: $f");
-      _log.finer(" => $outFile");
+      // _log.finer(" => $outFile");
       f.copySync(of);
   });
 
@@ -166,7 +166,7 @@ void transformDirectory(String source, String destination, Map data) {
       out = "plugins/" + data['package']['dart'] + "/" + out;
 
       // _log.finer(t);
-      _log.finer(" => $out");
+      // _log.finer(" => $out");
       var contents;
       contents = t.readAsStringSync();
       var template = Template(contents, name: t.path, htmlEscapeValues: false);
@@ -178,7 +178,7 @@ void transformDirectory(String source, String destination, Map data) {
 void validateSnakeCase(String pkg) {
   final r = RegExp(r"^[a-z_][a-z0-9_]*$");
   if ( ! r.hasMatch(pkg) ) {
-    _log.finer("Invalid name (snake_case): $pkg");
+    _log.warning("Invalid name (snake_case): $pkg");
     exit(0);
   }
 }
@@ -186,7 +186,7 @@ void validateSnakeCase(String pkg) {
 void validateCamelCase(String name) {
   final r = RegExp(r"^[A-Z][A-Za-z0-9_]*$");
   if ( ! r.hasMatch(name) ) {
-    _log.finer("Invalid name (CamelCase): $name");
+    _log.warning("Invalid name (CamelCase): $name");
     exit(0);
   }
 }
@@ -323,16 +323,15 @@ void main(List<String> args) async {
   if (debug.debug) debug.debugOptions();
 
   if (Config.options['help']) {
-    print("h: ${args.indexOf('-h')}");
-    print("help: ${args.indexOf('--help')}");
-    print("t: ${args.indexOf('-t')}");
-    print("template: ${args.indexOf('--template')}");
+    // print("h: ${args.indexOf('-h')}");
+    // print("help: ${args.indexOf('--help')}");
+    // print("t: ${args.indexOf('-t')}");
+    // print("template: ${args.indexOf('--template')}");
     if (args.contains('-t') || args.contains('template')) {
       if (args.indexOf('-h') >= 0
         && ( (args.indexOf('-h') < args.indexOf('-t'))
           || (args.indexOf('-h') < args.indexOf('--template'))))
       {
-        print("a");
         printUsage(Config.argParser);
         exit(0);
       } else {
@@ -340,7 +339,6 @@ void main(List<String> args) async {
           && ( (args.indexOf('--help') < args.indexOf('-t'))
             || (args.indexOf('--help') < args.indexOf('--template'))))
         {
-          print("b");
           printUsage(Config.argParser);
           exit(0);
         }
@@ -349,14 +347,14 @@ void main(List<String> args) async {
   }
 
   var cmd = Config.options.command;
-  _log.finer("cmd: $cmd");
+  // _log.finer("cmd: $cmd");
 
   var cmdOptions;
   if (Config.options.command != null) {
     cmdOptions = pluginCmd.parse(Config.options.command.arguments);
-    _log.finer("command: ${Config.options.command.name}");
-    _log.finer("command args: ${Config.options.command.arguments}");
-    _log.finer("command opts: ${Config.options.command.options}");
+    // _log.finer("command: ${Config.options.command.name}");
+    // _log.finer("command args: ${Config.options.command.arguments}");
+    // _log.finer("command opts: ${Config.options.command.options}");
     // _log.finer("command rest: ${Config.options.command.rest}");
   }
 

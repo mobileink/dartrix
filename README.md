@@ -22,9 +22,11 @@ WARNING: This is an alpha version. A beta version will be available soon.
 $ pub global activate dartrix
 $ pub global run dartrix:list
 $ pub global run dartrix:list dartrix
-$ pub global run dartrix:man dartrix -t hello
-$ pub global run dartrix:new hello --to John --from Jane
-$ dart hello/lib/hello.dart
+$ pub global run dartrix:man dartrix -t bashrc
+$ pub global run dartrix:new -t bashrc -h
+$ pub global run dartrix:new --dry-run -t bashrc
+$ pub global run dartrix:new -t bashrc
+$ cat ~/.dartrix
 ```
 
 Aliases for `pub global run dartix:foo` are `dxfoo`, e.g. `dxlist`.

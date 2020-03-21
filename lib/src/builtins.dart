@@ -27,25 +27,25 @@ Future<String> getBuiltinTemplatesRoot () async {
   // Current Working Directory: dart:io/Directory.current
   // Current Isolate
 
-  _log.info("cwd: ${Directory.current}");
+  // _log.info("cwd: ${Directory.current}");
   // e.g. Directory: '/Users/gar/tmp/dartrix'
 
   String scriptPath = path.prettyUri(Platform.script.toString());
   // relative path, e.g. ../../mobileink/dartrix/bin/new.dart
-  _log.info("platformScriptPath: ${scriptPath}");
-  _log.info("platformScriptPath, normalized: ${path.normalize(scriptPath)}");
-  _log.info("platformScriptPath, canonical: ${path.canonicalize(scriptPath)}");
+  // _log.info("platformScriptPath: ${scriptPath}");
+  // _log.info("platformScriptPath, normalized: ${path.normalize(scriptPath)}");
+  // _log.info("platformScriptPath, canonical: ${path.canonicalize(scriptPath)}");
 
   Uri currentIsoPkgConfigUri = await Isolate.packageConfig;
   // e.g. file:///Users/gar/mobileink/dartrix/.packages
-  _log.info("currentIsoPkgConfigUri: $currentIsoPkgConfigUri");
+  // _log.info("currentIsoPkgConfigUri: $currentIsoPkgConfigUri");
 
   // Isolate.packageConfig finds the version 1 .packages file;
   // use that to get the PackageConfig and you get the contents
   // of the version 2 .dart_tool/package_config.json
   // findPackageConfigUri is a fn in package:package_confg
   PackageConfig pkgConfig = await findPackageConfigUri(currentIsoPkgConfigUri);
-  _log.info("current iso PackageConfig: $pkgConfig");
+  // _log.info("current iso PackageConfig: $pkgConfig");
   // PackageConfig is an object containing list of deps
   // if (debug.debug) debug.debugPackageConfig(pkgConfig);
 
@@ -53,12 +53,12 @@ Future<String> getBuiltinTemplatesRoot () async {
   Package appConfig = pkgConfig.packages.firstWhere((pkg) {
       return pkg.name == Config.appName;
   });
-  _log.info("appConfig: ${appConfig.name} : ${appConfig.root}");
+  // _log.info("appConfig: ${appConfig.name} : ${appConfig.root}");
   String templatesRoot = appConfig.root.path + "/templates";
   // using scriptPath is undoubtedly more efficient
   // String templatesRoot = path.dirname(scriptPath) + "/../templates";
   templatesRoot = path.canonicalize(templatesRoot);
-  _log.info("templatesRoot: $templatesRoot");
+  // _log.info("templatesRoot: $templatesRoot");
   return templatesRoot;
 }
 
@@ -67,7 +67,7 @@ Future<String> getBuiltinTemplatesRoot () async {
 /// Read the <root>/templates directory, retaining only directory entries. Each
 /// subdirectory represents one template.
 void initBuiltinTemplates() async {
-  _log.info("builtins.initBuiltinTemplates");
+  // _log.info("builtins.initBuiltinTemplates");
 
   String templatesRoot = await getBuiltinTemplatesRoot();
 
@@ -92,13 +92,13 @@ void initBuiltinTemplates() async {
 }
 
 void generateFromBuiltin() async {
-  _log.finer("generateFromBuiltin");
+  // _log.finer("generateFromBuiltin");
 
   String templatesRoot = await getBuiltinTemplatesRoot();
-  _log.finer("templatesRoot: $templatesRoot");
+  // _log.finer("templatesRoot: $templatesRoot");
 
   String templateRoot = templatesRoot + "/" + Config.options['template'];
-  _log.finer("template root: $templateRoot");
+  // _log.finer("template root: $templateRoot");
 
   List tFileset = Directory(templatesRoot
     + "/" + Config.options['template']).listSync(recursive:true);
@@ -108,21 +108,21 @@ void generateFromBuiltin() async {
   if (Config.verbose) _log.fine("Generating files from templates and copying assets (cwd: ${Directory.current.path}):");
 
   tFileset.forEach((tfile) {
-      _log.finer("tfile: $tfile");
+      // _log.finer("tfile: $tfile");
       var outSubpath = path.normalize(
         tData['out']
         + tfile.path.replaceFirst(templatesRoot
           + "/" + Config.options['template'], '')
       );
       outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-      _log.finer("outSubpath: $outSubpath");
+      // _log.finer("outSubpath: $outSubpath");
       outSubpath = path.normalize(rewritePath(outSubpath));
-      _log.finer("rewritten outSubpath: $outSubpath");
+      // _log.finer("rewritten outSubpath: $outSubpath");
 
       if (path.isRelative(outSubpath)) {
         outSubpath = Directory.current.path + "/" + outSubpath;
       }
-      _log.finer("absolutized outSubpath: $outSubpath");
+      // _log.finer("absolutized outSubpath: $outSubpath");
 
       // exists?
       if ( !tData['dartrix']['force'] ) {
@@ -175,10 +175,10 @@ void generateFromBuiltin() async {
 }
 
 void dispatchBuiltin(String template) async {
-  _log.info("dispatchBuiltin");
+  // _log.info("dispatchBuiltin");
   var tIndex = Config.options.arguments.indexOf('-t');
   List<String> subArgs = Config.options.arguments.sublist(tIndex + 2);
-  _log.info("subArgs: $subArgs");
+  // _log.info("subArgs: $subArgs");
   switch(template) {
     case 'bashrc': handleBashrc(subArgs);
     break;
