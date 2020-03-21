@@ -22,10 +22,10 @@ void handleDartClix(List<String> subArgs) async {
 
   var argParser = ArgParser(allowTrailingOptions: false);
   argParser.addOption('homepage',
-    // abbr: 'h',
-    defaultsTo: 'https://example.org/myapp',
-    valueHelp: 'URL',
-    help: 'Homepage for app.');
+      // abbr: 'h',
+      defaultsTo: 'https://example.org/myapp',
+      valueHelp: 'URL',
+      help: 'Homepage for app.');
 
   argParser.addFlag('help', abbr: 'h', defaultsTo: false);
 
@@ -45,7 +45,8 @@ void handleDartClix(List<String> subArgs) async {
   }
 
   if (options['homepage'] == argParser.getDefault('homepage')) {
-    _log.warning('Using default homepage ${options["homepage"]} for pubspec.yaml.');
+    _log.warning(
+        'Using default homepage ${options["homepage"]} for pubspec.yaml.');
   }
   tData['homepage'] = options['homepage'];
 

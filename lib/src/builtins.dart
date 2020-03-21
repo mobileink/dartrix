@@ -135,21 +135,21 @@ void generateFromBuiltin() async {
       outSubpath = Directory.current.path + '/' + outSubpath;
     }
 
-      exists = FileSystemEntity.typeSync(outSubpath);
-      if (exists != FileSystemEntityType.notFound) {
-        if (exists == FileSystemEntityType.file) {
-          if (!tData['dartrix']['force']) {
-            // _log.severe(
-            //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
-            // exit(0);
-            overWrites.add(outSubpath);
-          } else {
-            if ((Config.verbose) || Config.options['dry-run']) {
-              _log.warning('Over-writing $outSubpath');
-            }
+    exists = FileSystemEntity.typeSync(outSubpath);
+    if (exists != FileSystemEntityType.notFound) {
+      if (exists == FileSystemEntityType.file) {
+        if (!tData['dartrix']['force']) {
+          // _log.severe(
+          //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+          // exit(0);
+          overWrites.add(outSubpath);
+        } else {
+          if ((Config.verbose) || Config.options['dry-run']) {
+            _log.warning('Over-writing $outSubpath');
           }
         }
       }
+    }
   });
 
   if (overWrites.isNotEmpty) {
@@ -230,10 +230,14 @@ void dispatchBuiltin(String template) async {
   var subArgs = Config.options.arguments.sublist(tIndex + 2);
   // _log.info('subArgs: $subArgs');
   switch (template) {
-    case 'bashrc': handleBashrc(subArgs); break;
-    case 'dart_clix': handleDartClix(subArgs); break;
+    case 'bashrc':
+      handleBashrc(subArgs);
+      break;
+    case 'dart_clix':
+      handleDartClix(subArgs);
+      break;
     default:
-    _log.info("handler for $template not implemented");
+      _log.info('handler for $template not implemented');
   }
   // generateFromBuiltin(template, options);
 }
