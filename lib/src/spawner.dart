@@ -4,15 +4,15 @@ import 'dart:isolate';
 
 import 'package:dartrix/src/resolver.dart';
 
-typedef onData =  void Function(dynamic msg);
+typedef onData = void Function(dynamic msg);
 typedef onDone = void Function();
 
 void spawnPluginFromPackage(
-  // String main,
-  onData dataCallback, onDone onDoneCallback,
-  String _pkg, // _pkg uri may be :path, :package, or :pkg
-  List<String> args)
-async {
+    // String main,
+    onData dataCallback,
+    onDone onDoneCallback,
+    String _pkg, // _pkg uri may be :path, :package, or :pkg
+    List<String> args) async {
   print('entry: spawnPluginFromPackage($_pkg, $args)');
 
   // map keys: name, uri, or path
@@ -49,14 +49,13 @@ async {
   // Step 2. target pkg is listed as a dep in the packageConfig2;
   // find it
   // Package
-  var pkgPackageConfig2 = userPackageConfig2.packages.firstWhere(
-    (_pkg) => _pkg.name == pkg['fullName'],
-    orElse: () {
-      print('Package ${pkg["fullName"]} is not configured. To install, add it as a package or path dependency in \$HOME/.dart.d/pubspec.yaml and run "pub get" from that directory.');
-      exit(0);
-      return null;
-    }
-  );
+  var pkgPackageConfig2 = userPackageConfig2.packages
+      .firstWhere((_pkg) => _pkg.name == pkg['fullName'], orElse: () {
+    print(
+        'Package ${pkg["fullName"]} is not configured. To install, add it as a package or path dependency in \$HOME/.dart.d/pubspec.yaml and run "pub get" from that directory.');
+    exit(0);
+    return null;
+  });
   print('pkgPackageConfig2: $pkgPackageConfig2');
 
   // Step 3.  Get the (file) root of the package. We need this to
@@ -77,7 +76,7 @@ async {
   final stopPort = ReceivePort();
 
   // if (config.verbose) {
-    print('Spawning ${pkg["uri"]} with args $args');
+  print('Spawning ${pkg["uri"]} with args $args');
   // }
   var spawnUri = Uri.parse(pkg['uri'] + '/' + pkg['name'] + '_dartrix.dart');
   print('spawning Uri: $spawnUri');
@@ -99,12 +98,13 @@ async {
   } catch (e) {
     print(e);
     //FIXME: this assumes that e is IsolateSpawnException
-    print('Remedy: add the package to \$HOME/.dart.d/pubspec.yaml, then run "\$ pub get" from that directory.');
-    print('Make sure the package is a Dartrix library (contains "lib/dartrix.dart"). ');
+    print(
+        'Remedy: add the package to \$HOME/.dart.d/pubspec.yaml, then run "\$ pub get" from that directory.');
+    print(
+        'Make sure the package is a Dartrix library (contains "lib/dartrix.dart"). ');
     exit(0);
   }
   await stopPort.first; // Do not exit until externIso exits:
   dataPort.close();
   stopPort.close();
 }
-

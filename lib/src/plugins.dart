@@ -63,7 +63,7 @@ void initPluginTemplates(String pkgRef) async {
   // );
   _externalTemplates = {
     for (var dir in externals)
-    path.basename(dir.path) : dir.path.replaceFirst(_templatesRoot, ''),
+      path.basename(dir.path): dir.path.replaceFirst(_templatesRoot, ''),
   };
 }
 
@@ -78,75 +78,74 @@ void spawnCallback(dynamic _xData) {
   // step one: merge data maps
   if (_xData['dartrix']['mergeData']) {
     mergeExternalData(tData, _xData);
-    if (tData['class'] != Config.argParser.getDefault('class')) {
-
-    }
+    if (tData['class'] != Config.argParser.getDefault('class')) {}
   }
   mergeUserOptions();
 
   if (debug.debug) debug.debugData(null);
 
   if (debug.debug) debug.debugPathRewriting(_xData);
-    // get out path
+  // get out path
   var outPathPrefix = tData['outpath'];
 
   // iterate over template fileset
   // var t = tData['template'];
   var _templateRoot = _templatesRoot + _externalTemplates[tData['template']];
   // _log.fine('_templateRoot: $_templateRoot');
-  List tFileset = Directory(_templateRoot).listSync(recursive:true);
+  List tFileset = Directory(_templateRoot).listSync(recursive: true);
   tFileset.removeWhere((f) => f.path.endsWith('~'));
   tFileset.retainWhere((f) => f is File);
 
-  if (Config.verbose) _log.fine('Generating files from templates and copying assets (cwd: ${Directory.current.path}):');
-
+  if (Config.verbose) {
+    _log.fine(
+        'Generating files from templates and copying assets (cwd: ${Directory.current.path}):');
+  }
   tFileset.forEach((tfile) {
-      // _log.finer('tfile: $tfile');
-      var outSubpath = path.normalize(
-        outPathPrefix + tfile.path.replaceFirst(_templatesRoot, '')
-      );
-      outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-      // _log.finer('outSubpath: $outSubpath');
-      outSubpath = path.normalize(rewritePath(outSubpath));
+    // _log.finer('tfile: $tfile');
+    var outSubpath = path
+        .normalize(outPathPrefix + tfile.path.replaceFirst(_templatesRoot, ''));
+    outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+    // _log.finer('outSubpath: $outSubpath');
+    outSubpath = path.normalize(rewritePath(outSubpath));
 
-      // exists?
-      if ( !tData['dartrix']['force'] ) {
-        var exists = FileSystemEntity.typeSync(outSubpath);
-        if (exists != FileSystemEntityType.notFound) {
-          _log.severe('ERROR: $outSubpath already exists; cancelling. Use -f to force overwrite.');
-          exit(0);
-        }
+    // exists?
+    if (!tData['dartrix']['force']) {
+      var exists = FileSystemEntity.typeSync(outSubpath);
+      if (exists != FileSystemEntityType.notFound) {
+        _log.severe(
+            'ERROR: $outSubpath already exists; cancelling. Use -f to force overwrite.');
+        exit(0);
       }
-      var dirname = path.dirname(outSubpath);
-      // _log.finer('dirname: $dirname');
-      Directory(dirname).createSync(recursive:true);
+    }
+    var dirname = path.dirname(outSubpath);
+    // _log.finer('dirname: $dirname');
+    Directory(dirname).createSync(recursive: true);
 
-      if (Config.verbose) _log.fine('   ' + tfile.path);
-      if (tfile.path.endsWith('mustache')) {
-        var contents;
-        contents = tfile.readAsStringSync();
-        var template = Template(contents,
-          name: outSubpath,
-          htmlEscapeValues: false);
-        var newContents = template.renderString(tData);
-        // _log.finer(newContents);
-        if (Config.verbose) _log.fine('=> ${Directory.current.path}/$outSubpath');
-        File(outSubpath).writeAsStringSync(newContents);
-      } else {
-        if (Config.verbose) _log.fine('=> ${Directory.current.path}/$outSubpath');
-        tfile.copySync(outSubpath);
-      }
+    if (Config.verbose) _log.fine('   ' + tfile.path);
+    if (tfile.path.endsWith('mustache')) {
+      var contents;
+      contents = tfile.readAsStringSync();
+      var template =
+          Template(contents, name: outSubpath, htmlEscapeValues: false);
+      var newContents = template.renderString(tData);
+      // _log.finer(newContents);
+      if (Config.verbose) _log.fine('=> ${Directory.current.path}/$outSubpath');
+      File(outSubpath).writeAsStringSync(newContents);
+    } else {
+      if (Config.verbose) _log.fine('=> ${Directory.current.path}/$outSubpath');
+      tfile.copySync(outSubpath);
+    }
   });
 }
 
-void spawnExternalFromPath(String pkg, String template, List<String> args)
-async {
+void spawnExternalFromPath(
+    String pkg, String template, List<String> args) async {
   // _log.finer('spawnExternalFromPath: $pkg');
 
   // 1. this constructs the file:// url for the pkg as _externalPkgPath
   // and a list of its template roots in _exterternalTemplates.
   //String
-  var packagePath= pkg.replaceFirst('path:', '');
+  var packagePath = pkg.replaceFirst('path:', '');
   initPluginTemplates(packagePath);
 
   // 2. get the .packages file for the pkg. we need this because the pkg may
@@ -156,12 +155,12 @@ async {
   // verify:
   //FileSystemEntityType
   var pcm = FileSystemEntity.typeSync(pkgConfigMap);
-    if (pcm == FileSystemEntityType.notFound) {
-      _log.severe('ERROR: $pcm does not refer to a .packages file.');
-      exit(0);
-    } else {
-      // _log.info('Found .packages file for $pkg at $pkgConfigMap');
-    }
+  if (pcm == FileSystemEntityType.notFound) {
+    _log.severe('ERROR: $pcm does not refer to a .packages file.');
+    exit(0);
+  } else {
+    // _log.info('Found .packages file for $pkg at $pkgConfigMap');
+  }
 
   // 2. get templates for the pkg
   if ((template == null) || _externalTemplates.containsKey(template)) {
@@ -179,7 +178,7 @@ async {
     //   _log.severe('ERROR: $pkg is not a Dartrix template pkg (lib/dartrix.dart not found)');
     //   exit(0);
     // }
-    if ( !verifyExists(mainScriptPath) ) exit(0);
+    if (!verifyExists(mainScriptPath)) exit(0);
 
     // Run the external pkg in an Isolate.
 
@@ -200,7 +199,9 @@ async {
     // Uri mainScriptUri = Uri.parse('file://' + mainScriptPath);
 
     //Uri
-    var packageUri = Uri.parse('package:' + path.basenameWithoutExtension(_externalPkgPath) + '/dartrix.dart');
+    var packageUri = Uri.parse('package:' +
+        path.basenameWithoutExtension(_externalPkgPath) +
+        '/dartrix.dart');
 
     final rPort = ReceivePort();
     rPort.listen(spawnCallback, onDone: externalOnDone);
@@ -215,28 +216,29 @@ async {
       }
     }
 
-    if (Config.verbose) _log.info('${infoPen("Spawning")} $packageUri with args $args');
+    if (Config.verbose) {
+      _log.info('${infoPen("Spawning")} $packageUri with args $args');
+    }
     // Isolate externIso =
     await Isolate.spawnUri(
-      packageUri,
-      // Uri.parse('package:hello_template/dartrix.dart'),
-      // Uri.parse(mainScriptPath),
-      [template, ...?args],
-      rPort.sendPort,
-      packageConfig: Uri.parse(pkgConfigMap),
-      // automaticPackageResolution: true,
-      // onError: errorPort.sendPort,
-      onExit: stopPort.sendPort,
-      debugName: template
-    );
+        packageUri,
+        // Uri.parse('package:hello_template/dartrix.dart'),
+        // Uri.parse(mainScriptPath),
+        [template, ...?args],
+        rPort.sendPort,
+        packageConfig: Uri.parse(pkgConfigMap),
+        // automaticPackageResolution: true,
+        // onError: errorPort.sendPort,
+        onExit: stopPort.sendPort,
+        debugName: template);
 
     await stopPort.first; // Do not exit until externIso exits:
     // _log.info('closing ports');
     rPort.close();
     stopPort.close();
-
   } else {
-    _log.info('Template ${warningPen("$template")} not found in Dartrix lib ${warningPen('$pkg')}; canceling.');
+    _log.info(
+        'Template ${warningPen("$template")} not found in Dartrix lib ${warningPen('$pkg')}; canceling.');
   }
 }
 
@@ -263,13 +265,11 @@ void generateFromPlugin(String pkg, String template, List<String> args) {
     spawnExternalFromPath(pkg, template, args);
   } else {
     // Before spawning the package, get the templates.
-    if (pkg.startsWith('package:')
-      || pkg.startsWith('pkg:')) {
+    if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
       initPluginTemplates(pkg);
       spawnPluginFromPackage(
-        spawnCallback, externalOnDone, pkg,
-        [template, ...?args]);
-        // template, args);
+          spawnCallback, externalOnDone, pkg, [template, ...?args]);
+      // template, args);
     } else {
       throw ArgumentError('-x $pkg: must start with path: or package: or pkg:');
     }

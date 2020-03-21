@@ -26,7 +26,7 @@ String hello_pkg = 'package:hello_template';
 
 void validateSnakeCase(String pkg) {
   final r = RegExp(r'^[a-z_][a-z0-9_]*$');
-  if ( ! r.hasMatch(pkg) ) {
+  if (!r.hasMatch(pkg)) {
     _log.warning('Invalid name (snake_case): $pkg');
     exit(0);
   }
@@ -34,7 +34,7 @@ void validateSnakeCase(String pkg) {
 
 void validateCamelCase(String name) {
   final r = RegExp(r'^[A-Z][A-Za-z0-9_]*$');
-  if ( ! r.hasMatch(name) ) {
+  if (!r.hasMatch(name)) {
     _log.warning('Invalid name (CamelCase): $name');
     exit(0);
   }
@@ -64,13 +64,16 @@ void printUsage(ArgParser argParser) {
   print('\n\t\tDartrix Templating System - "new" command\n');
   print('Usage:');
   print('  Builtins: pub global run dartrix:new [ordpcfhvt]\n');
-  print('  Plugins: pub global run dartrix:new [ordpcfv] plugin [th][toptions]\n');
-  print('\t plugin:  pkg:package_name | package:package_name | path:path/to/package_name\n');
+  print(
+      '  Plugins: pub global run dartrix:new [ordpcfv] plugin [th][toptions]\n');
+  print(
+      '\t plugin:  pkg:package_name | package:package_name | path:path/to/package_name\n');
   print('\t toptions:  per template; pass -h or use dartrix:man to view.\n');
   print('Options:');
   print(argParser.usage);
 
-  print('\nTo list available commands and templates: pub global run dartrix:list\n');
+  print(
+      '\nTo list available commands and templates: pub global run dartrix:list\n');
   // print('\nBuiltin templates:');
   // print('\tplugin');
   // print('\tsplitplugin');
@@ -88,48 +91,70 @@ void printUsage(ArgParser argParser) {
 void main(List<String> args) async {
   Config.config('dartrix');
   Logger.root.level = Level.ALL;
-  Logger.root..onRecord.listen((record) {
+  Logger.root
+    ..onRecord.listen((record) {
       var level;
       switch (record.level.name) {
-        case 'SHOUT': level = shoutPen(record.level.name); break;
-        case 'SEVERE': level = severePen(record.level.name); break;
-        case 'WARNING': level = warningPen(record.level.name); break;
-        case 'INFO': level = infoPen(record.level.name); break;
-        case 'CONFIG': level = configPen(record.level.name); break;
-        default: level = record.level.name; break;
+        case 'SHOUT':
+          level = shoutPen(record.level.name);
+          break;
+        case 'SEVERE':
+          level = severePen(record.level.name);
+          break;
+        case 'WARNING':
+          level = warningPen(record.level.name);
+          break;
+        case 'INFO':
+          level = infoPen(record.level.name);
+          break;
+        case 'CONFIG':
+          level = configPen(record.level.name);
+          break;
+        default:
+          level = record.level.name;
+          break;
       }
       print('${record.loggerName} ${level}: ${record.message}');
-  });
+    });
 
   Config.argParser = ArgParser(allowTrailingOptions: true);
-  Config.argParser.addOption('template', abbr: 't', // defaultsTo: 'hello',
+  Config.argParser.addOption(
+    'template', abbr: 't', // defaultsTo: 'hello',
     valueHelp: '[a-z][a-z0-9_]*',
     help: 'Template name.',
     // callback: (t) => validateTemplateName(t)
   );
-  Config.argParser.addOption('root', abbr: 'r',
-    valueHelp: 'directory, without "/".',
-    help: 'Root output segment.  Defaults to value of --package arg (i.e. "hello").'
-    // callback: (pkg) => validateSnakeCase(pkg)
-  );
-  Config.argParser.addOption('domain', abbr: 'd', defaultsTo: 'example.org',
-    help: 'Domain name. Must be legal as a Java package name;\ne.g. must not begin with a number, or match a Java keyword.',
-    valueHelp: 'segmented.domain.name'
-  );
-  Config.argParser.addOption('package', abbr: 'p', defaultsTo: 'hello',
-    valueHelp: '[_a-z][a-z0-9_]*',
-    help: 'snake_cased name.  Used e.g. as Dart package name.',
-    callback: (pkg) => validateSnakeCase(pkg)
-  );
-  Config.argParser.addOption('class', abbr: 'c', defaultsTo: 'Hello',
-    valueHelp: '[A-Z][a-zA-Z0-9_]*',
-    help: 'CamelCased name. Used as class/type name for Java, Kotline, etc.\nDefaults to --package value, CamelCased (i.e. "Hello").\nE.g. -p foo_bar => -c FooBar.',
-    callback: (name) => validateCamelCase(name)
-  );
-  Config.argParser.addOption('out', abbr: 'o', defaultsTo: './',
-    help: 'Output path.  Prefixed to --root dir.',
-    valueHelp: 'path.'
-  );
+  Config.argParser.addOption('root',
+      abbr: 'r',
+      valueHelp: 'directory, without "/".',
+      help:
+          'Root output segment.  Defaults to value of --package arg (i.e. "hello").'
+      // callback: (pkg) => validateSnakeCase(pkg)
+      );
+  Config.argParser.addOption('domain',
+      abbr: 'd',
+      defaultsTo: 'example.org',
+      help:
+          'Domain name. Must be legal as a Java package name;\ne.g. must not begin with a number, or match a Java keyword.',
+      valueHelp: 'segmented.domain.name');
+  Config.argParser.addOption('package',
+      abbr: 'p',
+      defaultsTo: 'hello',
+      valueHelp: '[_a-z][a-z0-9_]*',
+      help: 'snake_cased name.  Used e.g. as Dart package name.',
+      callback: (pkg) => validateSnakeCase(pkg));
+  Config.argParser.addOption('class',
+      abbr: 'c',
+      defaultsTo: 'Hello',
+      valueHelp: '[A-Z][a-zA-Z0-9_]*',
+      help:
+          'CamelCased name. Used as class/type name for Java, Kotline, etc.\nDefaults to --package value, CamelCased (i.e. "Hello").\nE.g. -p foo_bar => -c FooBar.',
+      callback: (name) => validateCamelCase(name));
+  Config.argParser.addOption('out',
+      abbr: 'o',
+      defaultsTo: './',
+      help: 'Output path.  Prefixed to --root dir.',
+      valueHelp: 'path.');
   // Config.argParser.addOption('plugin', abbr: 'x',
   //   valueHelp: 'path:path/to/local/pkg | package:pkg_name',
   //   help: 'External template package'
@@ -177,17 +202,15 @@ void main(List<String> args) async {
     // print('t: ${args.indexOf('-t')}');
     // print('template: ${args.indexOf('--template')}');
     if (args.contains('-t') || args.contains('template')) {
-      if (args.contains('-h')
-        && ( (args.indexOf('-h') < args.indexOf('-t'))
-          || (args.indexOf('-h') < args.indexOf('--template'))))
-      {
+      if (args.contains('-h') &&
+          ((args.indexOf('-h') < args.indexOf('-t')) ||
+              (args.indexOf('-h') < args.indexOf('--template')))) {
         printUsage(Config.argParser);
         exit(0);
       } else {
-        if (args.contains('--help')
-          && ( (args.indexOf('--help') < args.indexOf('-t'))
-            || (args.indexOf('--help') < args.indexOf('--template'))))
-        {
+        if (args.contains('--help') &&
+            ((args.indexOf('--help') < args.indexOf('-t')) ||
+                (args.indexOf('--help') < args.indexOf('--template')))) {
           printUsage(Config.argParser);
           exit(0);
         }
@@ -228,9 +251,8 @@ void main(List<String> args) async {
   tData['segmap']['RDOMAINPATH'] = rdomain.replaceAll('.', '/');
 
   var pluginClass = (Config.options['class'] == 'Hello')
-  ? dartPackage.split('_').map(
-    (s)=> capitalize(s)).join()
-  : Config.options['class'];
+      ? dartPackage.split('_').map((s) => capitalize(s)).join()
+      : Config.options['class'];
 
   tData['plugin-class'] = pluginClass;
   tData['class'] = pluginClass;
@@ -252,18 +274,14 @@ void main(List<String> args) async {
   // FIXME: find a better way?
   var androidExecutable = whichSync('android');
   // _log.finer('android exe: $androidExecutable');
-  var androidSdk = path.joinAll(
-    path.split(androidExecutable)
-    ..removeLast()
-    ..removeLast());
+  var androidSdk =
+      path.joinAll(path.split(androidExecutable)..removeLast()..removeLast());
   tData['sdk']['android'] = androidSdk;
 
   var flutterExecutable = whichSync('flutter');
   // _log.finer('flutter exe: $flutterExecutable');
-  var flutterSdk = path.joinAll(
-    path.split(flutterExecutable)
-    ..removeLast()
-    ..removeLast());
+  var flutterSdk =
+      path.joinAll(path.split(flutterExecutable)..removeLast()..removeLast());
   tData['sdk']['flutter'] = flutterSdk;
 
   // var outPathPrefix = Config.options['outpath'];
@@ -289,16 +307,19 @@ void main(List<String> args) async {
   tData['template'] = template;
   // tData['plugin'] = Config.options['plugin'];
 
-  if ( Config.options.rest.isNotEmpty && (Config.options.command == null)) {
+  if (Config.options.rest.isNotEmpty && (Config.options.command == null)) {
     var pkgSpec = Config.options.rest[0];
     if (pkgSpec.startsWith('pkg:')) {
-      print('PKG'); exit(0);
+      print('PKG');
+      exit(0);
     } else {
       if (pkgSpec.startsWith('package:')) {
-      print('PACKAGE'); exit(0);
+        print('PACKAGE');
+        exit(0);
       } else {
         if (pkgSpec.startsWith('patn:')) {
-          print('PATH'); exit(0);
+          print('PATH');
+          exit(0);
         } else {
           _log.severe('Unrecognized param: $pkgSpec. Exiting.');
           exit(0);
@@ -311,16 +332,16 @@ void main(List<String> args) async {
   //   generateFromPlugin(tData['plugin'], template,
   //     (Config.options.command == null)? null : Config.options.command.arguments);
   // } else {
-    //FIXME: we don't need to list all, just get the one we want!
-    // await initBuiltinTemplates();
-    // if ( builtinTemplates.keys.contains(template) ) {
-    //   _log.info('FIXME: run builtin');
-    dispatchBuiltin(template);
-    //     (Config.options.command == null)? null : Config.options.command.arguments);
-    // } else {
-    //   _log.finer('EXCEPTION: template $template not found.');
-    //   exit(0);
-    // }
+  //FIXME: we don't need to list all, just get the one we want!
+  // await initBuiltinTemplates();
+  // if ( builtinTemplates.keys.contains(template) ) {
+  //   _log.info('FIXME: run builtin');
+  dispatchBuiltin(template);
+  //     (Config.options.command == null)? null : Config.options.command.arguments);
+  // } else {
+  //   _log.finer('EXCEPTION: template $template not found.');
+  //   exit(0);
+  // }
   // }
   // _log.finer('script locn: ${Platform.script.toString()}');
   // _log.finer('built-ins: $builtinTemplates');
@@ -332,7 +353,4 @@ void main(List<String> args) async {
 
   // if (template == 'plugin')
   // transformDirectory(inDir, outPathPrefix, tData);
-
 }
-
-

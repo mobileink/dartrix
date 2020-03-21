@@ -59,7 +59,7 @@ void listTemplates(ArgResults options) async {
   // print('listTemplates ${options.arguments}');
   templates = Directory(Directory.current.path + '/templates').listSync();
   templates.retainWhere((f) => f is Directory);
-  templateSet = templates.map((t)=>path.basename(t.path)).toSet();
+  templateSet = templates.map((t) => path.basename(t.path)).toSet();
 
   // print('Builtin templates:');
   // templates.forEach((t) {
@@ -90,17 +90,17 @@ void updateDocstrings() {
   //RegExp
   var dsext = RegExp(r'\.docstring$');
   templates.removeWhere((fse) {
-      return (fse is File);
+    return (fse is File);
   });
   // templates.forEach((fse) => print('tp: ${fse.path}'));
 
   docstrings.retainWhere((fse) {
-      return dsext.hasMatch(fse.path);
+    return dsext.hasMatch(fse.path);
   });
   // docstrings.forEach((fse) => print('ds: ${fse.path}'));
 
-  var dsbases = docstrings.map((ds)
-    => (ds.path).replaceAll(RegExp(r'.docstring$'), ''));
+  var dsbases =
+      docstrings.map((ds) => (ds.path).replaceAll(RegExp(r'.docstring$'), ''));
   // dsbases.forEach((ds) => print('dsb: ${ds}'));
 
   // Set<String> templateSet = templates.map((t) => path.basename(t.path)).toSet();
@@ -114,34 +114,33 @@ void updateDocstrings() {
 
   if (Config.verbose) {
     if (orphanedDocstrings.isNotEmpty) {
-      _log.warning('docstrings without corresponding templates: $orphanedDocstrings');
+      _log.warning(
+          'docstrings without corresponding templates: $orphanedDocstrings');
     }
   }
   if (missingDocstrings.isNotEmpty) {
     _log.warning('missing docstrings: $missingDocstrings');
     missingDocstrings.forEach((ds) {
-        //String
-        var fname = Directory.current.path + '/templates/' + ds + '.docstring';
-        // double-check to ensure no overwrites:
-        // var exists = FileSystemEntity.typeSync(fname);
-        // if (exists != FileSystemEntityType.notFound) {
-        //   _log.severe('$fname already exists');
-        //   exit(0);
-        // }
+      //String
+      var fname = Directory.current.path + '/templates/' + ds + '.docstring';
+      // double-check to ensure no overwrites:
+      // var exists = FileSystemEntity.typeSync(fname);
+      // if (exists != FileSystemEntityType.notFound) {
+      //   _log.severe('$fname already exists');
+      //   exit(0);
+      // }
 
-        // write docstring
-        //Map
-        var data = {
-          'template': ds
-        };
-        var dsTemplate = '{{template}} docstring';
-        var template = Template(dsTemplate, name: 'hardcoded', htmlEscapeValues: false);
-        var contents = template.renderString(data);
-        File(fname).writeAsStringSync(contents);
-        _log.info('wrote $fname');
+      // write docstring
+      //Map
+      var data = {'template': ds};
+      var dsTemplate = '{{template}} docstring';
+      var template =
+          Template(dsTemplate, name: 'hardcoded', htmlEscapeValues: false);
+      var contents = template.renderString(data);
+      File(fname).writeAsStringSync(contents);
+      _log.info('wrote $fname');
     });
   }
-
 }
 
 /// Update template handlers in lib/src
@@ -153,50 +152,46 @@ void updateHandlers() {
   //RegExp
   var dartExt = RegExp(r'\.dart$');
   handlers.retainWhere((fse) {
-      return dartExt.hasMatch(fse.path);
+    return dartExt.hasMatch(fse.path);
   });
   // handlers.forEach((h) => print(h.path));
-  var handlerSet = handlers.map((h)
-    => path.basenameWithoutExtension(h.path)
-  ).toSet();
+  var handlerSet =
+      handlers.map((h) => path.basenameWithoutExtension(h.path)).toSet();
   // _log.info('hset: $handlerSet');
   // _log.info('tpset: $templateSet');
 
   //Set<String>
   var orphanedHandlers = handlerSet.difference(templateSet);
   // if (config.verbose) {
-    if (orphanedHandlers.isNotEmpty) {
-      _log.warning('handlers without corresponding templates: $orphanedHandlers');
-    }
+  if (orphanedHandlers.isNotEmpty) {
+    _log.warning('handlers without corresponding templates: $orphanedHandlers');
+  }
   // }
 
   var missingHandlers = templateSet.difference(handlerSet);
   // if (config.verbose) {
-    if (missingHandlers.isNotEmpty) {
-      _log.info('missing handlers: $missingHandlers');
-    }
+  if (missingHandlers.isNotEmpty) {
+    _log.info('missing handlers: $missingHandlers');
+  }
   // }
   missingHandlers.forEach((h) {
-      //String
-      var fname = Directory.current.path + '/lib/src/' + h + '.dart';
-      // double-check to ensure no overwrites:
-      // var exists = FileSystemEntity.typeSync(fname);
-      // if (exists != FileSystemEntityType.notFound) {
-      //   _log.severe('$fname already exists');
-      //   exit(0);
-      // }
+    //String
+    var fname = Directory.current.path + '/lib/src/' + h + '.dart';
+    // double-check to ensure no overwrites:
+    // var exists = FileSystemEntity.typeSync(fname);
+    // if (exists != FileSystemEntityType.notFound) {
+    //   _log.severe('$fname already exists');
+    //   exit(0);
+    // }
 
-      // write handler
-      //Map
-      var data = {
-        'package' : package,
-        'template': h,
-        'Template': capitalize(h)
-      };
-      var template = Template(handlerTemplate, name: 'hardcoded', htmlEscapeValues: false);
-      var contents = template.renderString(data);
-      File(fname).writeAsStringSync(contents);
-      _log.info('wrote $fname');
+    // write handler
+    //Map
+    var data = {'package': package, 'template': h, 'Template': capitalize(h)};
+    var template =
+        Template(handlerTemplate, name: 'hardcoded', htmlEscapeValues: false);
+    var contents = template.renderString(data);
+    File(fname).writeAsStringSync(contents);
+    _log.info('wrote $fname');
   });
 }
 
@@ -208,12 +203,11 @@ void updateManuals() {
   //RegExp
   var manext = RegExp(r'\.[0-9][a-z]?$');
   manpages.retainWhere((fse) {
-      return manext.hasMatch(fse.path);
+    return manext.hasMatch(fse.path);
   });
   // manpages.forEach((mp) => print(mp.path));
-  var manpageSet = manpages.map((mp)
-    => path.basenameWithoutExtension(mp.path)
-  ).toSet();
+  var manpageSet =
+      manpages.map((mp) => path.basenameWithoutExtension(mp.path)).toSet();
   // _log.info('mpset: $manpageSet');
   // Set<String> templateSet = templates.map((t)=>path.basename(t.path)).toSet();
   // _log.info('tpset: $templateSet');
@@ -221,44 +215,45 @@ void updateManuals() {
   //Set<String>
   var orphanedManpages = manpageSet.difference(templateSet);
   // if (config.verbose) {
-    if (orphanedManpages.isNotEmpty) {
-      _log.warning('manpages without corresponding templates: $orphanedManpages');
-    }
+  if (orphanedManpages.isNotEmpty) {
+    _log.warning('manpages without corresponding templates: $orphanedManpages');
+  }
   // }
 
   var missingManpages = templateSet.difference(manpageSet);
   // if (config.verbose) {
-    if (missingManpages.isNotEmpty) {
-      _log.warning('missing manpages: $missingManpages');
-    }
+  if (missingManpages.isNotEmpty) {
+    _log.warning('missing manpages: $missingManpages');
+  }
   // }
   missingManpages.forEach((mp) {
-      //String
-      var fname = Directory.current.path + '/man/' + mp + '.1';
-      // double-check to ensure no overwrites:
-      var exists = FileSystemEntity.typeSync(fname);
-      if (exists != FileSystemEntityType.notFound) {
-        _log.severe('$fname already exists');
-        exit(0);
-      }
+    //String
+    var fname = Directory.current.path + '/man/' + mp + '.1';
+    // double-check to ensure no overwrites:
+    var exists = FileSystemEntity.typeSync(fname);
+    if (exists != FileSystemEntityType.notFound) {
+      _log.severe('$fname already exists');
+      exit(0);
+    }
 
-      // write manpage
-      //Map
-      var data = {
-        'package' : package,
-        'LIB': package.toUpperCase(),
-        'template': mp
-      };
-      var template = Template(manTemplate, name: 'man', htmlEscapeValues: false);
-      var contents = template.renderString(data);
-      File(fname).writeAsStringSync(contents);
-      _log.info('wrote $fname');
+    // write manpage
+    //Map
+    var data = {
+      'package': package,
+      'LIB': package.toUpperCase(),
+      'template': mp
+    };
+    var template = Template(manTemplate, name: 'man', htmlEscapeValues: false);
+    var contents = template.renderString(data);
+    File(fname).writeAsStringSync(contents);
+    _log.info('wrote $fname');
   });
 }
 
 void printUsage(ArgParser argParser) async {
   print('dartrix:update, version 0.1.0');
-  print('Update template project: generate missing manpages, docstrings, handlers for current package.\n');
+  print(
+      'Update template project: generate missing manpages, docstrings, handlers for current package.\n');
   print('Usage: pub global run dartrix:update [hv] [--debug]\n');
   print(argParser.usage);
   print('');
@@ -266,18 +261,31 @@ void printUsage(ArgParser argParser) async {
 
 void main(List<String> args) async {
   Logger.root.level = Level.ALL;
-  Logger.root..onRecord.listen((record) {
+  Logger.root
+    ..onRecord.listen((record) {
       var level;
       switch (record.level.name) {
-        case 'SHOUT': level = shoutPen(record.level.name); break;
-        case 'SEVERE': level = severePen(record.level.name); break;
-        case 'WARNING': level = warningPen(record.level.name); break;
-        case 'INFO': level = infoPen(record.level.name); break;
-        case 'CONFIG': level = configPen(record.level.name); break;
-        default: level = record.level.name; break;
+        case 'SHOUT':
+          level = shoutPen(record.level.name);
+          break;
+        case 'SEVERE':
+          level = severePen(record.level.name);
+          break;
+        case 'WARNING':
+          level = warningPen(record.level.name);
+          break;
+        case 'INFO':
+          level = infoPen(record.level.name);
+          break;
+        case 'CONFIG':
+          level = configPen(record.level.name);
+          break;
+        default:
+          level = record.level.name;
+          break;
       }
       print('${record.loggerName} ${level}: ${record.message}');
-  });
+    });
 
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('template', abbr: 't',
@@ -293,7 +301,7 @@ void main(List<String> args) async {
   Config.options = argParser.parse(args);
 
   Config.verbose = Config.options['verbose'];
-  debug.debug   = Config.options['debug'];
+  debug.debug = Config.options['debug'];
 
   if (debug.debug) debug.debugOptions();
 

@@ -22,8 +22,7 @@ import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('man');
 
-void getManPages(String rootDir) {
-}
+void getManPages(String rootDir) {}
 
 void printManpage(String lib, String rootDir, String manPage) async {
   //String
@@ -39,13 +38,11 @@ void printManpage(String lib, String rootDir, String manPage) async {
   pages.retainWhere((f) => num.tryParse(path.extension(f.path)) != null);
   //File
   var manPageF = pages.firstWhere(
-    (f) => path.basenameWithoutExtension(f.path) == manPage,
-    orElse: () {
-      print('No manual entry for $manPage in library ${lib}_dartrix');
-      exit(0);
-      return null;
-    }
-  );
+      (f) => path.basenameWithoutExtension(f.path) == manPage, orElse: () {
+    print('No manual entry for $manPage in library ${lib}_dartrix');
+    exit(0);
+    return null;
+  });
   // _log.info('found manpage $manPageF');
 
   // fixme: deal with multiples, e.g. foo.1, foo.5
@@ -76,7 +73,9 @@ void manPlugins(ArgResults options) async {
   // print('manPlugins');
   var lib = options.rest[0];
   var libDir = await resolvePkgRoot('package:' + lib + '_dartrix');
-  if (Config.verbose) _log.info('resolved $lib to package:${lib}_dartrix to $libDir');
+  if (Config.verbose) {
+    _log.info('resolved $lib to package:${lib}_dartrix to $libDir');
+  }
   var template = options['template'];
   printManpage(lib, libDir, template);
 }
@@ -98,10 +97,10 @@ void printUsage(ArgParser argParser) async {
   var pkgs = await getPlugins('_dartrix');
   print('\tdartrix\t\tBuiltin templates');
   pkgs.forEach((pkg) {
-      var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'),'');
-      var spacer = pkgName.length < 8 ? '\t\t' : '\t';
-      var docString = getDocstring(pkg);
-      print('\t${pkgName}${spacer}${docString}');
+    var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
+    var spacer = pkgName.length < 8 ? '\t\t' : '\t';
+    var docString = getDocstring(pkg);
+    print('\t${pkgName}${spacer}${docString}');
   });
   print('');
   // print('\tdartrix\t\tBuiltin templates. Optional; if no <libname> specified,');
@@ -113,18 +112,31 @@ void printUsage(ArgParser argParser) async {
 
 void main(List<String> args) async {
   Logger.root.level = Level.ALL;
-  Logger.root..onRecord.listen((record) {
+  Logger.root
+    ..onRecord.listen((record) {
       var level;
       switch (record.level.name) {
-        case 'SHOUT': level = shoutPen(record.level.name); break;
-        case 'SEVERE': level = severePen(record.level.name); break;
-        case 'WARNING': level = warningPen(record.level.name); break;
-        case 'INFO': level = infoPen(record.level.name); break;
-        case 'CONFIG': level = configPen(record.level.name); break;
-        default: level = record.level.name; break;
+        case 'SHOUT':
+          level = shoutPen(record.level.name);
+          break;
+        case 'SEVERE':
+          level = severePen(record.level.name);
+          break;
+        case 'WARNING':
+          level = warningPen(record.level.name);
+          break;
+        case 'INFO':
+          level = infoPen(record.level.name);
+          break;
+        case 'CONFIG':
+          level = configPen(record.level.name);
+          break;
+        default:
+          level = record.level.name;
+          break;
       }
       print('${record.loggerName} ${level}: ${record.message}');
-  });
+    });
 
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('library', abbr: 'l',
@@ -133,12 +145,11 @@ void main(List<String> args) async {
   //   defaultsTo: 'dartrix',
   //   // callback: (t) => validateTemplateName(t)
   // );
-  argParser.addOption('template', abbr: 't',
-    valueHelp: '[a-z_][a-z0-9_]*',
-    help: 'Template name.'
-    // defaultsTo: 'hello',
-    // callback: (t) => validateTemplateName(t)
-  );
+  argParser.addOption('template',
+      abbr: 't', valueHelp: '[a-z_][a-z0-9_]*', help: 'Template name.'
+      // defaultsTo: 'hello',
+      // callback: (t) => validateTemplateName(t)
+      );
   argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
   argParser.addFlag('help', abbr: 'h', defaultsTo: false);
   argParser.addFlag('debug', defaultsTo: false);
@@ -154,32 +165,45 @@ void main(List<String> args) async {
   if (Config.options['verbose']) Config.verbose = true;
 
   // if (Config.options.rest.isEmpty) {
-    if (Config.options['help']) {
-      await printUsage(argParser);
-      exit(0);
-    }
+  if (Config.options['help']) {
+    await printUsage(argParser);
+    exit(0);
+  }
   // }
 
   if (Config.options.rest.isNotEmpty) {
     switch (Config.options.rest[0]) {
-      case 'dartrix_config': _log.warning('dartrix_config manpage not implemented'); break;
-      case 'dev': _log.warning('manpage dev not implemented'); break;
-      case 'man': _log.warning('manpage man not implemented'); break;
-      case 'list': _log.warning('manpage list not implemented'); break;
-      case 'new': _log.warning('manpage new not implemented'); break;
+      case 'dartrix_config':
+        _log.warning('dartrix_config manpage not implemented');
+        break;
+      case 'dev':
+        _log.warning('manpage dev not implemented');
+        break;
+      case 'man':
+        _log.warning('manpage man not implemented');
+        break;
+      case 'list':
+        _log.warning('manpage list not implemented');
+        break;
+      case 'new':
+        _log.warning('manpage new not implemented');
+        break;
       case 'help':
       case '-h':
-      case '--help': await printUsage(argParser); exit(0); break;
+      case '--help':
+        await printUsage(argParser);
+        exit(0);
+        break;
       default:
-      if (Config.options.rest[0] == 'dartrix') {
-        manBuiltins(Config.options);
-      } else {
-        // if (args[0].startsWith('-')) {
-        //   manBuiltin(Config.options);
-        // } else {
+        if (Config.options.rest[0] == 'dartrix') {
+          manBuiltins(Config.options);
+        } else {
+          // if (args[0].startsWith('-')) {
+          //   manBuiltin(Config.options);
+          // } else {
           manPlugins(Config.options);
-        // }
-      }
+          // }
+        }
     }
   }
 }

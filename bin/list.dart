@@ -30,22 +30,22 @@ void listBuiltins(ArgResults options) async {
   templates.retainWhere((f) => f is Directory);
   print('Builtin templates:');
   templates.forEach((t) {
-      var tName = path.basename(t.path);
-      //String
-      var docString;
-      try {
-      docString = File(templatesRoot + '/' + tName + '.docstring')
-      .readAsStringSync();
-      } on FileSystemException {
-        // if (debug.debug)
-        // _log.info('docstring not found for ${builtin.path}');
-        if (debug.debug) {
-          docString = warningPen('${tName}.docstring not found');
-          // tName = warningPen(sprintf('%-18s', [tName]));
-        }
+    var tName = path.basename(t.path);
+    //String
+    var docString;
+    try {
+      docString =
+          File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
+    } on FileSystemException {
+      // if (debug.debug)
+      // _log.info('docstring not found for ${builtin.path}');
+      if (debug.debug) {
+        docString = warningPen('${tName}.docstring not found');
+        // tName = warningPen(sprintf('%-18s', [tName]));
       }
-      tName = sprintf('%-18s', [tName]);
-      print('\t${tName} ${docString}');
+    }
+    tName = sprintf('%-18s', [tName]);
+    print('\t${tName} ${docString}');
   });
 }
 
@@ -54,7 +54,9 @@ void listPlugins(String lib, ArgResults options) async {
   var lib = options.rest[0];
   //String
   var libDir = await resolvePkgRoot('package:' + lib + '_dartrix');
-  if (Config.verbose) _log.info('resolved $lib to package:${lib}_dartrix to $libDir');
+  if (Config.verbose) {
+    _log.info('resolved $lib to package:${lib}_dartrix to $libDir');
+  }
   //String
   var templatesRoot = libDir + '/templates';
   //List
@@ -62,22 +64,22 @@ void listPlugins(String lib, ArgResults options) async {
   templates.retainWhere((f) => f is Directory);
   print('package:${lib}_dartrix templates:');
   templates.forEach((t) {
-      var tName = path.basename(t.path);
-      //String
-      var docString;
-      try {
-      docString = File(templatesRoot + '/' + tName + '.docstring')
-      .readAsStringSync();
-      } on FileSystemException {
-        // if (debug.debug)
-        // _log.info('docstring not found for ${builtin.path}');
-        if (debug.debug) {
-          docString = warningPen('${tName}.docstring not found');
-          // tName = warningPen(sprintf('%-18s', [tName]));
-        }
+    var tName = path.basename(t.path);
+    //String
+    var docString;
+    try {
+      docString =
+          File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
+    } on FileSystemException {
+      // if (debug.debug)
+      // _log.info('docstring not found for ${builtin.path}');
+      if (debug.debug) {
+        docString = warningPen('${tName}.docstring not found');
+        // tName = warningPen(sprintf('%-18s', [tName]));
       }
-      tName = sprintf('%-18s', [tName]);
-      print('\t${tName} ${docString}');
+    }
+    tName = sprintf('%-18s', [tName]);
+    print('\t${tName} ${docString}');
   });
 }
 
@@ -92,10 +94,10 @@ void printUsage(ArgParser argParser) async {
   var pkgs = await getPlugins('_dartrix');
   print('\t${sprintf("%-18s", ["dartrix"])} Builtin templates');
   pkgs.forEach((pkg) {
-      var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'),'');
-      var docString = getDocstring(pkg);
-      pkgName= sprintf('%-18s', [pkgName]);
-      print('\t${pkgName} ${docString}');
+    var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
+    var docString = getDocstring(pkg);
+    pkgName = sprintf('%-18s', [pkgName]);
+    print('\t${pkgName} ${docString}');
   });
   print('');
   print('\nOther Dartrix commands:');
@@ -114,18 +116,31 @@ void printUsage(ArgParser argParser) async {
 
 void main(List<String> args) async {
   Logger.root.level = Level.ALL;
-  Logger.root..onRecord.listen((record) {
+  Logger.root
+    ..onRecord.listen((record) {
       var level;
       switch (record.level.name) {
-        case 'SHOUT': level = shoutPen(record.level.name); break;
-        case 'SEVERE': level = severePen(record.level.name); break;
-        case 'WARNING': level = warningPen(record.level.name); break;
-        case 'INFO': level = infoPen(record.level.name); break;
-        case 'CONFIG': level = configPen(record.level.name); break;
-        default: level = record.level.name; break;
+        case 'SHOUT':
+          level = shoutPen(record.level.name);
+          break;
+        case 'SEVERE':
+          level = severePen(record.level.name);
+          break;
+        case 'WARNING':
+          level = warningPen(record.level.name);
+          break;
+        case 'INFO':
+          level = infoPen(record.level.name);
+          break;
+        case 'CONFIG':
+          level = configPen(record.level.name);
+          break;
+        default:
+          level = record.level.name;
+          break;
       }
       print('${record.loggerName} ${level}: ${record.message}');
-  });
+    });
 
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('template', abbr: 't',
@@ -141,7 +156,7 @@ void main(List<String> args) async {
   Config.options = argParser.parse(args);
 
   Config.verbose = Config.options['verbose'];
-  debug.debug   = Config.options['debug'];
+  debug.debug = Config.options['debug'];
 
   if (debug.debug) debug.debugOptions();
 
@@ -158,11 +173,17 @@ void main(List<String> args) async {
     printUsage(argParser);
   } else {
     switch (Config.options.rest[0]) {
-      case 'dartrix': listBuiltins(Config.options); break;
+      case 'dartrix':
+        listBuiltins(Config.options);
+        break;
       case 'help':
       case '-h':
-      case '--help': await printUsage(argParser); exit(0); break;
-      default: listPlugins(args[0], Config.options);
+      case '--help':
+        await printUsage(argParser);
+        exit(0);
+        break;
+      default:
+        listPlugins(args[0], Config.options);
     }
   }
 }

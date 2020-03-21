@@ -19,14 +19,15 @@ void handleBashrc(List<String> subArgs) async {
   }
   //ArgParser
   var argParser = ArgParser(allowTrailingOptions: false);
-  argParser.addOption('prefix', abbr: 'p', defaultsTo: 't',
-    valueHelp: '[a-z][a-z0-9_]*',
-    help: 'Prefix for command aliases.'
-  );
+  argParser.addOption('prefix',
+      abbr: 'p',
+      defaultsTo: 't',
+      valueHelp: '[a-z][a-z0-9_]*',
+      help: 'Prefix for command aliases.');
   ArgResults options;
   try {
     options = argParser.parse(subArgs);
-  } catch(e) {
+  } catch (e) {
     _log.severe('template ${Config.options["template"]}: $e');
     exit(0);
   }
@@ -41,4 +42,3 @@ void handleBashrc(List<String> subArgs) async {
   tData['pfx'] = options['prefix'];
   generateFromBuiltin();
 }
-

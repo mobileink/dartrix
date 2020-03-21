@@ -55,9 +55,9 @@ Future<PackageConfig> getUserPackageConfig2() async {
   // _log.info('\$HOME: $home');
 
   var dartConfigDirPath = home + '/.dart.d';
-  if ( !verifyExists(dartConfigDirPath) ) {
+  if (!verifyExists(dartConfigDirPath)) {
     dartConfigDirPath = home + '/.dart';
-    if ( !verifyExists(dartConfigDirPath) ) {
+    if (!verifyExists(dartConfigDirPath)) {
       _log.severe('dartConfigDirPath (~/.dart.d or ~/.dart) not found)');
       exit(0);
     }
@@ -67,10 +67,8 @@ Future<PackageConfig> getUserPackageConfig2() async {
   dartConfigDir = Directory(dartConfigDirPath);
   PackageConfig userPackageConfig2;
   // fn from package_config.package_config_discovery Package class
-  userPackageConfig2 = await findPackageConfig(
-    dartConfigDir,
-    onError: (e) => _log.severe(e)
-  );
+  userPackageConfig2 =
+      await findPackageConfig(dartConfigDir, onError: (e) => _log.severe(e));
   // _log.info('pcfg2: $userPackageConfig2');
   // _log.info('listing packages:');
   // userPackageConfig2.packages.forEach((pkg) => _log.fine('${pkg.name}'));
@@ -84,7 +82,8 @@ Future<String> resolvePkgRoot(String pkg) async {
   if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
     // _log.info('foo');
   } else {
-    _log.severe('Malformed package URI. Must begin with "package:" or "pkg:" URI: $pkg');
+    _log.severe(
+        'Malformed package URI. Must begin with "package:" or "pkg:" URI: $pkg');
     exit(0);
   }
 
@@ -108,8 +107,8 @@ Future<String> resolvePkgRoot(String pkg) async {
   // _log.info('searching for $pkgName');
   Package pkgPackage;
   try {
-    pkgPackage = userPackageConfig2.packages.singleWhere(
-      (pkg) => pkg.name == pkgName);
+    pkgPackage =
+        userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
   } catch (e) {
     _log.severe('Dartrix library package:$pkgName not found.');
     exit(0);
@@ -127,7 +126,7 @@ Future<String> resolvePkgRoot(String pkg) async {
 ///     uri        e.g. package:foobar_myapp
 ///     fullName   e.g. foobar_myapp
 ///     name       e.g. foobar
-Map<String,String> resolvePkgRef(String pkgRef) {
+Map<String, String> resolvePkgRef(String pkgRef) {
   print('resolvePkgRef: $pkgRef');
   // String pkgName;
   // String pkgPackageUriStr;
@@ -140,16 +139,16 @@ Map<String,String> resolvePkgRef(String pkgRef) {
   }
   if (pkgRef.startsWith('package:')) {
     return {
-      'name'    : name.replaceAll(RegExp('^package:'), ''),
-      'fullName' : pkgRef.replaceAll(RegExp('^package:'), ''),
-      'uri'     : pkgRef
+      'name': name.replaceAll(RegExp('^package:'), ''),
+      'fullName': pkgRef.replaceAll(RegExp('^package:'), ''),
+      'uri': pkgRef
     };
   } else {
     if (pkgRef.startsWith('pkg:')) {
       return {
-        'name' : name.replaceAll(RegExp('^pkg:'), ''),
-        'fullName' : pkgRef.replaceAll(RegExp('^pkg:'), ''),
-        'uri'  : pkgRef.replaceAll(RegExp('^pkg:'), 'package:')
+        'name': name.replaceAll(RegExp('^pkg:'), ''),
+        'fullName': pkgRef.replaceAll(RegExp('^pkg:'), ''),
+        'uri': pkgRef.replaceAll(RegExp('^pkg:'), 'package:')
       };
     } else {
       // must be a path: uri
@@ -172,4 +171,3 @@ Future<List<Package>> getPlugins(String suffix) async {
   // }
   return pkgs;
 }
-

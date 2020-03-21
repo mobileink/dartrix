@@ -20,8 +20,8 @@ AnsiPen configPen = AnsiPen()..green(bold: true);
 
 String getDocstring(Package pkg) {
   var rootDir = pkg.root.path;
-  var libName  = pkg.name.replaceFirst(RegExp('_dartrix'),'');
-  var docstringName = libName+ '.docstring';
+  var libName = pkg.name.replaceFirst(RegExp('_dartrix'), '');
+  var docstringName = libName + '.docstring';
   var docstring = File(rootDir + '/' + docstringName).readAsStringSync();
   //TODO: break long lines
   return docstring;
@@ -32,8 +32,9 @@ void sanityCheck() {
   if (Config.verbose) _log.info('Sanity check...');
   var cwd = Directory.current.path;
   var cwdName = path.basename(Directory.current.path);
-  if ( !cwdName.endsWith(Config.appSfx)) {
-    _log.warning('Not in a dartrix package directory. Package name (cwd) must end in "_dartrix".');
+  if (!cwdName.endsWith(Config.appSfx)) {
+    _log.warning(
+        'Not in a dartrix package directory. Package name (cwd) must end in "_dartrix".');
     exit(0);
   }
   if (Config.verbose) _log.info('... cwd ends with "_dartrix" - ok');
@@ -62,4 +63,3 @@ void sanityCheck() {
 
   if (Config.verbose) _log.info('Sanity check passed.');
 }
-

@@ -1,4 +1,3 @@
-
 String handlerTemplate = """
 import 'dart:io';
 import 'dart:isolate';
