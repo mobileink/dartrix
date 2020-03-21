@@ -1,19 +1,11 @@
-import 'dart:async';
 import 'dart:core';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:mustache_template/mustache_template.dart';
-// import 'package:package_resolver/package_resolver.dart';
 import 'package:path/path.dart' as path;
-import 'package:process_run/cmd_run.dart';
-import 'package:process_run/dartbin.dart';
 import 'package:process_run/which.dart';
-// import 'package:pub_cache/pub_cache.dart';
-// import 'package:resource/resource.dart';
 import 'package:strings/strings.dart';
 
 import 'package:dartrix/dartrix.dart';

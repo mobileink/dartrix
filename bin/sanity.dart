@@ -1,15 +1,10 @@
 /// sanity checker for template development. Checks that each template has a
 /// docstring, manpage, handler, etc. Checks for bad chars (e.g. '-') in
 /// paths. Etc.
-import 'dart:async';
 import 'dart:core';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
 
 import 'package:args/args.dart';
-import 'package:path/path.dart' as path;
-import 'package:process_run/which.dart';
 import 'package:strings/strings.dart';
 // import 'package:resource/resource.dart';
 // import 'package:package_resolver/package_resolver.dart';
