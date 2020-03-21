@@ -32,8 +32,13 @@ String rewritePath(String _path) {
           return rw;
         }
       } else {
-        // e.g. CLASS.java matches CLASS
-        var rw = tData['segmap'][base] + path.extension(seg);
+        // e.g. FOO.bar matched FOO
+        var rw;
+        if (base == 'DOTFILE_D') {
+          rw = tData['segmap'][base] + path.extension(seg) + '.d';
+        } else {
+          rw = tData['segmap'][base] + path.extension(seg);
+        }
         return rw;
       }
     } else {
@@ -151,5 +156,5 @@ Map tData = {
   // segmap keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
 
-  'segmap': {'DOTFILE': ''} // rewrite DOTFILE.foo as .foo
+  'segmap': {'DOTFILE': '', 'DOTFILE_D': ''} // rewrite DOTFILE.foo as .foo
 };

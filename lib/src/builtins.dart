@@ -131,28 +131,37 @@ void generateFromBuiltin() async {
     if (path.isRelative(outSubpath)) {
       outSubpath = Directory.current.path + '/' + outSubpath;
     }
-    // _log.finer('absolutized outSubpath: $outSubpath');
+    _log.finer('absolutized outSubpath: $outSubpath');
 
-    // exists?
-    if (!tData['dartrix']['force']) {
-      var exists = FileSystemEntity.typeSync(outSubpath);
-      if (exists != FileSystemEntityType.notFound) {
-        _log.severe(
-            'ERROR: $outSubpath already exists; cancelling. Use -f to force overwrite.');
-        exit(0);
+    var exists;
+    exists = FileSystemEntity.typeSync(outSubpath);
+    if (exists != FileSystemEntityType.notFound) {
+      if (exists == File) {
+        if (!tData['dartrix']['force']) {
+          _log.severe(
+            'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+          exit(0);
+        } else {
+          if ((Config.verbose) || Config.options['dry-run']) {
+            _log.warning("Over-writing $outSubpath");
+          }
+        }
       }
     }
 
+    // create output dir if necessary
     var dirname = path.dirname(outSubpath);
-    if ((Config.verbose) || Config.options['dry-run']) {
-      _log.info('creating out dirname: $dirname');
+    _log.info("dirname: $dirname");
+    exists = FileSystemEntity.typeSync(dirname);
+    if (exists == FileSystemEntityType.notFound) {
+      if ((Config.verbose) || Config.options['dry-run']) {
+        _log.info('Creating output directory: $dirname');
+      }
+      if (!Config.options['dry-run']) {
+        Directory(dirname).createSync(recursive: true);
+      }
     }
-    if (!Config.options['dry-run']) {
-      Directory(dirname).createSync(recursive: true);
-    }
-    if ((Config.verbose) || Config.options['dry-run']) {
-      _log.info('   ' + tfile.path);
-    }
+
     if (tfile.path.endsWith('mustache')) {
       var contents;
       contents = tfile.readAsStringSync();
