@@ -2,8 +2,7 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:logging/logging.dart';
-// import 'package:mustache_template/mustache_template.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/which.dart';
 import 'package:strings/strings.dart';
@@ -16,8 +15,6 @@ import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/plugins.dart';
 // import 'package:dartrix/src/utils.dart';
 
-var _log = Logger('new');
-
 // final myScratchSpaceResource =
 //     new Resource(() => ScratchSpace());
 
@@ -27,7 +24,7 @@ String hello_pkg = 'package:hello_template';
 void validateSnakeCase(String pkg) {
   final r = RegExp(r'^[a-z_][a-z0-9_]*$');
   if (!r.hasMatch(pkg)) {
-    _log.warning('Invalid name (snake_case): $pkg');
+    Config.logger.w('Invalid name (snake_case): $pkg');
     exit(0);
   }
 }
@@ -35,7 +32,7 @@ void validateSnakeCase(String pkg) {
 void validateCamelCase(String name) {
   final r = RegExp(r'^[A-Z][A-Za-z0-9_]*$');
   if (!r.hasMatch(name)) {
-    _log.warning('Invalid name (CamelCase): $name');
+    Config.logger.w('Invalid name (CamelCase): $name');
     exit(0);
   }
 }
@@ -49,10 +46,10 @@ void validateTemplateName(String t) {
 //   // If template is built-in, proceed, else call resolution fn
 
 //   String p = path.prettyUri(Platform.script.toString());
-//   // _log.finer('inDir 1: $p');
+//   // Config.logger.d('inDir 1: $p');
 //   String inDir = path.dirname(p) + '/..';
 //   var inPfx = path.canonicalize(inDir);
-//   // _log.finer('inPfx 2: $inPfx');
+//   // Config.logger.d('inPfx 2: $inPfx');
 //   if (template == 'split-plugin') {
 //     inDir = inPfx + '/mustache/plugins/greetings-services';
 //   } else {
@@ -90,32 +87,33 @@ void printUsage(ArgParser argParser) {
 
 void main(List<String> args) async {
   Config.config('dartrix');
-  Logger.root.level = Level.ALL;
-  Logger.root
-    ..onRecord.listen((record) {
-      var level;
-      switch (record.level.name) {
-        case 'SHOUT':
-          level = shoutPen(record.level.name);
-          break;
-        case 'SEVERE':
-          level = severePen(record.level.name);
-          break;
-        case 'WARNING':
-          level = warningPen(record.level.name);
-          break;
-        case 'INFO':
-          level = infoPen(record.level.name);
-          break;
-        case 'CONFIG':
-          level = configPen(record.level.name);
-          break;
-        default:
-          level = record.level.name;
-          break;
-      }
-      print('${record.loggerName} ${level}: ${record.message}');
-    });
+  // hierarchicalLoggingEnabled = true;
+  // Logger.root.level = Level.ALL;
+  // Logger.root
+  //   ..onRecord.listen((record) {
+  //     var level;
+  //     switch (record.level.name) {
+  //       case 'SHOUT':
+  //         level = shoutPen(record.level.name);
+  //         break;
+  //       case 'SEVERE':
+  //         level = severePen(record.level.name);
+  //         break;
+  //       case 'WARNING':
+  //         level = warningPen(record.level.name);
+  //         break;
+  //       case 'INFO':
+  //         level = infoPen(record.level.name);
+  //         break;
+  //       case 'CONFIG':
+  //         level = configPen(record.level.name);
+  //         break;
+  //       default:
+  //         level = record.level.name;
+  //         break;
+  //     }
+  //     print('ROOT ${record.loggerName} ${level}: ${record.message}');
+  //   });
 
   Config.argParser = ArgParser(allowTrailingOptions: true);
   Config.argParser.addOption(
@@ -183,7 +181,7 @@ void main(List<String> args) async {
   try {
     Config.options = Config.argParser.parse(args);
   } catch (e) {
-    _log.severe(e);
+    Config.logger.e(e);
     exit(0);
   }
 
@@ -198,7 +196,7 @@ void main(List<String> args) async {
 
   if (Config.options['dry-run']) {
     Config.verbose = true;
-    _log.info('Dry-run...');
+    Config.logger.i('Dry-run...');
   }
 
   if (debug.debug) debug.debugOptions();
@@ -226,15 +224,15 @@ void main(List<String> args) async {
   }
 
   // var cmd = Config.options.command;
-  // _log.finer('cmd: $cmd');
+  // Config.logger.d('cmd: $cmd');
 
   // var cmdOptions;
   // if (Config.options.command != null) {
   //   cmdOptions = pluginCmd.parse(Config.options.command.arguments);
-  //   // _log.finer('command: ${Config.options.command.name}');
-  //   // _log.finer('command args: ${Config.options.command.arguments}');
-  //   // _log.finer('command opts: ${Config.options.command.options}');
-  //   // _log.finer('command rest: ${Config.options.command.rest}');
+  //   // Config.logger.d('command: ${Config.options.command.name}');
+  //   // Config.logger.d('command args: ${Config.options.command.arguments}');
+  //   // Config.logger.d('command opts: ${Config.options.command.options}');
+  //   // Config.logger.d('command rest: ${Config.options.command.rest}');
   // }
 
   tData['domain'] = Config.options['domain'];
@@ -275,22 +273,22 @@ void main(List<String> args) async {
   tData['segmap']['PKG'] = Config.options['package'];
 
   // Theses properties are for android/local.properties.
-  // _log.finer('resolvedExecutable: ${Platform.resolvedExecutable}');
+  // Config.logger.d('resolvedExecutable: ${Platform.resolvedExecutable}');
   // FIXME: find a better way?
   var androidExecutable = whichSync('android');
-  // _log.finer('android exe: $androidExecutable');
+  // Config.logger.d('android exe: $androidExecutable');
   var androidSdk =
       path.joinAll(path.split(androidExecutable)..removeLast()..removeLast());
   tData['sdk']['android'] = androidSdk;
 
   var flutterExecutable = whichSync('flutter');
-  // _log.finer('flutter exe: $flutterExecutable');
+  // Config.logger.d('flutter exe: $flutterExecutable');
   var flutterSdk =
       path.joinAll(path.split(flutterExecutable)..removeLast()..removeLast());
   tData['sdk']['flutter'] = flutterSdk;
 
   // var outPathPrefix = Config.options['outpath'];
-  // _log.finer('outPathPrefix: $outPathPrefix');
+  // Config.logger.d('outPathPrefix: $outPathPrefix');
 
   // var rootDir = (Config.options['root'] == null)
   // ? '/'
@@ -301,10 +299,10 @@ void main(List<String> args) async {
   // if (outPathPrefix != './') {
   //   if (Directory(outPath).existsSync()) {
   //     if ( !Config.options['force'] ) {
-  //       _log.severe('Directory '$outPath' already exists. Use -f to force overwrite.');
+  //       Config.logger.e('Directory '$outPath' already exists. Use -f to force overwrite.');
   //       exit(0);
   //     }
-  //     _log.warning('Overwriting plugins/$outPath.');
+  //     Config.logger.w('Overwriting plugins/$outPath.');
   //   }
   // }
 
@@ -332,7 +330,7 @@ void main(List<String> args) async {
           print('PATH');
           exit(0);
         } else {
-          _log.severe('Unrecognized param: $pkgSpec. Did you forget -t?');
+          Config.logger.e('Unrecognized param: $pkgSpec. Did you forget -t?');
           exit(0);
         }
       }
@@ -346,19 +344,19 @@ void main(List<String> args) async {
   //FIXME: we don't need to list all, just get the one we want!
   // await initBuiltinTemplates();
   // if ( builtinTemplates.keys.contains(template) ) {
-  //   _log.info('FIXME: run builtin');
+  //   Config.logger.i('FIXME: run builtin');
   dispatchBuiltin(template);
   //     (Config.options.command == null)? null : Config.options.command.arguments);
   // } else {
-  //   _log.finer('EXCEPTION: template $template not found.');
+  //   Config.logger.d('EXCEPTION: template $template not found.');
   //   exit(0);
   // }
   // }
-  // _log.finer('script locn: ${Platform.script.toString()}');
-  // _log.finer('built-ins: $builtinTemplates');
+  // Config.logger.d('script locn: ${Platform.script.toString()}');
+  // Config.logger.d('built-ins: $builtinTemplates');
 
   // String inDir = getInDir(Config.options['template']);
-  // _log.finer('inDir: $inDir');
+  // Config.logger.d('inDir: $inDir');
 
   // getResource('hello_template');
 

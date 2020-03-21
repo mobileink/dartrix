@@ -1,5 +1,5 @@
 // import 'package:args/args.dart';
-// import 'package:logging/logging.dart';
+// import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
@@ -13,7 +13,7 @@ Map<String, String> builtinTemplates = {};
 Map xData; // external data
 
 String rewritePath(String _path) {
-  // _log.info('rewritePath: $_path');
+  // Config.logger.i('rewritePath: $_path');
   // List<String> segs = domPath.split(path.separator);
   //List<String>
   var segs = _path.split(path.separator);

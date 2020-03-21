@@ -15,13 +15,13 @@ import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
 
-var _log = Logger('list');
+// var Config.logger = Logger('list');
 
 void listBuiltins(ArgResults options) async {
   // print('listBuiltins ${options.arguments}');
   //Uri
   var packageConfigUri = await Isolate.packageConfig;
-  // _log.info('packageConfigUri $packageConfigUri');
+  // Config.logger.i('packageConfigUri $packageConfigUri');
   // this is a v1 pkg config, i.e. a .packages file, so back up one segment:
   // String libDir = path.dirname(packageConfigUri.path);
   var templatesRoot = path.dirname(packageConfigUri.path) + '/templates';
@@ -38,7 +38,7 @@ void listBuiltins(ArgResults options) async {
           File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
     } on FileSystemException {
       // if (debug.debug)
-      // _log.info('docstring not found for ${builtin.path}');
+      // Config.logger.i('docstring not found for ${builtin.path}');
       if (debug.debug) {
         docString = warningPen('${tName}.docstring not found');
         // tName = warningPen(sprintf('%-18s', [tName]));
@@ -55,7 +55,7 @@ void listPlugins(String lib, ArgResults options) async {
   //String
   var libDir = await resolvePkgRoot('package:' + lib + '_dartrix');
   if (Config.verbose) {
-    _log.info('resolved $lib to package:${lib}_dartrix to $libDir');
+    Config.logger.i('resolved $lib to package:${lib}_dartrix to $libDir');
   }
   //String
   var templatesRoot = libDir + '/templates';
@@ -72,7 +72,7 @@ void listPlugins(String lib, ArgResults options) async {
           File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
     } on FileSystemException {
       // if (debug.debug)
-      // _log.info('docstring not found for ${builtin.path}');
+      // Config.logger.i('docstring not found for ${builtin.path}');
       if (debug.debug) {
         docString = warningPen('${tName}.docstring not found');
         // tName = warningPen(sprintf('%-18s', [tName]));

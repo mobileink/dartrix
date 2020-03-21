@@ -20,7 +20,7 @@ import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
 
-var _log = Logger('man');
+// var _log = Logger('man');
 
 void getManPages(String rootDir) {}
 
@@ -28,10 +28,10 @@ void printManpage(String lib, String rootDir, String manPage) async {
   //String
   var manDir = rootDir + '/man';
   manDir = path.normalize(manDir);
-  // _log.info('manDir: $manDir');
-  // _log.info('lib: $lib');
+  // Config.logger.i('manDir: $manDir');
+  // Config.logger.i('lib: $lib');
   manPage = manPage ?? lib + '_dartrix';
-  // _log.info('manPage: $manPage');
+  // Config.logger.i('manPage: $manPage');
   //List
   var pages = Directory(manDir).listSync();
   pages.retainWhere((f) => f is File);
@@ -43,7 +43,7 @@ void printManpage(String lib, String rootDir, String manPage) async {
     exit(0);
     return null;
   });
-  // _log.info('found manpage $manPageF');
+  // Config.logger.i('found manpage $manPageF');
 
   // fixme: deal with multiples, e.g. foo.1, foo.5
 
@@ -60,10 +60,10 @@ void printManpage(String lib, String rootDir, String manPage) async {
 void manBuiltins(ArgResults options) async {
   print('manBuiltins ${options.arguments}');
   var template = options['template'] ?? 'dartrix';
-  _log.info('template: $template');
+  Config.logger.i('template: $template');
   //Uri
   var packageConfigUri = await Isolate.packageConfig;
-  _log.info('packageConfigUri $packageConfigUri');
+  Config.logger.i('packageConfigUri $packageConfigUri');
   //String
   var libDir = path.dirname(packageConfigUri.path);
   printManpage('dartrix', libDir, template);
@@ -74,7 +74,7 @@ void manPlugins(ArgResults options) async {
   var lib = options.rest[0];
   var libDir = await resolvePkgRoot('package:' + lib + '_dartrix');
   if (Config.verbose) {
-    _log.info('resolved $lib to package:${lib}_dartrix to $libDir');
+    Config.logger.i('resolved $lib to package:${lib}_dartrix to $libDir');
   }
   var template = options['template'];
   printManpage(lib, libDir, template);
@@ -174,19 +174,19 @@ void main(List<String> args) async {
   if (Config.options.rest.isNotEmpty) {
     switch (Config.options.rest[0]) {
       case 'dartrix_config':
-        _log.warning('dartrix_config manpage not implemented');
+        Config.logger.w('dartrix_config manpage not implemented');
         break;
       case 'dev':
-        _log.warning('manpage dev not implemented');
+        Config.logger.w('manpage dev not implemented');
         break;
       case 'man':
-        _log.warning('manpage man not implemented');
+        Config.logger.w('manpage man not implemented');
         break;
       case 'list':
-        _log.warning('manpage list not implemented');
+        Config.logger.w('manpage list not implemented');
         break;
       case 'new':
-        _log.warning('manpage new not implemented');
+        Config.logger.w('manpage new not implemented');
         break;
       case 'help':
       case '-h':

@@ -70,7 +70,7 @@ void listTemplates(ArgResults options) async {
   //     // .readAsStringSync();
   //     // } on FileSystemException {
   //     //   // if (debug.debug)
-  //     //   // _log.info('docstring not found for ${builtin.path}');
+  //     //   // Config.logger.i('docstring not found for ${builtin.path}');
   //     //   if (debug.debug) {
   //     //     docString = warningPen('${tName}.docstring not found');
   //     //     // tName = warningPen(sprintf('%-18s', [tName]));
@@ -82,7 +82,7 @@ void listTemplates(ArgResults options) async {
 }
 
 void updateDocstrings() {
-  // _log.info('updateDocstrings');
+  // Config.logger.i('updateDocstrings');
   var package = path.basename(Directory.current.path);
   package = package.replaceAll(RegExp(r'_dartrix$'), '');
   var templates = Directory(Directory.current.path + '/templates').listSync();
@@ -114,19 +114,19 @@ void updateDocstrings() {
 
   if (Config.verbose) {
     if (orphanedDocstrings.isNotEmpty) {
-      _log.warning(
+      Config.logger.w(
           'docstrings without corresponding templates: $orphanedDocstrings');
     }
   }
   if (missingDocstrings.isNotEmpty) {
-    _log.warning('missing docstrings: $missingDocstrings');
+    Config.logger.w('missing docstrings: $missingDocstrings');
     missingDocstrings.forEach((ds) {
       //String
       var fname = Directory.current.path + '/templates/' + ds + '.docstring';
       // double-check to ensure no overwrites:
       // var exists = FileSystemEntity.typeSync(fname);
       // if (exists != FileSystemEntityType.notFound) {
-      //   _log.severe('$fname already exists');
+      //   Config.logger.e('$fname already exists');
       //   exit(0);
       // }
 
@@ -138,14 +138,14 @@ void updateDocstrings() {
           Template(dsTemplate, name: 'hardcoded', htmlEscapeValues: false);
       var contents = template.renderString(data);
       File(fname).writeAsStringSync(contents);
-      _log.info('wrote $fname');
+      Config.logger.i('wrote $fname');
     });
   }
 }
 
 /// Update template handlers in lib/src
 void updateHandlers() {
-  // _log.info('updateHandlers');
+  // Config.logger.i('updateHandlers');
   var package = path.basename(Directory.current.path);
   package = package.replaceAll(RegExp(r'_dartrix$'), '');
   var handlers = Directory(Directory.current.path + '/lib/src').listSync();
@@ -157,21 +157,21 @@ void updateHandlers() {
   // handlers.forEach((h) => print(h.path));
   var handlerSet =
       handlers.map((h) => path.basenameWithoutExtension(h.path)).toSet();
-  // _log.info('hset: $handlerSet');
-  // _log.info('tpset: $templateSet');
+  // Config.logger.i('hset: $handlerSet');
+  // Config.logger.i('tpset: $templateSet');
 
   //Set<String>
   var orphanedHandlers = handlerSet.difference(templateSet);
   // if (config.verbose) {
   if (orphanedHandlers.isNotEmpty) {
-    _log.warning('handlers without corresponding templates: $orphanedHandlers');
+    Config.logger.w('handlers without corresponding templates: $orphanedHandlers');
   }
   // }
 
   var missingHandlers = templateSet.difference(handlerSet);
   // if (config.verbose) {
   if (missingHandlers.isNotEmpty) {
-    _log.info('missing handlers: $missingHandlers');
+    Config.logger.i('missing handlers: $missingHandlers');
   }
   // }
   missingHandlers.forEach((h) {
@@ -180,7 +180,7 @@ void updateHandlers() {
     // double-check to ensure no overwrites:
     // var exists = FileSystemEntity.typeSync(fname);
     // if (exists != FileSystemEntityType.notFound) {
-    //   _log.severe('$fname already exists');
+    //   Config.logger.e('$fname already exists');
     //   exit(0);
     // }
 
@@ -191,12 +191,12 @@ void updateHandlers() {
         Template(handlerTemplate, name: 'hardcoded', htmlEscapeValues: false);
     var contents = template.renderString(data);
     File(fname).writeAsStringSync(contents);
-    _log.info('wrote $fname');
+    Config.logger.i('wrote $fname');
   });
 }
 
 void updateManuals() {
-  // _log.info('updateManuals');
+  // Config.logger.i('updateManuals');
   var package = path.basename(Directory.current.path);
   package = package.replaceAll(RegExp(r'_dartrix$'), '');
   var manpages = Directory(Directory.current.path + '/man').listSync();
@@ -208,22 +208,22 @@ void updateManuals() {
   // manpages.forEach((mp) => print(mp.path));
   var manpageSet =
       manpages.map((mp) => path.basenameWithoutExtension(mp.path)).toSet();
-  // _log.info('mpset: $manpageSet');
+  // Config.logger.i('mpset: $manpageSet');
   // Set<String> templateSet = templates.map((t)=>path.basename(t.path)).toSet();
-  // _log.info('tpset: $templateSet');
+  // Config.logger.i('tpset: $templateSet');
 
   //Set<String>
   var orphanedManpages = manpageSet.difference(templateSet);
   // if (config.verbose) {
   if (orphanedManpages.isNotEmpty) {
-    _log.warning('manpages without corresponding templates: $orphanedManpages');
+    Config.logger.w('manpages without corresponding templates: $orphanedManpages');
   }
   // }
 
   var missingManpages = templateSet.difference(manpageSet);
   // if (config.verbose) {
   if (missingManpages.isNotEmpty) {
-    _log.warning('missing manpages: $missingManpages');
+    Config.logger.w('missing manpages: $missingManpages');
   }
   // }
   missingManpages.forEach((mp) {
@@ -232,7 +232,7 @@ void updateManuals() {
     // double-check to ensure no overwrites:
     var exists = FileSystemEntity.typeSync(fname);
     if (exists != FileSystemEntityType.notFound) {
-      _log.severe('$fname already exists');
+      Config.logger.e('$fname already exists');
       exit(0);
     }
 
@@ -246,7 +246,7 @@ void updateManuals() {
     var template = Template(manTemplate, name: 'man', htmlEscapeValues: false);
     var contents = template.renderString(data);
     File(fname).writeAsStringSync(contents);
-    _log.info('wrote $fname');
+    Config.logger.i('wrote $fname');
   });
 }
 

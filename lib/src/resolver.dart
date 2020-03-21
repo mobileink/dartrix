@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:io';
 // import 'dart:isolate';
 
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 import 'package:package_config/package_config.dart';
 // import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
 
-var _log = Logger('resolver');
+// var _log = Logger('resolver');
 
 bool verifyExists(String fsePath) {
   // FileSystemEntityType
@@ -40,7 +40,7 @@ bool verifyExists(String fsePath) {
 
 // TODO: also check /etc/.dart.d/
 Future<PackageConfig> getUserPackageConfig2() async {
-  // _log.info('getUserPackageConfig2');
+  // Config.logger.i('getUserPackageConfig2');
   // get platform-independent $HOME
   //Map<String, String>
   var envVars = Platform.environment;
@@ -52,18 +52,18 @@ Future<PackageConfig> getUserPackageConfig2() async {
   } else if (Platform.isWindows) {
     home = envVars['UserProfile'];
   }
-  // _log.info('\$HOME: $home');
+  // Config.logger.i('\$HOME: $home');
 
   var dartConfigDirPath = home + '/.dart.d';
   if (!verifyExists(dartConfigDirPath)) {
     dartConfigDirPath = home + '/.dart';
     if (!verifyExists(dartConfigDirPath)) {
-      _log.severe('dartConfigDirPath (~/.dart.d or ~/.dart) not found)');
+      Config.logger.e('dartConfigDirPath (~/.dart.d or ~/.dart) not found)');
       exit(0);
     }
   }
   if (Config.verbose) {
-    _log.info('found dartConfigDirPath: $dartConfigDirPath');
+    Config.logger.i('found dartConfigDirPath: $dartConfigDirPath');
   }
   Directory dartConfigDir;
   dartConfigDir = Directory(dartConfigDirPath);
@@ -72,13 +72,13 @@ Future<PackageConfig> getUserPackageConfig2() async {
 
   try {
     userPackageConfig2 = await findPackageConfig(dartConfigDir);
-    // onError: (e) => _log.severe(e));
+    // onError: (e) => Config.logger.e(e));
   } catch (e) {
-    _log.severe(e);
+    Config.logger.e(e);
     exit(0);
   }
   print('pcfg2: $userPackageConfig2');
-  // _log.info('listing packages:');
+  // Config.logger.i('listing packages:');
   // userPackageConfig2.packages.forEach((pkg) => _log.fine('${pkg.name}'));
   return userPackageConfig2;
 }
@@ -88,9 +88,9 @@ Future<String> resolvePkgRoot(String pkg) async {
   // _log.finer('resolvePkgRoot: $pkg');
   // validate pkg string
   if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
-    // _log.info('foo');
+    // Config.logger.i('foo');
   } else {
-    _log.severe(
+    Config.logger.e(
         'Malformed package URI. Must begin with "package:" or "pkg:" URI: $pkg');
     exit(0);
   }
@@ -106,26 +106,26 @@ Future<String> resolvePkgRoot(String pkg) async {
   // Step 1: get user's dart config (a packageConfig2)
   //PackageConfig
   var userPackageConfig2 = await getUserPackageConfig2();
-  // _log.info('got userPackageConfig2: $userPackageConfig2');
+  // Config.logger.i('got userPackageConfig2: $userPackageConfig2');
   // userPackageConfig2.packages.forEach(
   //   (pkg) => print(pkg.name)
   // );
 
   // Step 2. pkgName is listed as a dep in the packageConfig2
-  // _log.info('searching for $pkgName');
+  // Config.logger.i('searching for $pkgName');
   Package pkgPackage;
   try {
     pkgPackage =
         userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
   } catch (e) {
-    _log.severe('Dartrix library package:$pkgName not found.');
+    Config.logger.e('Dartrix library package:$pkgName not found.');
     exit(0);
   }
-  // _log.info('pkgPackage: $pkgPackage');
+  // Config.logger.i('pkgPackage: $pkgPackage');
   // Step 3.  Get the (file) root of the package. We need this to
   // a) read the templates, and b) spawn the package.
   var pkgRootUri = pkgPackage.root;
-  // _log.info('pkgPackage.root: ${pkgRootUri}');
+  // Config.logger.i('pkgPackage.root: ${pkgRootUri}');
   return pkgRootUri.path;
 }
 
@@ -142,7 +142,7 @@ Map<String, String> resolvePkgRef(String pkgRef) {
   if (pkgRef.endsWith(Config.appSfx)) {
     name = pkgRef.replaceAll(RegExp('${Config.appSfx}\$'), '');
   } else {
-    _log.severe('bad package suffix; should be ${Config.appSfx}');
+    Config.logger.e('bad package suffix; should be ${Config.appSfx}');
     exit(0);
   }
   if (pkgRef.startsWith('package:')) {
@@ -169,12 +169,12 @@ Future<List<Package>> getPlugins(String suffix) async {
   //PackageConfig
   var userPkgConfig2 = await getUserPackageConfig2();
   var pkgs = userPkgConfig2.packages.toList();
-  // if (verbose) _log.info('found ${pkgs.length} user packages');
+  // if (verbose) Config.logger.i('found ${pkgs.length} user packages');
   pkgs.retainWhere((pkg) => pkg.name.endsWith(suffix));
   // if (verbose) {
-  //   _log.info('found ${pkgs.length} $suffix packages:');
+  //   Config.logger.i('found ${pkgs.length} $suffix packages:');
   //   pkgs.forEach((pkg) {
-  //       _log.info('${pkg.name} => ${pkg.root}');
+  //       Config.logger.i('${pkg.name} => ${pkg.root}');
   //   });
   // }
   return pkgs;

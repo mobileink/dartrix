@@ -2,7 +2,8 @@ import 'dart:io';
 import 'dart:isolate';
 
 // import 'package:args/args.dart';
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
+// import 'package:logger/logger.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
@@ -14,9 +15,21 @@ import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/handlers/bashrc.dart';
 import 'package:dartrix/src/handlers/dart_clix.dart';
 
-var _log = Logger('builtin');
+var _log = Logger(printer: PrettyPrinter());
+
+// final Logger _logfoo = Logger('foo')
+// ..onRecord.listen((record) {
+//     print('${record.loggerName} ${infoPen(record.level.name)}: ${record.message}');
+// });
+// final Logger _log = Logger('foo.bar')
+// ..onRecord.listen((record) {
+//     print('${record.loggerName} ${infoPen(record.level.name)}: ${record.message}');
+// });
+//var _log = Logger('builtin');
 
 Future<String> getBuiltinTemplatesRoot() async {
+  Config.logger.i("XXXXXXXXXXXXXXXX");
+  _log.d("YYYY");
   // Procedure: get path to app pkg root (as opposed to the package UriRoot,
   // which is the package's lib/ dir).  In this case the package is
   // package:dartrix; the pkg root is ~/mobileink/dartrix, and the package
@@ -29,19 +42,19 @@ Future<String> getBuiltinTemplatesRoot() async {
   // Current Working Directory: dart:io/Directory.current
   // Current Isolate
 
-  // _log.info('cwd: ${Directory.current}');
+  // Config.logger.i('cwd: ${Directory.current}');
   // e.g. Directory: '/Users/gar/tmp/dartrix'
 
   // String scriptPath = path.prettyUri(Platform.script.toString());
   // relative path, e.g. ../../mobileink/dartrix/bin/new.dart
-  // _log.info('platformScriptPath: ${scriptPath}');
-  // _log.info('platformScriptPath, normalized: ${path.normalize(scriptPath)}');
-  // _log.info('platformScriptPath, canonical: ${path.canonicalize(scriptPath)}');
+  // Config.logger.i('platformScriptPath: ${scriptPath}');
+  // Config.logger.i('platformScriptPath, normalized: ${path.normalize(scriptPath)}');
+  // Config.logger.i('platformScriptPath, canonical: ${path.canonicalize(scriptPath)}');
 
   //Uri
   var currentIsoPkgConfigUri = await Isolate.packageConfig;
   // e.g. file:///Users/gar/mobileink/dartrix/.packages
-  // _log.info('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
+  // Config.logger.i('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
 
   // Isolate.packageConfig finds the version 1 .packages file;
   // use that to get the PackageConfig and you get the contents
@@ -49,7 +62,7 @@ Future<String> getBuiltinTemplatesRoot() async {
   // findPackageConfigUri is a fn in package:package_confg
   //PackageConfig
   var pkgConfig = await findPackageConfigUri(currentIsoPkgConfigUri);
-  // _log.info('current iso PackageConfig: $pkgConfig');
+  // Config.logger.i('current iso PackageConfig: $pkgConfig');
   // PackageConfig is an object containing list of deps
   // if (debug.debug) debug.debugPackageConfig(pkgConfig);
 
@@ -58,13 +71,13 @@ Future<String> getBuiltinTemplatesRoot() async {
   var appConfig = pkgConfig.packages.firstWhere((pkg) {
     return pkg.name == Config.appName;
   });
-  // _log.info('appConfig: ${appConfig.name} : ${appConfig.root}');
+  // Config.logger.i('appConfig: ${appConfig.name} : ${appConfig.root}');
   //String
   var templatesRoot = appConfig.root.path + '/templates';
   // using scriptPath is undoubtedly more efficient
   // String templatesRoot = path.dirname(scriptPath) + '/../templates';
   templatesRoot = path.canonicalize(templatesRoot);
-  // _log.info('templatesRoot: $templatesRoot');
+  // Config.logger.i('templatesRoot: $templatesRoot');
   return templatesRoot;
 }
 
@@ -73,7 +86,7 @@ Future<String> getBuiltinTemplatesRoot() async {
 /// Read the <root>/templates directory, retaining only directory entries. Each
 /// subdirectory represents one template.
 void initBuiltinTemplates() async {
-  // _log.info('builtins.initBuiltinTemplates');
+  // Config.logger.i('builtins.initBuiltinTemplates');
 
   //String
   var templatesRoot = await getBuiltinTemplatesRoot();
@@ -93,7 +106,7 @@ void initBuiltinTemplates() async {
       docstring = File(builtin.path + '.docstring').readAsStringSync();
     } on FileSystemException {
       // if (debug.debug)
-      // _log.info('docstring not found for ${builtin.path}');
+      // Config.logger.i('docstring not found for ${builtin.path}');
     }
     builtinTemplates[basename] = docstring ?? '';
   });
@@ -101,7 +114,7 @@ void initBuiltinTemplates() async {
 }
 
 void generateFromBuiltin() async {
-  // _log.finer('generateFromBuiltin');
+  _log.v('generateFromBuiltin');
 
   //String
   var templatesRoot = await getBuiltinTemplatesRoot();
@@ -116,7 +129,7 @@ void generateFromBuiltin() async {
   tFileset.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    _log.info('Generating files from templates and copying assets...');
+    Config.logger.i('Generating files from templates and copying assets...');
   }
 
   // prevent unauthorized overwrites
@@ -139,13 +152,13 @@ void generateFromBuiltin() async {
     if (exists != FileSystemEntityType.notFound) {
       if (exists == FileSystemEntityType.file) {
         if (!tData['dartrix']['force']) {
-          // _log.severe(
+          // Config.logger.e(
           //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
           // exit(0);
           overWrites.add(outSubpath);
         } else {
           if ((Config.verbose) || Config.options['dry-run']) {
-            _log.warning('Over-writing $outSubpath');
+            Config.logger.w('Over-writing $outSubpath');
           }
         }
       }
@@ -153,9 +166,9 @@ void generateFromBuiltin() async {
   });
 
   if (overWrites.isNotEmpty) {
-    _log.warning('This template would overwrite the following files:');
-    overWrites.forEach((f) => _log.warning(f));
-    _log.warning('Rerun with flag "-f" (--force) to force overwrite.');
+    Config.logger.w('This template would overwrite the following files:');
+    overWrites.forEach((f) => Config.logger.w(f));
+    Config.logger.w('Rerun with flag "-f" (--force) to force overwrite.');
     exit(0);
   }
 
@@ -176,11 +189,11 @@ void generateFromBuiltin() async {
 
     // create output dir if necessary
     var dirname = path.dirname(outSubpath);
-    // _log.info("dirname: $dirname");
+    // Config.logger.i("dirname: $dirname");
     exists = FileSystemEntity.typeSync(dirname);
     if (exists == FileSystemEntityType.notFound) {
       if ((Config.verbose) || Config.options['dry-run']) {
-        _log.info('Creating output directory: $dirname');
+        Config.logger.i('Creating output directory: $dirname');
       }
       if (!Config.options['dry-run']) {
         Directory(dirname).createSync(recursive: true);
@@ -196,15 +209,15 @@ void generateFromBuiltin() async {
       try {
         newContents = template.renderString(tData);
       } catch (e) {
-        _log.severe(e);
+        _log.e(e);
         exit(0);
       }
       // _log.finer(newContents);
       if ((Config.verbose) || Config.options['dry-run']) {
         if (debug.debug) {
-          _log.info('   ' + tfile.path);
+          Config.logger.i('   ' + tfile.path);
         }
-        _log.info('=> $outSubpath');
+        Config.logger.i('=> $outSubpath');
       }
       if (!Config.options['dry-run']) {
         File(outSubpath).writeAsStringSync(newContents);
@@ -212,9 +225,9 @@ void generateFromBuiltin() async {
     } else {
       if ((Config.verbose) || Config.options['dry-run']) {
         if (debug.debug) {
-          _log.info('   ' + tfile.path);
+          Config.logger.i('   ' + tfile.path);
         }
-        _log.info('=> $outSubpath');
+        Config.logger.i('=> $outSubpath');
       }
       if (!Config.options['dry-run']) {
         tfile.copySync(outSubpath);
@@ -224,11 +237,11 @@ void generateFromBuiltin() async {
 }
 
 void dispatchBuiltin(String template) async {
-  // _log.info('dispatchBuiltin');
+  // Config.logger.i('dispatchBuiltin');
   var tIndex = Config.options.arguments.indexOf('-t');
   //List<String>
   var subArgs = Config.options.arguments.sublist(tIndex + 2);
-  // _log.info('subArgs: $subArgs');
+  // Config.logger.i('subArgs: $subArgs');
   switch (template) {
     case 'bashrc':
       handleBashrc(subArgs);
@@ -237,7 +250,7 @@ void dispatchBuiltin(String template) async {
       handleDartClix(subArgs);
       break;
     default:
-      _log.info('handler for $template not implemented');
+      Config.logger.i('handler for $template not implemented');
   }
   // generateFromBuiltin(template, options);
 }

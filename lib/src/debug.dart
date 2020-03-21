@@ -1,97 +1,97 @@
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 import 'package:package_config/package_config.dart';
 
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 // import 'package:dartrix/src/utils.dart';
 
-var _log = Logger('debug');
+// var _log = Logger();
 
 bool debug = false;
 
 void debugData(Map xData) {
   if (xData != null) {
-    _log.config('External datamap:');
+    Config.logger.d('External datamap:');
     xData.forEach((k, v) {
       if (v is Map) {
-        _log.config('xdata["$k"]:');
+        Config.logger.d('xdata["$k"]:');
         v.forEach((kk, vv) {
-          _log.config('\txdata["$k"]["$kk"]: $vv');
+          Config.logger.d('\txdata["$k"]["$kk"]: $vv');
         });
       } else {
-        _log.config('xdata["$k"]: $v');
+        Config.logger.d('xdata["$k"]: $v');
       }
     });
   }
-  _log.config('Datrix datamap:');
+  Config.logger.d('Datrix datamap:');
   tData.keys.toList()
     ..sort()
     ..forEach((k) {
       var v = tData[k];
       if (v is Map) {
-        _log.config('tData["$k"]:');
+        Config.logger.d('tData["$k"]:');
         v.forEach((kk, vv) {
-          _log.config('\ttData["$k"]["$kk"]: $vv');
+          Config.logger.d('\ttData["$k"]["$kk"]: $vv');
         });
       } else {
-        _log.config('tData["$k"]: $v');
+        Config.logger.d('tData["$k"]: $v');
       }
     });
 }
 
 void debugPathRewriting(Map xData) {
   // debugData(xData);
-  _log.config('Path rewriting:');
-  _log.config(
+  Config.logger.d('Path rewriting:');
+  Config.logger.d(
       '  --domain option: ${Config.options["domain"]} (default: ${Config.argParser.getDefault("domain")})');
-  _log.config('  external default domain: ${xData["domain"]}');
+  Config.logger.d('  external default domain: ${xData["domain"]}');
   var from = tData['domain'];
   from = from.split('.').reversed.join('/');
 
   var to = Config.options['domain'] ?? tData['domain'];
   to = to.split('.').reversed.join('/');
-  _log.config('  rewrite rule: RDOMAINPATH => ${to}');
+  Config.logger.d('  rewrite rule: RDOMAINPATH => ${to}');
 }
 
 void debugOptions() {
-  _log.config('Options:');
-  // _log.config('\targs: ${Config.options.arguments}');
-  _log.config('\toptions: ${Config.options.options}');
+  Config.logger.d('Options:');
+  // Config.logger.d('\targs: ${Config.options.arguments}');
+  Config.logger.d('\toptions: ${Config.options.options}');
   Config.options.options.forEach((o) {
     if (Config.options.wasParsed(o)) {
-      _log.config('\t$o: ${Config.options[o]}');
+      Config.logger.d('\t$o: ${Config.options[o]}');
     }
   });
-  _log.config('\trest: ${Config.options.rest}');
-  // _log.config('\tname: ${Config.options.name}');
+  Config.logger.d('\trest: ${Config.options.rest}');
+  // Config.logger.d('\tname: ${Config.options.name}');
 }
 
 void debugListBuiltins() {
-  _log.config('Available builtin templates:');
+  Config.logger.d('Available builtin templates:');
   builtinTemplates.forEach((k, v) {
     var spacer = (k.length < 8) ? '\t\t' : '\t';
-    _log.config('\t${k}${spacer}${v}');
+    Config.logger.d('\t${k}${spacer}${v}');
   });
 }
 
 void debugPackageConfig(PackageConfig pkgConfig) {
-  _log.config('debugPackageConfig');
-  _log.config('extra data: ${pkgConfig.extraData}');
-  _log.config('version: ${pkgConfig.version}');
-  _log.config('maxVersion: ${PackageConfig.maxVersion}');
-  _log.config(
+  Config.logger.d('debugPackageConfig');
+  Config.logger.d('extra data: ${pkgConfig.extraData}');
+  Config.logger.d('version: ${pkgConfig.version}');
+  Config.logger.d('maxVersion: ${PackageConfig.maxVersion}');
+  Config.logger.d(
       'packages (${pkgConfig.packages.length}) = contents of .packages file:');
   // file:///$HOME/.pub-cache/hosted/pub.dartlang.org/
-  _log.config(
+  Config.logger.d(
       'Package URIs, relative to ~/.pub-cache/hosted/pub.dartlang.org/:');
   pkgConfig.packages.forEach((pkg) {
     // NB: the uri is 'file://${HOME}/.pub-cache/hosted/pub.dartlang.org/'
     // but the .path property strips the file:// scheme, so we need:
     //String
     var pfx = '${Config.home}/.pub-cache/hosted/pub.dartlang.org/';
-    // _log.config('pfx: $pfx');
+    // Config.logger.d('pfx: $pfx');
     var pkgUriRoot = pkg.packageUriRoot.path.replaceFirst(pfx, '');
     var pkgRoot = pkg.root.path.replaceFirst(pfx, '');
-    _log.config('${pkg.name}: uriRoot: $pkgUriRoot; root: ${pkgRoot}\n');
+    Config.logger.d('${pkg.name}: uriRoot: $pkgUriRoot; root: ${pkgRoot}\n');
   });
 }

@@ -3,12 +3,12 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:args/args.dart';
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 
 var _log = Logger('{{template}}');
 
 void generate{{Template}}(List<String> args, SendPort dartrixPort) {
-  _log.info('generate{{Template}}');
+  Config.logger.i('generate{{Template}}');
 
   var argParser = ArgParser();
   argParser.addOption('param1', abbr: 'p',

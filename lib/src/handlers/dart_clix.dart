@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:logging/logging.dart';
+import 'package:logger/logger.dart';
 // import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
@@ -10,10 +10,8 @@ import 'package:dartrix/src/debug.dart' as debug;
 
 import 'package:dartrix/src/builtins.dart';
 
-var _log = Logger('dart_clix');
-
 void handleDartClix(List<String> subArgs) async {
-  _log.info('handleDartClix, subargs $subArgs');
+  Config.logger.i('handleDartClix, subargs $subArgs');
 
   if (debug.debug) {
     debug.debugOptions();
@@ -33,10 +31,10 @@ void handleDartClix(List<String> subArgs) async {
   try {
     options = argParser.parse(subArgs);
   } catch (e) {
-    _log.severe('template ${Config.options["template"]}: $e');
+    Config.logger.e('template ${Config.options["template"]}: $e');
     exit(0);
   }
-  _log.info('dart_clix options: ${options.options}');
+  Config.logger.i('dart_clix options: ${options.options}');
 
   if (options['help']) {
     print('template "dart_clix" parameters:');
@@ -45,7 +43,7 @@ void handleDartClix(List<String> subArgs) async {
   }
 
   if (options['homepage'] == argParser.getDefault('homepage')) {
-    _log.warning(
+    Config.logger.w(
         'Using default homepage ${options["homepage"]} for pubspec.yaml.');
   }
   tData['homepage'] = options['homepage'];
@@ -59,8 +57,8 @@ void handleDartClix(List<String> subArgs) async {
   if (Config.options['out'] == Config.argParser.getDefault('out')) {
     // user did not override, use plugin's default
     // tData['out'] = Config.home;
-    _log.info('OUTx: ${tData['out']}');
+    // Config.logger.i('OUTx: ${tData['out']}');
   }
-  _log.info('OUT: ${tData['out']}');
+  // Config.logger.i('OUT: ${tData['out']}');
   generateFromBuiltin();
 }

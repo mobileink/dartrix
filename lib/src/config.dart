@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
+import 'package:logger/logger.dart';
 
 AnsiPen shoutPen = AnsiPen()..red(bold: true);
 AnsiPen severePen = AnsiPen()..red(bold: true);
@@ -11,6 +12,7 @@ AnsiPen configPen = AnsiPen()..green(bold: true);
 
 class Config {
   static bool verbose = false;
+  static final logger = Logger(printer: SimplePrinter());
   static String appName;
   static String appSfx = '_dartrix';
   static String home;
