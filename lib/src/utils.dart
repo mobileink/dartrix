@@ -7,59 +7,59 @@ import 'package:path/path.dart' as path;
 import 'package:dartrix/dartrix.dart';
 
 import 'package:dartrix/src/config.dart';
-import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/debug.dart' as debug;
+// import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('utils');
 
-AnsiPen shoutPen = new AnsiPen()..red(bold: true);
-AnsiPen severePen = new AnsiPen()..red(bold: true);
-AnsiPen warningPen = new AnsiPen()..red();
-AnsiPen infoPen = new AnsiPen()..green(bold: false);
-AnsiPen configPen = new AnsiPen()..green(bold: true);
+AnsiPen shoutPen = AnsiPen()..red(bold: true);
+AnsiPen severePen = AnsiPen()..red(bold: true);
+AnsiPen warningPen = AnsiPen()..red();
+AnsiPen infoPen = AnsiPen()..green(bold: false);
+AnsiPen configPen = AnsiPen()..green(bold: true);
 
 String getDocstring(Package pkg) {
   var rootDir = pkg.root.path;
   var libName  = pkg.name.replaceFirst(RegExp('_dartrix'),'');
-  var docstringName = libName+ ".docstring";
-  String docstring = File(rootDir + "/" + docstringName).readAsStringSync();
+  var docstringName = libName+ '.docstring';
+  var docstring = File(rootDir + '/' + docstringName).readAsStringSync();
   //TODO: break long lines
   return docstring;
 }
 
 /// Verify that cwd is root of a Dartrix package.
 void sanityCheck() {
-  if (Config.verbose) _log.info("Sanity check...");
-  String cwd = Directory.current.path;
-  String cwdName = path.basename(Directory.current.path);
+  if (Config.verbose) _log.info('Sanity check...');
+  var cwd = Directory.current.path;
+  var cwdName = path.basename(Directory.current.path);
   if ( !cwdName.endsWith(Config.appSfx)) {
-    _log.warning("Not in a dartrix package directory. Package name (cwd) must end in '_dartrix'.");
+    _log.warning('Not in a dartrix package directory. Package name (cwd) must end in "_dartrix".');
     exit(0);
   }
-  if (Config.verbose) _log.info("... cwd ends with '_dartrix' - ok");
+  if (Config.verbose) _log.info('... cwd ends with "_dartrix" - ok');
 
-  var mainDart = "lib/" + cwdName + ".dart";
+  var mainDart = 'lib/' + cwdName + '.dart';
   var exists = FileSystemEntity.typeSync(mainDart);
   if (exists == FileSystemEntityType.notFound) {
-    _log.severe("${mainDart} not found");
+    _log.severe('${mainDart} not found');
     exit(0);
   }
-  if (Config.verbose) _log.info("... .${mainDart} exists - ok");
+  if (Config.verbose) _log.info('... .${mainDart} exists - ok');
 
-  exists = FileSystemEntity.typeSync(cwd + "/templates");
+  exists = FileSystemEntity.typeSync(cwd + '/templates');
   if (exists == FileSystemEntityType.notFound) {
-    _log.severe("./templates directory not found");
+    _log.severe('./templates directory not found');
     exit(0);
   }
-  if (Config.verbose) _log.info("... ./templates directory exists - ok");
+  if (Config.verbose) _log.info('... ./templates directory exists - ok');
 
-  exists = FileSystemEntity.typeSync(cwd + "/man");
+  exists = FileSystemEntity.typeSync(cwd + '/man');
   if (exists == FileSystemEntityType.notFound) {
-    _log.severe("./man directory not found");
+    _log.severe('./man directory not found');
     exit(0);
   }
-  if (Config.verbose) _log.info("... ./man directory exists - ok");
+  if (Config.verbose) _log.info('... ./man directory exists - ok');
 
-  if (Config.verbose) _log.info("Sanity check passed.");
+  if (Config.verbose) _log.info('Sanity check passed.');
 }
 

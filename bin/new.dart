@@ -3,17 +3,17 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
-import 'package:mustache_template/mustache_template.dart';
+// import 'package:mustache_template/mustache_template.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/which.dart';
 import 'package:strings/strings.dart';
 
 import 'package:dartrix/dartrix.dart';
 import 'package:dartrix/src/builtins.dart';
-import 'package:dartrix/src/config.dart' as config;
+import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/plugins.dart';
+// import 'package:dartrix/src/plugins.dart';
 import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('new');
@@ -21,164 +21,21 @@ var _log = Logger('new');
 // final myScratchSpaceResource =
 //     new Resource(() => ScratchSpace());
 
-String http_parser_pkg = "package:http_parser";
-String hello_pkg = "package:hello_template";
-
-// void getResource (String _pkg) async {
-
-//   // 1. try pubcache
-//   //   a. globals
-//   //   b. hosted
-//   // 2. .packages?
-
-//   _log.finer("pubcache: ${PubCache.getSystemCacheLocation()}");
-
-//   PubCache pc = PubCache();
-//   var cachedPkgs = pc.getCachedPackages();
-//   // cachedPkgs.forEach((pkg) => _log.finer("pkg: $pkg"));
-//   var globalApps = pc.getGlobalApplications();
-//   globalApps.forEach((global) => _log.finer("global name: ${global.name}"));
-//   Application gapp = globalApps.firstWhere((app) => app.name == "hello_template");
-
-//   // var pkgs = globalApps.map((app) => app.getDefiningPackageRef().resolve());
-//   // pkgs.forEach((pkg) => _log.finer("pkg/locn : ${pkg.name}/${pkg.location}"));
-
-//   Package thePkg = gapp.getDefiningPackageRef().resolve();
-//   _log.finer("name/locn:  ${thePkg.name} / ${thePkg.location}");
-
-//   var icfg = await Isolate.packageConfig;
-//   _log.finer("icfg: $icfg");
-
-//   String pkg = "package:${_pkg}/dartrix.dart";
-//   var resource = new Resource(pkg);
-//   _log.finer("dep uri: ${resource.uri}");
-
-//   // String pkgResolver = "file:///
-//   // var resolver = SyncPackageResolver.root(resource.uri);
-//   // _log.finer("resolver: ${resolver}");
-//   // _log.finer("resolver packageConfigMap: ${resolver.packageConfigMap}");
-//   // _log.finer("resolver packageConfigUri: ${resolver.packageConfigUri}");
-//   // _log.finer("resolver packageRoot: ${resolver.packageRoot}");
-//   // var pkgPath = resolver.packageUriFor(pkg);
-//   // _log.finer("resolver packagePath(): ${pkgPath}");
-//   // var x = resolver.packagePath('package:hello_template/'); // .then((x) => _log.finer("X $x"));
-//   // _log.finer("pkg path: $x");
-//   // // var hiUri = await resolver.resolveUri('package:hello_template/');
-//   // // _log.finer("hiUri: $hiUri");
-
-
-//   // var string = await resource.readAsString(encoding: utf8);
-//   // _log.finer("FOO: $manifest")  _log.finer("manifest: ${resource.uri}");
-
-//   Uri theUri = Uri.parse("file://" + thePkg.location.path + "/lib/dartrix.dart");
-//   _log.finer("theUri: $theUri");
-
-//   final rPort = ReceivePort();
-//   // await Isolate.spawnUri(resource.uri, [], null);
-//   await Isolate.spawnUri(theUri, [resource.uri.path], null, onExit: rPort.sendPort);
-//   // await Isolate.spawn(entryPoint, null, onExit: rPort.sendPort);
-//   await rPort.first;
-
-//   // sleep(const Duration(seconds:1));
-
-//   // var pkgcfg = await Isolate.packageConfig;
-//   // _log.finer("Uri pkg config: $pkgcfg");
-
-//   // var xuri = Uri.dataFromString('package:hello_template/');
-//   // var uri = await Isolate.resolvePackageUri(xuri);
-//   // // var uri2 = uri.resolve(uri);
-//   // _log.finer("URI: $uri");
-
-// }
-
-
-void transformDirectory(String source, String destination, Map data) {
-
-  var inDir = Directory(source);
-  var outDir = Directory(destination);
-
-  List inFiles = inDir.listSync(recursive: true);
-  inFiles.removeWhere((f) => f.path.endsWith("~"));
-
-  var orgSegs = data["org"].replaceAll(".", "/");
-
-  List dirs = List.from(inFiles);
-  dirs.retainWhere((f) => f is Directory);
-  dirs.forEach((d) {
-      var od = d.path.replaceAll(source + "/", '');
-      // var od = d.path.replaceAll('mustache/', ''); // data['package']['dart']);
-      od = od.replaceAll('greetings', data['package']['dart']);
-      // _log.finer("dir: $od");
-      var segs = od.split("org/example");
-      // _log.finer("segs: $segs");
-      var out = "plugins/" + data['package']['dart'] + "/" + segs.join(orgSegs);
-      // _log.finer("out: $out");
-      var outDir = Directory(out);
-
-      // _log.finer(outDir);
-      outDir.createSync(recursive: true);
-  });
-
-  inFiles.removeWhere((f) => f is Directory);
-
-  List templates = List.from(inFiles);
-
-  inFiles.removeWhere((f) => f.path.endsWith("mustache"));
-  var outFiles = inFiles.map((f) => File(f.path.replaceAll('mustache', data['package']['dart']).replaceAll('greetings', data['package']['dart'])));
-
-  // _log.finer("FILES:");
-  // outFiles.forEach((f) => _log.finer(f));
-
-  inFiles.forEach((f) {
-      var of = f.path.replaceAll(source + "/", '');
-      // var of = f.path.replaceAll(RegExp('^mustache/'), '');
-      // data['package']['dart']);
-      of = of.replaceAll('greetings', data['package']['dart']);
-      of = "plugins/" + data['package']['dart'] + "/" + of;
-      var outFile = File(of);
-      // _log.finer("COPY: $f");
-      // _log.finer(" => $outFile");
-      f.copySync(of);
-  });
-
-
-  templates.retainWhere((f) => f.path.endsWith("mustache"));
-  templates.forEach((t) {
-      var out = t.path.replaceAll(source + "/", '');
-      out = out.replaceAll('greetings', data['package']['dart']);
-      out = out.replaceAll('Greetings', data['plugin-class']);
-      out = out.replaceFirst(RegExp('^mustache/'), '') // data['package']['dart'])
-      .replaceFirst(RegExp('\.mustache\$'), '');
-
-      var segs = out.split("org/example");
-      // _log.finer("file: $out");
-      // _log.finer("segs: $segs");
-      out = segs.join(orgSegs);
-      // _log.finer("out: $out");
-      out = "plugins/" + data['package']['dart'] + "/" + out;
-
-      // _log.finer(t);
-      // _log.finer(" => $out");
-      var contents;
-      contents = t.readAsStringSync();
-      var template = Template(contents, name: t.path, htmlEscapeValues: false);
-      var newContents = template.renderString(data);
-      File(out).writeAsStringSync(newContents);
-  });
-}
+String http_parser_pkg = 'package:http_parser';
+String hello_pkg = 'package:hello_template';
 
 void validateSnakeCase(String pkg) {
-  final r = RegExp(r"^[a-z_][a-z0-9_]*$");
+  final r = RegExp(r'^[a-z_][a-z0-9_]*$');
   if ( ! r.hasMatch(pkg) ) {
-    _log.warning("Invalid name (snake_case): $pkg");
+    _log.warning('Invalid name (snake_case): $pkg');
     exit(0);
   }
 }
 
 void validateCamelCase(String name) {
-  final r = RegExp(r"^[A-Z][A-Za-z0-9_]*$");
+  final r = RegExp(r'^[A-Z][A-Za-z0-9_]*$');
   if ( ! r.hasMatch(name) ) {
-    _log.warning("Invalid name (CamelCase): $name");
+    _log.warning('Invalid name (CamelCase): $name');
     exit(0);
   }
 }
@@ -187,49 +44,49 @@ void validateTemplateName(String t) {
   validateSnakeCase(t);
 }
 
-String getInDir(String template) {
+// String getInDir(String template) {
 
-  // If template is built-in, proceed, else call resolution fn
+//   // If template is built-in, proceed, else call resolution fn
 
-  String p = path.prettyUri(Platform.script.toString());
-  // _log.finer("inDir 1: $p");
-  String inDir = path.dirname(p) + "/..";
-  var inPfx = path.canonicalize(inDir);
-  // _log.finer("inPfx 2: $inPfx");
-  if (template == 'split-plugin') {
-    inDir = inPfx + "/mustache/plugins/greetings-services";
-  } else {
-    inDir = inPfx + "/mustache/plugins/greetings";
-  }
-}
+//   String p = path.prettyUri(Platform.script.toString());
+//   // _log.finer('inDir 1: $p');
+//   String inDir = path.dirname(p) + '/..';
+//   var inPfx = path.canonicalize(inDir);
+//   // _log.finer('inPfx 2: $inPfx');
+//   if (template == 'split-plugin') {
+//     inDir = inPfx + '/mustache/plugins/greetings-services';
+//   } else {
+//     inDir = inPfx + '/mustache/plugins/greetings';
+//   }
+// }
 
 void printUsage(ArgParser argParser) {
-  print("\n\t\tDartrix Templating System - 'new' command\n");
-  print("Usage:");
-  print("  Builtins: pub global run dartrix:new [ordpcfhvt]\n");
-  print("  Plugins: pub global run dartrix:new [ordpcfv] plugin [th][toptions]\n");
-  print("\t plugin:  pkg:package_name | package:package_name | path:path/to/package_name\n");
-  print("\t toptions:  per template; pass -h or use dartrix:man to view.\n");
-  print("Options:");
+  print('\n\t\tDartrix Templating System - "new" command\n');
+  print('Usage:');
+  print('  Builtins: pub global run dartrix:new [ordpcfhvt]\n');
+  print('  Plugins: pub global run dartrix:new [ordpcfv] plugin [th][toptions]\n');
+  print('\t plugin:  pkg:package_name | package:package_name | path:path/to/package_name\n');
+  print('\t toptions:  per template; pass -h or use dartrix:man to view.\n');
+  print('Options:');
   print(argParser.usage);
 
-  print("\nTo list available commands and templates: pub global run dartrix:list\n");
-  // print("\nBuiltin templates:");
-  // print("\tplugin");
-  // print("\tsplitplugin");
-  // print("\tapp-dart");
-  // print("\tapp-flutter");
-  // print("\tpackage");
-  // print("\tlib");
-  // print("\ttool\n");
-  // print("Other commands:\n");
-  // // print("\tdartrix:dev\t\tDocumentation for template development\n");
-  // print("\tdartrix:list\t\tList available template libraries");
-  // print("\tdartrix:man\t\tDisplay manual pages\n");
+  print('\nTo list available commands and templates: pub global run dartrix:list\n');
+  // print('\nBuiltin templates:');
+  // print('\tplugin');
+  // print('\tsplitplugin');
+  // print('\tapp-dart');
+  // print('\tapp-flutter');
+  // print('\tpackage');
+  // print('\tlib');
+  // print('\ttool\n');
+  // print('Other commands:\n');
+  // // print('\tdartrix:dev\t\tDocumentation for template development\n');
+  // print('\tdartrix:list\t\tList available template libraries');
+  // print('\tdartrix:man\t\tDisplay manual pages\n');
 }
 
 void main(List<String> args) async {
-  Config.config("dartrix");
+  Config.config('dartrix');
   Logger.root.level = Level.ALL;
   Logger.root..onRecord.listen((record) {
       var level;
@@ -246,41 +103,41 @@ void main(List<String> args) async {
 
   Config.argParser = ArgParser(allowTrailingOptions: true);
   Config.argParser.addOption('template', abbr: 't', // defaultsTo: 'hello',
-    valueHelp: "[a-z][a-z0-9_]*",
-    help: "Template name.",
+    valueHelp: '[a-z][a-z0-9_]*',
+    help: 'Template name.',
     // callback: (t) => validateTemplateName(t)
   );
   Config.argParser.addOption('root', abbr: 'r',
-    valueHelp: "directory, without '/'.",
-    help: "Root output segment.  Defaults to value of --package arg (i.e. 'hello')."
+    valueHelp: 'directory, without "/".',
+    help: 'Root output segment.  Defaults to value of --package arg (i.e. "hello").'
     // callback: (pkg) => validateSnakeCase(pkg)
   );
   Config.argParser.addOption('domain', abbr: 'd', defaultsTo: 'example.org',
-    help: "Domain name. Must be legal as a Java package name;\ne.g. must not begin with a number, or match a Java keyword.",
-    valueHelp: "segmented.domain.name"
+    help: 'Domain name. Must be legal as a Java package name;\ne.g. must not begin with a number, or match a Java keyword.',
+    valueHelp: 'segmented.domain.name'
   );
   Config.argParser.addOption('package', abbr: 'p', defaultsTo: 'hello',
-    valueHelp: "[_a-z][a-z0-9_]*",
-    help: "snake_cased name.  Used e.g. as Dart package name.",
+    valueHelp: '[_a-z][a-z0-9_]*',
+    help: 'snake_cased name.  Used e.g. as Dart package name.',
     callback: (pkg) => validateSnakeCase(pkg)
   );
   Config.argParser.addOption('class', abbr: 'c', defaultsTo: 'Hello',
-    valueHelp: "[A-Z][a-zA-Z0-9_]*",
-    help: "CamelCased name. Used as class/type name for Java, Kotline, etc.\nDefaults to --package value, CamelCased (i.e. 'Hello').\nE.g. -p foo_bar => -c FooBar.",
+    valueHelp: '[A-Z][a-zA-Z0-9_]*',
+    help: 'CamelCased name. Used as class/type name for Java, Kotline, etc.\nDefaults to --package value, CamelCased (i.e. "Hello").\nE.g. -p foo_bar => -c FooBar.',
     callback: (name) => validateCamelCase(name)
   );
   Config.argParser.addOption('out', abbr: 'o', defaultsTo: './',
-    help: "Output path.  Prefixed to --root dir.",
-    valueHelp: "path."
+    help: 'Output path.  Prefixed to --root dir.',
+    valueHelp: 'path.'
   );
   // Config.argParser.addOption('plugin', abbr: 'x',
-  //   valueHelp: "path:path/to/local/pkg | package:pkg_name",
-  //   help: "External template package"
+  //   valueHelp: 'path:path/to/local/pkg | package:pkg_name',
+  //   help: 'External template package'
   //   // defaultsTo: 'plugin',
   //   // callback: (t) => validateTemplateName(t)
   // );
   // Config.argParser.addFlag('list', abbr: 'l',
-  //   help: "List plugins.",
+  //   help: 'List plugins.',
   //   defaultsTo: false,
   // );
   Config.argParser.addFlag('dry-run', abbr: 'n', defaultsTo: false);
@@ -293,9 +150,9 @@ void main(List<String> args) async {
 
   var pluginCmd = ArgParser.allowAnything();
   Config.argParser.addCommand('pkg:', pluginCmd);
-  var packageCmd = ArgParser.allowAnything();
+  // var packageCmd = ArgParser.allowAnything();
   Config.argParser.addCommand('package:', pluginCmd);
-  var pathCmd = ArgParser.allowAnything();
+  // var pathCmd = ArgParser.allowAnything();
   Config.argParser.addCommand('path:', pluginCmd);
 
   try {
@@ -315,19 +172,19 @@ void main(List<String> args) async {
   if (debug.debug) debug.debugOptions();
 
   if (Config.options['help']) {
-    // print("h: ${args.indexOf('-h')}");
-    // print("help: ${args.indexOf('--help')}");
-    // print("t: ${args.indexOf('-t')}");
-    // print("template: ${args.indexOf('--template')}");
+    // print('h: ${args.indexOf('-h')}');
+    // print('help: ${args.indexOf('--help')}');
+    // print('t: ${args.indexOf('-t')}');
+    // print('template: ${args.indexOf('--template')}');
     if (args.contains('-t') || args.contains('template')) {
-      if (args.indexOf('-h') >= 0
+      if (args.contains('-h')
         && ( (args.indexOf('-h') < args.indexOf('-t'))
           || (args.indexOf('-h') < args.indexOf('--template'))))
       {
         printUsage(Config.argParser);
         exit(0);
       } else {
-        if (args.indexOf('--help') >= 0
+        if (args.contains('--help')
           && ( (args.indexOf('--help') < args.indexOf('-t'))
             || (args.indexOf('--help') < args.indexOf('--template'))))
         {
@@ -338,17 +195,17 @@ void main(List<String> args) async {
     }
   }
 
-  var cmd = Config.options.command;
-  // _log.finer("cmd: $cmd");
+  // var cmd = Config.options.command;
+  // _log.finer('cmd: $cmd');
 
-  var cmdOptions;
-  if (Config.options.command != null) {
-    cmdOptions = pluginCmd.parse(Config.options.command.arguments);
-    // _log.finer("command: ${Config.options.command.name}");
-    // _log.finer("command args: ${Config.options.command.arguments}");
-    // _log.finer("command opts: ${Config.options.command.options}");
-    // _log.finer("command rest: ${Config.options.command.rest}");
-  }
+  // var cmdOptions;
+  // if (Config.options.command != null) {
+  //   cmdOptions = pluginCmd.parse(Config.options.command.arguments);
+  //   // _log.finer('command: ${Config.options.command.name}');
+  //   // _log.finer('command args: ${Config.options.command.arguments}');
+  //   // _log.finer('command opts: ${Config.options.command.options}');
+  //   // _log.finer('command rest: ${Config.options.command.rest}');
+  // }
 
   Config.verbose = Config.options['verbose'];
 
@@ -361,16 +218,17 @@ void main(List<String> args) async {
   }
 
   tData['package']['dart'] = Config.options['package'];
-  // "package.java" = Java package string, e.g. org.example.foo
+  // 'package.java' = Java package string, e.g. org.example.foo
   String dartPackage = Config.options['package'];
-  String rdomain = tData['domain'].split('.').reversed.join(".");
-  String javaPackage = rdomain + "." + dartPackage;
+  String rdomain = tData['domain'].split('.').reversed.join('.');
+  //String
+  var javaPackage = rdomain + '.' + dartPackage;
   tData['package']['java'] = javaPackage;
 
   tData['segmap']['RDOMAINPATH'] = rdomain.replaceAll('.', '/');
 
   var pluginClass = (Config.options['class'] == 'Hello')
-  ? dartPackage.split("_").map(
+  ? dartPackage.split('_').map(
     (s)=> capitalize(s)).join()
   : Config.options['class'];
 
@@ -390,10 +248,10 @@ void main(List<String> args) async {
   tData['segmap']['PKG'] = Config.options['package'];
 
   // Theses properties are for android/local.properties.
-  // _log.finer("resolvedExecutable: ${Platform.resolvedExecutable}");
+  // _log.finer('resolvedExecutable: ${Platform.resolvedExecutable}');
   // FIXME: find a better way?
   var androidExecutable = whichSync('android');
-  // _log.finer("android exe: $androidExecutable");
+  // _log.finer('android exe: $androidExecutable');
   var androidSdk = path.joinAll(
     path.split(androidExecutable)
     ..removeLast()
@@ -401,7 +259,7 @@ void main(List<String> args) async {
   tData['sdk']['android'] = androidSdk;
 
   var flutterExecutable = whichSync('flutter');
-  // _log.finer("flutter exe: $flutterExecutable");
+  // _log.finer('flutter exe: $flutterExecutable');
   var flutterSdk = path.joinAll(
     path.split(flutterExecutable)
     ..removeLast()
@@ -409,21 +267,21 @@ void main(List<String> args) async {
   tData['sdk']['flutter'] = flutterSdk;
 
   // var outPathPrefix = Config.options['outpath'];
-  // _log.finer("outPathPrefix: $outPathPrefix");
+  // _log.finer('outPathPrefix: $outPathPrefix');
 
   // var rootDir = (Config.options['root'] == null)
-  // ? "/"
-  // : "/" + Config.options['root'];
+  // ? '/'
+  // : '/' + Config.options['root'];
 
   // var outPath = outPathPrefix + rootDir;
 
-  // if (outPathPrefix != "./") {
+  // if (outPathPrefix != './') {
   //   if (Directory(outPath).existsSync()) {
   //     if ( !Config.options['force'] ) {
-  //       _log.severe("Directory '$outPath' already exists. Use -f to force overwrite.");
+  //       _log.severe('Directory '$outPath' already exists. Use -f to force overwrite.');
   //       exit(0);
   //     }
-  //     _log.warning("Overwriting plugins/$outPath.");
+  //     _log.warning('Overwriting plugins/$outPath.');
   //   }
   // }
 
@@ -434,15 +292,15 @@ void main(List<String> args) async {
   if ( Config.options.rest.isNotEmpty && (Config.options.command == null)) {
     var pkgSpec = Config.options.rest[0];
     if (pkgSpec.startsWith('pkg:')) {
-      print("PKG"); exit(0);
+      print('PKG'); exit(0);
     } else {
       if (pkgSpec.startsWith('package:')) {
-      print("PACKAGE"); exit(0);
+      print('PACKAGE'); exit(0);
       } else {
         if (pkgSpec.startsWith('patn:')) {
-          print("PATH"); exit(0);
+          print('PATH'); exit(0);
         } else {
-          _log.severe("Unrecognized param: $pkgSpec. Exiting.");
+          _log.severe('Unrecognized param: $pkgSpec. Exiting.');
           exit(0);
         }
       }
@@ -456,21 +314,21 @@ void main(List<String> args) async {
     //FIXME: we don't need to list all, just get the one we want!
     // await initBuiltinTemplates();
     // if ( builtinTemplates.keys.contains(template) ) {
-    //   _log.info("FIXME: run builtin");
+    //   _log.info('FIXME: run builtin');
     dispatchBuiltin(template);
     //     (Config.options.command == null)? null : Config.options.command.arguments);
     // } else {
-    //   _log.finer("EXCEPTION: template $template not found.");
+    //   _log.finer('EXCEPTION: template $template not found.');
     //   exit(0);
     // }
   // }
-  // _log.finer("script locn: ${Platform.script.toString()}");
-  // _log.finer("built-ins: $builtinTemplates");
+  // _log.finer('script locn: ${Platform.script.toString()}');
+  // _log.finer('built-ins: $builtinTemplates');
 
   // String inDir = getInDir(Config.options['template']);
-  // _log.finer("inDir: $inDir");
+  // _log.finer('inDir: $inDir');
 
-  // getResource("hello_template");
+  // getResource('hello_template');
 
   // if (template == 'plugin')
   // transformDirectory(inDir, outPathPrefix, tData);

@@ -4,7 +4,7 @@ import 'package:args/args.dart';
 class Config {
   static bool verbose = false;
   static String appName;
-  static String appSfx = "_dartrix";
+  static String appSfx = '_dartrix';
   static String home;
 
   static ArgParser argParser;
@@ -12,7 +12,8 @@ class Config {
 
   static void config(String _appName) {
     appName = _appName;
-    Map<String, String> envVars = Platform.environment;
+    //Map<String, String>
+    var envVars = Platform.environment;
     if (Platform.isMacOS) {
       home = envVars['HOME'];
     } else if (Platform.isLinux) {

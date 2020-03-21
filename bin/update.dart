@@ -1,23 +1,23 @@
 // update template project under development. generate manpages, docstrings,
 // handlers.
-import 'dart:async';
+// import 'dart:async';
 import 'dart:core';
-import 'dart:convert';
+// import 'dart:convert';
 import 'dart:io';
-import 'dart:isolate';
+// import 'dart:isolate';
 
 import 'package:args/args.dart';
 import 'package:logging/logging.dart';
 import 'package:mustache_template/mustache_template.dart';
-import 'package:package_config/package_config.dart';
+// import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
-import 'package:process_run/which.dart';
-import 'package:sprintf/sprintf.dart';
+// import 'package:process_run/which.dart';
+// import 'package:sprintf/sprintf.dart';
 import 'package:strings/strings.dart';
 
 //import 'package:dartrix/dartrix.dart';
 
-import 'package:dartrix/src/data.dart';
+// import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/handler_template.dart';
@@ -25,7 +25,7 @@ import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('list');
 
-String manTemplate = """
+String manTemplate = '''
 .Dd March 18, 2020
 .Dt {{LIB}}_DARTRIX
 .Sh NAME
@@ -50,89 +50,95 @@ Default: param1-default
 Example goes here...
 .Sh SEE ALSO
 .Xr hello
-""";
+''';
 
 List templates;
 Set<String> templateSet;
 
 void listTemplates(ArgResults options) async {
-  // print("listTemplates ${options.arguments}");
-  templates = Directory(Directory.current.path + "/templates").listSync();
+  // print('listTemplates ${options.arguments}');
+  templates = Directory(Directory.current.path + '/templates').listSync();
   templates.retainWhere((f) => f is Directory);
   templateSet = templates.map((t)=>path.basename(t.path)).toSet();
 
-  // print("Builtin templates:");
+  // print('Builtin templates:');
   // templates.forEach((t) {
   //     var tName = path.basename(t.path);
   //     String docString;
   //     // try {
-  //     // docString = File(templatesRoot + "/" + tName + ".docstring")
+  //     // docString = File(templatesRoot + '/' + tName + '.docstring')
   //     // .readAsStringSync();
   //     // } on FileSystemException {
   //     //   // if (debug.debug)
-  //     //   // _log.info("docstring not found for ${builtin.path}");
+  //     //   // _log.info('docstring not found for ${builtin.path}');
   //     //   if (debug.debug) {
-  //     //     docString = warningPen("${tName}.docstring not found");
-  //     //     // tName = warningPen(sprintf("%-18s", [tName]));
+  //     //     docString = warningPen('${tName}.docstring not found');
+  //     //     // tName = warningPen(sprintf('%-18s', [tName]));
   //     //   }
   //     // }
-  //     tName = sprintf("%-18s", [tName]);
-  //     print("\t${tName}"); // ${docString}");
+  //     tName = sprintf('%-18s', [tName]);
+  //     print('\t${tName}'); // ${docString}');
   // });
 }
 
 void updateDocstrings() {
-  // _log.info("updateDocstrings");
+  // _log.info('updateDocstrings');
   var package = path.basename(Directory.current.path);
-  package = package.replaceAll(RegExp(r"_dartrix$"), '');
-  var templates = Directory(Directory.current.path + "/templates").listSync();
+  package = package.replaceAll(RegExp(r'_dartrix$'), '');
+  var templates = Directory(Directory.current.path + '/templates').listSync();
   var docstrings = List.from(templates);
-  RegExp dsext = RegExp(r'\.docstring$');
+  //RegExp
+  var dsext = RegExp(r'\.docstring$');
   templates.removeWhere((fse) {
       return (fse is File);
   });
-  // templates.forEach((fse) => print("tp: ${fse.path}"));
+  // templates.forEach((fse) => print('tp: ${fse.path}'));
 
   docstrings.retainWhere((fse) {
       return dsext.hasMatch(fse.path);
   });
-  // docstrings.forEach((fse) => print("ds: ${fse.path}"));
+  // docstrings.forEach((fse) => print('ds: ${fse.path}'));
 
   var dsbases = docstrings.map((ds)
     => (ds.path).replaceAll(RegExp(r'.docstring$'), ''));
-  // dsbases.forEach((ds) => print("dsb: ${ds}"));
+  // dsbases.forEach((ds) => print('dsb: ${ds}'));
 
   // Set<String> templateSet = templates.map((t) => path.basename(t.path)).toSet();
-  Set<String> dsSet = dsbases.map((ds) => path.basename(ds)).toSet();
+  //Set<String>
+  var dsSet = dsbases.map((ds) => path.basename(ds)).toSet();
 
-  Set<String> orphanedDocstrings = dsSet.difference(templateSet);
-  Set<String> missingDocstrings = templateSet.difference(dsSet);
+  //Set<String>
+  var orphanedDocstrings = dsSet.difference(templateSet);
+  //Set<String>
+  var missingDocstrings = templateSet.difference(dsSet);
 
   if (Config.verbose) {
     if (orphanedDocstrings.isNotEmpty) {
-      _log.warning("docstrings without corresponding templates: $orphanedDocstrings");
+      _log.warning('docstrings without corresponding templates: $orphanedDocstrings');
     }
   }
   if (missingDocstrings.isNotEmpty) {
-    _log.warning("missing docstrings: $missingDocstrings");
+    _log.warning('missing docstrings: $missingDocstrings');
     missingDocstrings.forEach((ds) {
-        String fname = Directory.current.path + "/templates/" + ds + ".docstring";
+        //String
+        var fname = Directory.current.path + '/templates/' + ds + '.docstring';
         // double-check to ensure no overwrites:
         // var exists = FileSystemEntity.typeSync(fname);
         // if (exists != FileSystemEntityType.notFound) {
-        //   _log.severe("$fname already exists");
+        //   _log.severe('$fname already exists');
         //   exit(0);
         // }
 
         // write docstring
-        Map data = {
-          "template": ds
+        //Map
+        var data = {
+          'template': ds
         };
-        var dsTemplate = "{{template}} docstring";
-        var template = Template(dsTemplate, name: "hardcoded", htmlEscapeValues: false);
+        var dsTemplate = '{{template}} docstring';
+        var template = Template(dsTemplate, name: 'hardcoded', htmlEscapeValues: false);
         var contents = template.renderString(data);
         File(fname).writeAsStringSync(contents);
-        _log.info("wrote $fname");
+        _log.info('wrote $fname');
     });
   }
 
@@ -140,11 +146,12 @@ void updateDocstrings() {
 
 /// Update template handlers in lib/src
 void updateHandlers() {
-  // _log.info("updateHandlers");
+  // _log.info('updateHandlers');
   var package = path.basename(Directory.current.path);
-  package = package.replaceAll(RegExp(r"_dartrix$"), '');
-  var handlers = Directory(Directory.current.path + "/lib/src").listSync();
-  RegExp dartExt = RegExp(r'\.dart$');
+  package = package.replaceAll(RegExp(r'_dartrix$'), '');
+  var handlers = Directory(Directory.current.path + '/lib/src').listSync();
+  //RegExp
+  var dartExt = RegExp(r'\.dart$');
   handlers.retainWhere((fse) {
       return dartExt.hasMatch(fse.path);
   });
@@ -152,50 +159,54 @@ void updateHandlers() {
   var handlerSet = handlers.map((h)
     => path.basenameWithoutExtension(h.path)
   ).toSet();
-  // _log.info("hset: $handlerSet");
-  // _log.info("tpset: $templateSet");
+  // _log.info('hset: $handlerSet');
+  // _log.info('tpset: $templateSet');
 
-  Set<String> orphanedHandlers = handlerSet.difference(templateSet);
+  //Set<String>
+  var orphanedHandlers = handlerSet.difference(templateSet);
   // if (config.verbose) {
     if (orphanedHandlers.isNotEmpty) {
-      _log.warning("handlers without corresponding templates: $orphanedHandlers");
+      _log.warning('handlers without corresponding templates: $orphanedHandlers');
     }
   // }
 
   var missingHandlers = templateSet.difference(handlerSet);
   // if (config.verbose) {
     if (missingHandlers.isNotEmpty) {
-      _log.info("missing handlers: $missingHandlers");
+      _log.info('missing handlers: $missingHandlers');
     }
   // }
   missingHandlers.forEach((h) {
-      String fname = Directory.current.path + "/lib/src/" + h + ".dart";
+      //String
+      var fname = Directory.current.path + '/lib/src/' + h + '.dart';
       // double-check to ensure no overwrites:
       // var exists = FileSystemEntity.typeSync(fname);
       // if (exists != FileSystemEntityType.notFound) {
-      //   _log.severe("$fname already exists");
+      //   _log.severe('$fname already exists');
       //   exit(0);
       // }
 
       // write handler
-      Map data = {
-        "package" : package,
-        "template": h,
-        "Template": capitalize(h)
+      //Map
+      var data = {
+        'package' : package,
+        'template': h,
+        'Template': capitalize(h)
       };
-      var template = Template(handlerTemplate, name: "hardcoded", htmlEscapeValues: false);
+      var template = Template(handlerTemplate, name: 'hardcoded', htmlEscapeValues: false);
       var contents = template.renderString(data);
       File(fname).writeAsStringSync(contents);
-      _log.info("wrote $fname");
+      _log.info('wrote $fname');
   });
 }
 
 void updateManuals() {
-  // _log.info("updateManuals");
+  // _log.info('updateManuals');
   var package = path.basename(Directory.current.path);
-  package = package.replaceAll(RegExp(r"_dartrix$"), '');
-  var manpages = Directory(Directory.current.path + "/man").listSync();
-  RegExp manext = RegExp(r'\.[0-9][a-z]?$');
+  package = package.replaceAll(RegExp(r'_dartrix$'), '');
+  var manpages = Directory(Directory.current.path + '/man').listSync();
+  //RegExp
+  var manext = RegExp(r'\.[0-9][a-z]?$');
   manpages.retainWhere((fse) {
       return manext.hasMatch(fse.path);
   });
@@ -203,51 +214,54 @@ void updateManuals() {
   var manpageSet = manpages.map((mp)
     => path.basenameWithoutExtension(mp.path)
   ).toSet();
-  // _log.info("mpset: $manpageSet");
+  // _log.info('mpset: $manpageSet');
   // Set<String> templateSet = templates.map((t)=>path.basename(t.path)).toSet();
-  // _log.info("tpset: $templateSet");
+  // _log.info('tpset: $templateSet');
 
-  Set<String> orphanedManpages = manpageSet.difference(templateSet);
+  //Set<String>
+  var orphanedManpages = manpageSet.difference(templateSet);
   // if (config.verbose) {
     if (orphanedManpages.isNotEmpty) {
-      _log.warning("manpages without corresponding templates: $orphanedManpages");
+      _log.warning('manpages without corresponding templates: $orphanedManpages');
     }
   // }
 
   var missingManpages = templateSet.difference(manpageSet);
   // if (config.verbose) {
     if (missingManpages.isNotEmpty) {
-      _log.warning("missing manpages: $missingManpages");
+      _log.warning('missing manpages: $missingManpages');
     }
   // }
   missingManpages.forEach((mp) {
-      String fname = Directory.current.path + "/man/" + mp + ".1";
+      //String
+      var fname = Directory.current.path + '/man/' + mp + '.1';
       // double-check to ensure no overwrites:
       var exists = FileSystemEntity.typeSync(fname);
       if (exists != FileSystemEntityType.notFound) {
-        _log.severe("$fname already exists");
+        _log.severe('$fname already exists');
         exit(0);
       }
 
       // write manpage
-      Map data = {
-        "package" : package,
-        "LIB": package.toUpperCase(),
-        "template": mp
+      //Map
+      var data = {
+        'package' : package,
+        'LIB': package.toUpperCase(),
+        'template': mp
       };
-      var template = Template(manTemplate, name: "man", htmlEscapeValues: false);
+      var template = Template(manTemplate, name: 'man', htmlEscapeValues: false);
       var contents = template.renderString(data);
       File(fname).writeAsStringSync(contents);
-      _log.info("wrote $fname");
+      _log.info('wrote $fname');
   });
 }
 
 void printUsage(ArgParser argParser) async {
-  print("dartrix:update, version 0.1.0");
-  print("Update template project: generate missing manpages, docstrings, handlers for current package.\n");
-  print("Usage: pub global run dartrix:update [hv] [--debug]\n");
+  print('dartrix:update, version 0.1.0');
+  print('Update template project: generate missing manpages, docstrings, handlers for current package.\n');
+  print('Usage: pub global run dartrix:update [hv] [--debug]\n');
   print(argParser.usage);
-  print("");
+  print('');
 }
 
 void main(List<String> args) async {
@@ -267,8 +281,8 @@ void main(List<String> args) async {
 
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('template', abbr: 't',
-  //   valueHelp: "[a-z_][a-z0-9_]*",
-  //   help: "Template name.",
+  //   valueHelp: '[a-z_][a-z0-9_]*',
+  //   help: 'Template name.',
   //   // defaultsTo: 'plugin',
   //   // callback: (t) => validateTemplateName(t)
   // );
@@ -284,7 +298,7 @@ void main(List<String> args) async {
   if (debug.debug) debug.debugOptions();
 
   // var root = path.dirname(Platform.script.toString());
-  // print("proj root: $root");
+  // print('proj root: $root');
 
   if (Config.options['help']) {
     await printUsage(argParser);

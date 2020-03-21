@@ -5,21 +5,21 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:strings/strings.dart';
+// import 'package:strings/strings.dart';
 // import 'package:resource/resource.dart';
 // import 'package:package_resolver/package_resolver.dart';
 
 // import 'package:pub_cache/pub_cache.dart';
 
-import 'package:mustache_template/mustache_template.dart';
+// import 'package:mustache_template/mustache_template.dart';
 
 bool verbose = false;
 
 void main(List<String> args) {
   var parser = ArgParser();
   // parser.addOption('template', abbr: 't',
-  //   valueHelp: "[a-z_][a-z0-9_]*",
-  //   help: "Template name.",
+  //   valueHelp: '[a-z_][a-z0-9_]*',
+  //   help: 'Template name.',
   //   defaultsTo: 'plugin',
   //   // callback: (t) => validateTemplateName(t)
   // );
@@ -31,7 +31,7 @@ void main(List<String> args) {
   verbose = options['verbose'];
 
   // var root = path.dirname(Platform.script.toString());
-  // print("proj root: $root");
+  // print('proj root: $root');
 
   if (options['help']) {
     print(parser.usage);
@@ -39,8 +39,8 @@ void main(List<String> args) {
   }
 
   // FIXME: read the templates to generate the list
-  print("Built-in templates:");
-  print("    plugin (default)");
-  print("    split-plugin");
-  print("    app");
+  print('Built-in templates:');
+  print('    plugin (default)');
+  print('    split-plugin');
+  print('    app');
 }
