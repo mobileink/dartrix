@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:ansicolor/ansicolor.dart';
+// import 'package:ansicolor/ansicolor.dart';
 import 'package:logging/logging.dart';
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
@@ -11,12 +11,6 @@ import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('utils');
-
-AnsiPen shoutPen = AnsiPen()..red(bold: true);
-AnsiPen severePen = AnsiPen()..red(bold: true);
-AnsiPen warningPen = AnsiPen()..red();
-AnsiPen infoPen = AnsiPen()..green(bold: false);
-AnsiPen configPen = AnsiPen()..green(bold: true);
 
 String getDocstring(Package pkg) {
   var rootDir = pkg.root.path;

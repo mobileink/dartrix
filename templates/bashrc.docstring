@@ -1,1 +1,1 @@
-Generate $HOME/.dartrix containing aliases for Dartrix commands.
+Generate $HOME/.dartrix.d/bashrc containing aliases for Dartrix commands.

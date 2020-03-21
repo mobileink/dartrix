@@ -57,7 +57,7 @@ void mergeUserOptions() {
     tData['segmap']['ROOT'] = Config.options['root'];
   }
   if (Config.options['domain'] != Config.argParser.getDefault('domain')) {
-    // user specified domain
+   // user specified domain
     tData['segmap']['RDOMAINPATH'] =
         Config.options['domain'].split('.').reversed.join('/');
   }

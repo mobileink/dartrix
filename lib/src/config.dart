@@ -1,5 +1,13 @@
 import 'dart:io';
+
+import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
+
+AnsiPen shoutPen = AnsiPen()..red(bold: true);
+AnsiPen severePen = AnsiPen()..red(bold: true);
+AnsiPen warningPen = AnsiPen()..green(bold: true);
+AnsiPen infoPen = AnsiPen()..green(bold: false);
+AnsiPen configPen = AnsiPen()..green(bold: true);
 
 class Config {
   static bool verbose = false;

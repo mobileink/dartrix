@@ -111,11 +111,11 @@ void generateFromBuiltin() async {
   List tFileset = Directory(templatesRoot + '/' + Config.options['template'])
       .listSync(recursive: true);
   tFileset.removeWhere((f) => f.path.endsWith('~'));
-  // tFileset.retainWhere((f) => f is File);
+  tFileset.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    _log.fine(
-        'Generating files from templates and copying assets (cwd: ${Directory.current.path}):');
+    _log.info(
+        'Generating files from templates and copying assets...');
   }
 
   tFileset.forEach((tfile) {
@@ -131,12 +131,12 @@ void generateFromBuiltin() async {
     if (path.isRelative(outSubpath)) {
       outSubpath = Directory.current.path + '/' + outSubpath;
     }
-    _log.finer('absolutized outSubpath: $outSubpath');
+    // _log.finer('absolutized outSubpath: $outSubpath');
 
     var exists;
     exists = FileSystemEntity.typeSync(outSubpath);
     if (exists != FileSystemEntityType.notFound) {
-      if (exists == File) {
+      if (exists == FileSystemEntityType.file) {
         if (!tData['dartrix']['force']) {
           _log.severe(
             'ERROR: $outSubpath already exists. Use -f to force overwrite.');
@@ -151,7 +151,7 @@ void generateFromBuiltin() async {
 
     // create output dir if necessary
     var dirname = path.dirname(outSubpath);
-    _log.info("dirname: $dirname");
+    // _log.info("dirname: $dirname");
     exists = FileSystemEntity.typeSync(dirname);
     if (exists == FileSystemEntityType.notFound) {
       if ((Config.verbose) || Config.options['dry-run']) {
@@ -176,6 +176,9 @@ void generateFromBuiltin() async {
       }
       // _log.finer(newContents);
       if ((Config.verbose) || Config.options['dry-run']) {
+        if (debug.debug) {
+          _log.info('   ' + tfile.path);
+        }
         _log.info('=> $outSubpath');
       }
       if (!Config.options['dry-run']) {
@@ -183,6 +186,9 @@ void generateFromBuiltin() async {
       }
     } else {
       if ((Config.verbose) || Config.options['dry-run']) {
+        if (debug.debug) {
+          _log.info('   ' + tfile.path);
+        }
         _log.info('=> $outSubpath');
       }
       if (!Config.options['dry-run']) {

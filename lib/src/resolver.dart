@@ -62,14 +62,22 @@ Future<PackageConfig> getUserPackageConfig2() async {
       exit(0);
     }
   }
-  // if (verbose) _log.info('found dartConfigDirPath: $dartConfigDirPath');
+  if (Config.verbose) {
+    _log.info('found dartConfigDirPath: $dartConfigDirPath');
+  }
   Directory dartConfigDir;
   dartConfigDir = Directory(dartConfigDirPath);
   PackageConfig userPackageConfig2;
   // fn from package_config.package_config_discovery Package class
-  userPackageConfig2 =
-      await findPackageConfig(dartConfigDir, onError: (e) => _log.severe(e));
-  // _log.info('pcfg2: $userPackageConfig2');
+
+  try {
+    userPackageConfig2 = await findPackageConfig(dartConfigDir);
+      // onError: (e) => _log.severe(e));
+  } catch(e) {
+    _log.severe(e);
+    exit(0);
+  }
+  print('pcfg2: $userPackageConfig2');
   // _log.info('listing packages:');
   // userPackageConfig2.packages.forEach((pkg) => _log.fine('${pkg.name}'));
   return userPackageConfig2;

@@ -41,6 +41,7 @@ String _templatesRoot;
 Map<String, String> _externalTemplates;
 
 void initPluginTemplates(String pkgRef) async {
+  // _log.info("initPluginTemplates $pkgRef");
   Map pkg = resolvePkgRef(pkgRef);
 
   if (pkg['path'] != null) {
@@ -259,21 +260,23 @@ void externalOnDone() {
 //   _log.finer('_onStopDone');
 // }
 
-void generateFromPlugin(String pkg, String template, List<String> args) {
-  // _log.finer('generateFromPlugin: $pkg, $template, args: $args');
+void generateFromPlugin(String pkg, String template, List<String> args)
+async {
+  _log.finer('generateFromPlugin: $pkg, $template, args: $args');
   if (pkg.startsWith('path:')) {
     spawnExternalFromPath(pkg, template, args);
   } else {
     // Before spawning the package, get the templates.
     if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
-      initPluginTemplates(pkg);
-      spawnPluginFromPackage(
+      // initPluginTemplates(pkg);
+      await spawnPluginFromPackage(
           spawnCallback, externalOnDone, pkg, [template, ...?args]);
       // template, args);
     } else {
       throw ArgumentError('-x $pkg: must start with path: or package: or pkg:');
     }
   }
+  _log.severe("HAHAHA");
 }
 
 // void generateFromExternal(String template, Map data) {
