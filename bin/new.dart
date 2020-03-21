@@ -14,7 +14,7 @@ import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/plugins.dart';
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('new');
 
@@ -198,7 +198,7 @@ void main(List<String> args) async {
 
   if (Config.options['dry-run']) {
     Config.verbose = true;
-    _log.info("Dry-run...");
+    _log.info('Dry-run...');
   }
 
   if (debug.debug) debug.debugOptions();
@@ -316,8 +316,12 @@ void main(List<String> args) async {
     var pkgSpec = Config.options.rest[0];
     if (pkgSpec.startsWith('pkg:')) {
       print('PKG');
-      await generateFromPlugin(pkgSpec, template,
-        (Config.options.command == null)? null : Config.options.command.arguments);
+      await generateFromPlugin(
+          pkgSpec,
+          template,
+          (Config.options.command == null)
+              ? null
+              : Config.options.command.arguments);
       exit(0);
     } else {
       if (pkgSpec.startsWith('package:')) {

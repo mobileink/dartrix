@@ -58,9 +58,9 @@ void debugOptions() {
   // _log.config('\targs: ${Config.options.arguments}');
   _log.config('\toptions: ${Config.options.options}');
   Config.options.options.forEach((o) {
-      if (Config.options.wasParsed(o)) {
-        _log.config('\t$o: ${Config.options[o]}');
-      }
+    if (Config.options.wasParsed(o)) {
+      _log.config('\t$o: ${Config.options[o]}');
+    }
   });
   _log.config('\trest: ${Config.options.rest}');
   // _log.config('\tname: ${Config.options.name}');

@@ -114,8 +114,7 @@ void generateFromBuiltin() async {
   tFileset.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    _log.info(
-        'Generating files from templates and copying assets...');
+    _log.info('Generating files from templates and copying assets...');
   }
 
   tFileset.forEach((tfile) {
@@ -139,11 +138,11 @@ void generateFromBuiltin() async {
       if (exists == FileSystemEntityType.file) {
         if (!tData['dartrix']['force']) {
           _log.severe(
-            'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+              'ERROR: $outSubpath already exists. Use -f to force overwrite.');
           exit(0);
         } else {
           if ((Config.verbose) || Config.options['dry-run']) {
-            _log.warning("Over-writing $outSubpath");
+            _log.warning('Over-writing $outSubpath');
           }
         }
       }

@@ -14,7 +14,7 @@ import 'package:dartrix/dartrix.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/utils.dart';
 
 var _log = Logger('plugins');
 
@@ -260,8 +260,7 @@ void externalOnDone() {
 //   _log.finer('_onStopDone');
 // }
 
-void generateFromPlugin(String pkg, String template, List<String> args)
-async {
+void generateFromPlugin(String pkg, String template, List<String> args) async {
   _log.finer('generateFromPlugin: $pkg, $template, args: $args');
   if (pkg.startsWith('path:')) {
     spawnExternalFromPath(pkg, template, args);
@@ -276,7 +275,6 @@ async {
       throw ArgumentError('-x $pkg: must start with path: or package: or pkg:');
     }
   }
-  _log.severe("HAHAHA");
 }
 
 // void generateFromExternal(String template, Map data) {

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:isolate';
-import 'package:package_config/package_config.dart';
+// import 'package:package_config/package_config.dart';
 
 import 'package:dartrix/src/resolver.dart';
 
@@ -39,8 +39,8 @@ void spawnPluginFromPackage(
 
   // If we have a package: uri:
   // Step 1: get user's dart config (a packageConfig2)
-  PackageConfig
-   userPackageConfig2 = await getUserPackageConfig2();
+  // PackageConfig
+  var userPackageConfig2 = await getUserPackageConfig2();
   print('got userPackageConfig2');
   // var packageUri = Uri.parse(pkg['uri'] + '/');
   // // 'resolve' gives 'file:///.../lib'

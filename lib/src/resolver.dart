@@ -72,8 +72,8 @@ Future<PackageConfig> getUserPackageConfig2() async {
 
   try {
     userPackageConfig2 = await findPackageConfig(dartConfigDir);
-      // onError: (e) => _log.severe(e));
-  } catch(e) {
+    // onError: (e) => _log.severe(e));
+  } catch (e) {
     _log.severe(e);
     exit(0);
   }
