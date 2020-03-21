@@ -122,6 +122,7 @@ Map tData = {
     'meta': '^1.1.8',
     'mockito': '^4.1.1',
     'package': '0.0.1',
+    'path': '^1.6.4',
     'pedantic': '^1.8.0',
     'platform-detect': '^1.4.0',
     'plugin-platform-interface': '^1.0.2',

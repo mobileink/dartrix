@@ -10,7 +10,9 @@ import 'package:path/path.dart' as path;
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
+
 import 'package:dartrix/src/handlers/bashrc.dart';
+import 'package:dartrix/src/handlers/dart_clix.dart';
 
 var _log = Logger('builtin');
 
@@ -117,6 +119,46 @@ void generateFromBuiltin() async {
     _log.info('Generating files from templates and copying assets...');
   }
 
+  // prevent unauthorized overwrites
+  var overWrites = [];
+  var exists;
+  tFileset.forEach((tfile) {
+    var outSubpath = path.normalize(tData['out'] +
+        tfile.path.replaceFirst(
+            templatesRoot + '/' + Config.options['template'], ''));
+    outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+    // _log.finer('outSubpath: $outSubpath');
+    outSubpath = path.normalize(rewritePath(outSubpath));
+    // _log.finer('rewritten outSubpath: $outSubpath');
+
+    if (path.isRelative(outSubpath)) {
+      outSubpath = Directory.current.path + '/' + outSubpath;
+    }
+
+      exists = FileSystemEntity.typeSync(outSubpath);
+      if (exists != FileSystemEntityType.notFound) {
+        if (exists == FileSystemEntityType.file) {
+          if (!tData['dartrix']['force']) {
+            // _log.severe(
+            //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+            // exit(0);
+            overWrites.add(outSubpath);
+          } else {
+            if ((Config.verbose) || Config.options['dry-run']) {
+              _log.warning('Over-writing $outSubpath');
+            }
+          }
+        }
+      }
+  });
+
+  if (overWrites.isNotEmpty) {
+    _log.warning('This template would overwrite the following files:');
+    overWrites.forEach((f) => _log.warning(f));
+    _log.warning('Rerun with flag "-f" (--force) to force overwrite.');
+    exit(0);
+  }
+
   tFileset.forEach((tfile) {
     // _log.finer('tfile: $tfile');
     var outSubpath = path.normalize(tData['out'] +
@@ -131,22 +173,6 @@ void generateFromBuiltin() async {
       outSubpath = Directory.current.path + '/' + outSubpath;
     }
     // _log.finer('absolutized outSubpath: $outSubpath');
-
-    var exists;
-    exists = FileSystemEntity.typeSync(outSubpath);
-    if (exists != FileSystemEntityType.notFound) {
-      if (exists == FileSystemEntityType.file) {
-        if (!tData['dartrix']['force']) {
-          _log.severe(
-              'ERROR: $outSubpath already exists. Use -f to force overwrite.');
-          exit(0);
-        } else {
-          if ((Config.verbose) || Config.options['dry-run']) {
-            _log.warning('Over-writing $outSubpath');
-          }
-        }
-      }
-    }
 
     // create output dir if necessary
     var dirname = path.dirname(outSubpath);
@@ -204,10 +230,10 @@ void dispatchBuiltin(String template) async {
   var subArgs = Config.options.arguments.sublist(tIndex + 2);
   // _log.info('subArgs: $subArgs');
   switch (template) {
-    case 'bashrc':
-      handleBashrc(subArgs);
-      break;
+    case 'bashrc': handleBashrc(subArgs); break;
+    case 'dart_clix': handleDartClix(subArgs); break;
     default:
+    _log.info("handler for $template not implemented");
   }
   // generateFromBuiltin(template, options);
 }
