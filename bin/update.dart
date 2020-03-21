@@ -18,6 +18,7 @@ import 'package:strings/strings.dart';
 //import 'package:dartrix/dartrix.dart';
 
 import 'package:dartrix/src/data.dart';
+import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/handler_template.dart';
 import 'package:dartrix/src/utils.dart';
@@ -107,7 +108,7 @@ void updateDocstrings() {
   Set<String> orphanedDocstrings = dsSet.difference(templateSet);
   Set<String> missingDocstrings = templateSet.difference(dsSet);
 
-  if (config.verbose) {
+  if (Config.verbose) {
     if (orphanedDocstrings.isNotEmpty) {
       _log.warning("docstrings without corresponding templates: $orphanedDocstrings");
     }
@@ -275,22 +276,22 @@ void main(List<String> args) async {
   argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
   argParser.addFlag('debug', defaultsTo: false);
 
-  options = argParser.parse(args);
+  Config.options = argParser.parse(args);
 
-  config.verbose = options['verbose'];
-  debug.debug   = options['debug'];
+  Config.verbose = Config.options['verbose'];
+  debug.debug   = Config.options['debug'];
 
   if (debug.debug) debug.debugOptions();
 
   // var root = path.dirname(Platform.script.toString());
   // print("proj root: $root");
 
-  if (options['help']) {
+  if (Config.options['help']) {
     await printUsage(argParser);
     exit(0);
   }
   sanityCheck();
-  listTemplates(options);
+  listTemplates(Config.options);
   updateDocstrings();
   updateManuals();
   updateHandlers();
