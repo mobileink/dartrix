@@ -8,20 +8,32 @@ import 'package:sprintf/sprintf.dart';
 
 import 'package:dartrix/dartrix.dart';
 
+import 'package:dartrix/src/builtins.dart';
 import 'package:dartrix/src/config.dart';
-// import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
 
 void listBuiltins(ArgResults options) async {
   // print('listBuiltins ${options.arguments}');
   //Uri
-  var packageConfigUri = await Isolate.packageConfig;
-  // Config.logger.i('packageConfigUri $packageConfigUri');
+  // var packageConfigUri = await Isolate.packageConfig;
+  // // e.g. file:///Users/gar/mobileink/dartrix/.packages
+  // if (Config.debug) {
+  //   Config.logger.i('packageConfigUri $packageConfigUri');
+  // }
+
+  // WARNING: for pub global activateds, the current dir of the script contains
+  // .packages, which is the value of Isolate.packageConfig, but it does NOT
+  // contain all of the subdirs of the original pkg root. It only the bin dir,
+  // plus the pub stuff (.dart_tool, .packages, pubspec.lock).  So to find the
+  // templates/ dir, we have to look it up in the .packages file using
+  // findPackageConfigUri
+
   // this is a v1 pkg config, i.e. a .packages file, so back up one segment:
   // String libDir = path.dirname(packageConfigUri.path);
-  var templatesRoot = path.dirname(packageConfigUri.path) + '/templates';
+  // var templatesRoot = path.dirname(packageConfigUri.path) + '/templates';
   //List
+  var templatesRoot = await getBuiltinTemplatesRoot();
   var templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
   print('Builtin templates:');
@@ -111,6 +123,7 @@ void printUsage(ArgParser argParser) async {
 }
 
 void main(List<String> args) async {
+  Config.config('dartrix');
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('template', abbr: 't',
   //   valueHelp: '[a-z_][a-z0-9_]*',
@@ -127,7 +140,10 @@ void main(List<String> args) async {
   Config.verbose = Config.options['verbose'];
   debug.debug = Config.options['debug'];
 
-  if (debug.debug) debug.debugOptions();
+  if (debug.debug) {
+    debug.debugOptions();
+    Config.debug = true;
+  }
 
   // var root = path.dirname(Platform.script.toString());
   // print('proj root: $root');
