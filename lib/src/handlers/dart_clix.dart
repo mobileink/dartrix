@@ -11,7 +11,7 @@ import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/builtins.dart';
 
 void handleDartClix(List<String> subArgs) async {
-  Config.logger.i('handleDartClix, subargs $subArgs');
+  // Config.logger.i('handleDartClix, subargs $subArgs');
 
   if (debug.debug) {
     debug.debugOptions();
@@ -34,7 +34,9 @@ void handleDartClix(List<String> subArgs) async {
     Config.logger.e('template ${Config.options["template"]}: $e');
     exit(0);
   }
-  Config.logger.i('dart_clix options: ${options.options}');
+  if (Config.debug) {
+    Config.debugLogger.d('dart_clix arguments: ${options.arguments}');
+  }
 
   if (options['help']) {
     print('template "dart_clix" parameters:');

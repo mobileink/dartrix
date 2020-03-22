@@ -181,7 +181,7 @@ void main(List<String> args) async {
   try {
     Config.options = Config.argParser.parse(args);
   } catch (e) {
-    Config.logger.e(e);
+    Config.debugLogger.d(e);
     exit(0);
   }
 
@@ -190,7 +190,10 @@ void main(List<String> args) async {
     exit(0);
   }
 
-  if (Config.options['debug']) debug.debug = true;
+  if (Config.options['debug']) {
+    debug.debug = true;
+    Config.debug = true;
+  }
 
   Config.verbose = Config.options['verbose'];
 
@@ -220,6 +223,8 @@ void main(List<String> args) async {
           exit(0);
         }
       }
+    } else {
+      printUsage(Config.argParser);
     }
   }
 

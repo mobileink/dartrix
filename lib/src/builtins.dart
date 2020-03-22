@@ -15,8 +15,6 @@ import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/handlers/bashrc.dart';
 import 'package:dartrix/src/handlers/dart_clix.dart';
 
-var _log = Logger(printer: PrettyPrinter());
-
 // final Logger _logfoo = Logger('foo')
 // ..onRecord.listen((record) {
 //     print('${record.loggerName} ${infoPen(record.level.name)}: ${record.message}');
@@ -28,8 +26,6 @@ var _log = Logger(printer: PrettyPrinter());
 //var _log = Logger('builtin');
 
 Future<String> getBuiltinTemplatesRoot() async {
-  Config.logger.i("XXXXXXXXXXXXXXXX");
-  _log.d("YYYY");
   // Procedure: get path to app pkg root (as opposed to the package UriRoot,
   // which is the package's lib/ dir).  In this case the package is
   // package:dartrix; the pkg root is ~/mobileink/dartrix, and the package
@@ -114,7 +110,7 @@ void initBuiltinTemplates() async {
 }
 
 void generateFromBuiltin() async {
-  _log.v('generateFromBuiltin');
+  // Config.pplogger.v('generateFromBuiltin');
 
   //String
   var templatesRoot = await getBuiltinTemplatesRoot();
@@ -124,7 +120,7 @@ void generateFromBuiltin() async {
   // // _log.finer('template root: $templateRoot');
 
   List tFileset = Directory(templatesRoot + '/' + Config.options['template'])
-      .listSync(recursive: true);
+  .listSync(recursive: true);
   tFileset.removeWhere((f) => f.path.endsWith('~'));
   tFileset.retainWhere((f) => f is File);
 
@@ -136,112 +132,115 @@ void generateFromBuiltin() async {
   var overWrites = [];
   var exists;
   tFileset.forEach((tfile) {
-    var outSubpath = path.normalize(tData['out'] +
+      var outSubpath = path.normalize(tData['out'] +
         tfile.path.replaceFirst(
-            templatesRoot + '/' + Config.options['template'], ''));
-    outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-    // _log.finer('outSubpath: $outSubpath');
-    outSubpath = path.normalize(rewritePath(outSubpath));
-    // _log.finer('rewritten outSubpath: $outSubpath');
+          templatesRoot + '/' + Config.options['template'], ''));
+      outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+      // _log.finer('outSubpath: $outSubpath');
+      outSubpath = path.normalize(rewritePath(outSubpath));
+      // _log.finer('rewritten outSubpath: $outSubpath');
 
-    if (path.isRelative(outSubpath)) {
-      outSubpath = Directory.current.path + '/' + outSubpath;
-    }
+      if (path.isRelative(outSubpath)) {
+        outSubpath = Directory.current.path + '/' + outSubpath;
+      }
 
-    exists = FileSystemEntity.typeSync(outSubpath);
-    if (exists != FileSystemEntityType.notFound) {
-      if (exists == FileSystemEntityType.file) {
-        if (!tData['dartrix']['force']) {
-          // Config.logger.e(
-          //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
-          // exit(0);
-          overWrites.add(outSubpath);
-        } else {
-          if ((Config.verbose) || Config.options['dry-run']) {
-            Config.logger.w('Over-writing $outSubpath');
+      exists = FileSystemEntity.typeSync(outSubpath);
+      if (exists != FileSystemEntityType.notFound) {
+        if (exists == FileSystemEntityType.file) {
+          if (!tData['dartrix']['force']) {
+            // Config.pplogger.e(
+            //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+            // exit(0);
+            overWrites.add(outSubpath);
+          } else {
+            if ((Config.verbose) || Config.options['dry-run']) {
+              Config.logger.i('Over-writing $outSubpath');
+            }
           }
         }
       }
-    }
   });
 
   if (overWrites.isNotEmpty) {
-    Config.logger.w('This template would overwrite the following files:');
-    overWrites.forEach((f) => Config.logger.w(f));
-    Config.logger.w('Rerun with flag "-f" (--force) to force overwrite.');
+    Config.pplogger.w('This template would overwrite the following files:');
+    overWrites.forEach((f) {
+        Config.pplogger.w('overwrite warning: $f');
+    });
+    Config.pplogger.w('Rerun with flag "-f" (--force) to force overwrite.');
     exit(0);
   }
 
   tFileset.forEach((tfile) {
-    // _log.finer('tfile: $tfile');
-    var outSubpath = path.normalize(tData['out'] +
+      // _log.finer('tfile: $tfile');
+      var outSubpath = path.normalize(tData['out'] +
         tfile.path.replaceFirst(
-            templatesRoot + '/' + Config.options['template'], ''));
-    outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-    // _log.finer('outSubpath: $outSubpath');
-    outSubpath = path.normalize(rewritePath(outSubpath));
-    // _log.finer('rewritten outSubpath: $outSubpath');
+          templatesRoot + '/' + Config.options['template'], ''));
+      outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+      // _log.finer('outSubpath: $outSubpath');
+      outSubpath = path.normalize(rewritePath(outSubpath));
+      // _log.finer('rewritten outSubpath: $outSubpath');
 
-    if (path.isRelative(outSubpath)) {
-      outSubpath = Directory.current.path + '/' + outSubpath;
-    }
-    // _log.finer('absolutized outSubpath: $outSubpath');
+      if (path.isRelative(outSubpath)) {
+        outSubpath = Directory.current.path + '/' + outSubpath;
+      }
+      // _log.finer('absolutized outSubpath: $outSubpath');
 
-    // create output dir if necessary
-    var dirname = path.dirname(outSubpath);
-    // Config.logger.i("dirname: $dirname");
-    exists = FileSystemEntity.typeSync(dirname);
-    if (exists == FileSystemEntityType.notFound) {
-      if ((Config.verbose) || Config.options['dry-run']) {
-        Config.logger.i('Creating output directory: $dirname');
-      }
-      if (!Config.options['dry-run']) {
-        Directory(dirname).createSync(recursive: true);
-      }
-    }
-
-    if (tfile.path.endsWith('mustache')) {
-      var contents;
-      contents = tfile.readAsStringSync();
-      var template =
-          Template(contents, name: outSubpath, htmlEscapeValues: false);
-      var newContents;
-      try {
-        newContents = template.renderString(tData);
-      } catch (e) {
-        _log.e(e);
-        exit(0);
-      }
-      // _log.finer(newContents);
-      if ((Config.verbose) || Config.options['dry-run']) {
-        if (debug.debug) {
-          Config.logger.i('   ' + tfile.path);
+      // create output dir if necessary
+      var dirname = path.dirname(outSubpath);
+      // Config.logger.i("dirname: $dirname");
+      exists = FileSystemEntity.typeSync(dirname);
+      if (exists == FileSystemEntityType.notFound) {
+        if ((Config.verbose) || Config.options['dry-run']) {
+          Config.logger.i('Creating output directory: $dirname');
         }
-        Config.logger.i('=> $outSubpath');
-      }
-      if (!Config.options['dry-run']) {
-        File(outSubpath).writeAsStringSync(newContents);
-      }
-    } else {
-      if ((Config.verbose) || Config.options['dry-run']) {
-        if (debug.debug) {
-          Config.logger.i('   ' + tfile.path);
+        if (!Config.options['dry-run']) {
+          Directory(dirname).createSync(recursive: true);
         }
-        Config.logger.i('=> $outSubpath');
       }
-      if (!Config.options['dry-run']) {
-        tfile.copySync(outSubpath);
+
+      if (tfile.path.endsWith('mustache')) {
+        var contents;
+        contents = tfile.readAsStringSync();
+        var template =
+        Template(contents, name: outSubpath, htmlEscapeValues: false);
+        var newContents;
+        try {
+          newContents = template.renderString(tData);
+        } catch (e) {
+          Config.pplogger.e(e);
+          exit(0);
+        }
+        // _log.finer(newContents);
+        if ((Config.verbose) || Config.options['dry-run']) {
+          if (debug.debug) {
+            Config.logger.i('   ' + tfile.path);
+          }
+          Config.logger.i('=> $outSubpath');
+        }
+        if (!Config.options['dry-run']) {
+          File(outSubpath).writeAsStringSync(newContents);
+        }
+      } else {
+        if ((Config.verbose) || Config.options['dry-run']) {
+          if (debug.debug) {
+            Config.logger.i('   ' + tfile.path);
+          }
+          Config.logger.i('=> $outSubpath');
+        }
+        if (!Config.options['dry-run']) {
+          tfile.copySync(outSubpath);
+        }
       }
-    }
   });
+  Config.pplogger.i("Generated ${tData['package']['dart']}");
 }
 
 void dispatchBuiltin(String template) async {
-  // Config.logger.i('dispatchBuiltin');
+  Config.debugLogger.d('dispatchBuiltin($template)');
   var tIndex = Config.options.arguments.indexOf('-t');
   //List<String>
   var subArgs = Config.options.arguments.sublist(tIndex + 2);
-  // Config.logger.i('subArgs: $subArgs');
+  Config.debugLogger.d('subArgs: $subArgs');
   switch (template) {
     case 'bashrc':
       handleBashrc(subArgs);
