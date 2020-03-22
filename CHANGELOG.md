@@ -1,4 +1,4 @@
-## 0.1.9-alpha
+## 0.1.10-alpha
 
 - Polish template dart_clix: arg parsing, logging, structure as cmd processor
 
