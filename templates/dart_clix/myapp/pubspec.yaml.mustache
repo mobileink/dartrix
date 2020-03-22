@@ -3,12 +3,18 @@ description: {{description.demo}}
 homepage: {{homepage}}
 version: {{version.package}}
 
-#dependencies:
-#  path: {{version.path}}
+dependencies:
+  args: {{version.args}}
+  logger: {{version.logger}}
+  safe_config: {{version.safe_config}}
 
 dev_dependencies:
   pedantic: {{version.pedantic}}
   test: {{version.test}}
+
+executables:
+  {{package.dart}}-foo: foo
+  {{package.dart}}-bar: bar
 
 environment:
   sdk: {{version.sdk}}

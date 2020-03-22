@@ -1,13 +1,75 @@
-import 'package:{{package.dart}}/{{package.dart}}_liba.dart' as a;
-import 'package:{{package.dart}}/{{package.dart}}_libb.dart' as b;
+import 'dart:io';
+
+import 'package:args/args.dart';
+import 'package:args/command_runner.dart';
+
+import 'logging.dart';
+
+import 'package:{{package.dart}}/src/config.dart';
+import 'package:{{package.dart}}/foo.dart' as foo;
+import 'package:{{package.dart}}/bar.dart' as bar;
+
+class FooCommand extends Command {
+  final name = 'foo';
+  final description = 'Do some fooey stuff.';
+
+  FooCommand() {
+    argParser.addOption('msg', abbr: 'm', help: 'Foo msg', defaultsTo: 'Hello');
+    argParser.addFlag('debug', defaultsTo: false);
+    argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
+  }
+
+  void run() {
+    Config.verbose = argResults['verbose'] ?? false;
+    Config.debug = argResults['debug'] ?? false;
+    foo.f(argResults['msg']);
+  }
+}
+
+class BarCommand extends Command {
+  final name = 'bar';
+  final description = 'Do some barrish stuff.';
+
+  BarCommand() {
+    argParser.addOption('msg', abbr: 'm', help: 'Bar msg', defaultsTo: 'Goodbye');
+    argParser.addFlag('debug', defaultsTo: false);
+    argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
+  }
+
+  void run() {
+    print('running bar with args: ${argResults["msg"]}');
+    bar.f(argResults['msg']);
+    bar.g();
+  }
+}
+
+class LoggingCommand extends Command {
+  final name = 'logging';
+  final description = 'Demonstrate log msgs.';
+
+  LoggingCommand() {
+    argParser.addFlag('debug', defaultsTo: false);
+    argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
+  }
+
+  void run() {
+    if (argResults['verbose']) Config.verbose = true;
+    if (argResults['debug']) Config.debug = true;
+    msgsDemo();
+  }
+}
 
 void main(List<String> args) {
-  print("Hello from {{package.dart}}.");
-  a.f();
-  b.f();
 
-  a.g();
-  b.g();
+  var runner = CommandRunner(
+  '{{package.dart}}', '{{description.package}}')
+  ..addCommand(FooCommand())
+  ..addCommand(BarCommand())
+  ..addCommand(LoggingCommand())
+  ..run(args).catchError((error) {
+    if (error is! UsageException) throw error;
+    print(error);
+    exit(64); // Exit code 64 indicates a usage error.
+  });
 
-  b.h();
 }

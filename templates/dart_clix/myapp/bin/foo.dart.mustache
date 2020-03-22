@@ -1,0 +1,41 @@
+import 'dart:io';
+
+import 'package:args/args.dart';
+
+import 'package:{{package.dart}}/foo.dart';
+
+void printUsage(ArgParser argParser) {
+  print('Do some fooey stuff.\n');
+  print('Usage: foo [arguments]');
+  print(argParser.usage);
+}
+
+ArgResults init(List<String> args) {
+  var argParser = ArgParser();
+  argParser.addFlag('help', abbr: 'h', negatable: false, defaultsTo: false,
+  help: 'Print this usage information.');
+  argParser.addOption('msg', abbr: 'm', help: 'Foo msg', defaultsTo: 'Hello');
+  argParser.addFlag('debug', defaultsTo: false);
+  argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
+  var options = argParser.parse(args);
+  if (options['verbose']) {
+    Config.verbose = true;
+  }
+  if (options['debug']) {
+    Config.debug = true;
+  }
+  if (options['help']) {
+    printUsage(argParser);
+    exit(0);
+  }
+  return options;
+}
+
+void main(List<String> args) {
+  var options = init(args);
+
+  print('Hello from command \'foo\'!');
+
+  // this is just a CLI interface to foo functionality in the lib:
+  f(options['msg']);
+}

@@ -1,0 +1,64 @@
+import 'dart:io';
+import 'package:args/args.dart';
+import 'package:myapp/src/config.dart';
+
+void msgsDemo() {
+  print('To see options pass -h or --help');
+  if (Config.verbose) {
+    logger.v('Verbose logging enabled');
+  } else {
+    print('Verbose logging disabled, -v or --verbose to enable.');
+  }
+  try {
+    assert(1 == 0);
+    print("Asserts disabled. To enable: dart --enable-asserts");
+  } catch(e) {
+    print("Asserts enabled.");
+  }
+  if (Config.debug) {
+    try {
+      assert(1 == 0);
+      logger.i('Asserts must be enabled for debug logging: dart --enable-asserts bin/{{package.dart}} --debug');
+    } catch(e) {
+      debugLogger.d('Debug logging with stack trace enabled');
+    }
+  } else {
+    print('Debug logging disabled. To enable: dart --enable-asserts bin/{{package.dart}} --debug');
+  }
+  logger.i('Info log');
+  logger.w('Warning log');
+  logger.e('Error log');
+  logger.wtf('What a terrible failure log');
+}
+
+void printUsage(ArgParser argParser) {
+  print('Demostring logging.\n');
+  print('Usage: logging [arguments]');
+  print(argParser.usage);
+}
+
+ArgResults init(List<String> args) {
+  var argParser = ArgParser();
+  argParser.addFlag('help', abbr: 'h', negatable: false, defaultsTo: false,
+  help: 'Print this usage information.');
+  argParser.addFlag('debug', defaultsTo: false);
+  argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
+  var options = argParser.parse(args);
+  if (options['verbose']) {
+    Config.verbose = true;
+  }
+  if (options['debug']) {
+    Config.debug = true;
+  }
+  if (options['help']) {
+    printUsage(argParser);
+    exit(0);
+  }
+  return options;
+}
+
+void main(List<String> args) {
+  var options = init(args);
+
+  msgsDemo();
+}
