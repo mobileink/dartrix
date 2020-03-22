@@ -34,6 +34,9 @@ Future<String> getBuiltinTemplatesRoot() async {
 
   // So to find the templates, we need to find the package root.
 
+  // Location fo currently running script does not work - pub global separates
+  // the script from the project dir structure.
+
   // Location of "currently running Dart script": dart:io/Platform.script
   // Current Working Directory: dart:io/Directory.current
   // Current Isolate
@@ -49,18 +52,21 @@ Future<String> getBuiltinTemplatesRoot() async {
 
   //Uri
   var currentIsoPkgConfigUri = await Isolate.packageConfig;
-  // e.g. file:///Users/gar/mobileink/dartrix/.packages
-  // Config.logger.i('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
-
+  if (Config.debug) {
+    // e.g. file:///Users/gar/mobileink/dartrix/.packages
+    Config.debugLogger.d('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
+  }
   // Isolate.packageConfig finds the version 1 .packages file;
   // use that to get the PackageConfig and you get the contents
   // of the version 2 .dart_tool/package_config.json
   // findPackageConfigUri is a fn in package:package_confg
   //PackageConfig
   var pkgConfig = await findPackageConfigUri(currentIsoPkgConfigUri);
-  // Config.logger.i('current iso PackageConfig: $pkgConfig');
-  // PackageConfig is an object containing list of deps
-  // if (debug.debug) debug.debugPackageConfig(pkgConfig);
+  if (Config.debug) {
+    // PackageConfig is an object containing list of deps
+    // Config.debugLogger.d('current iso PackageConfig: $pkgConfig');
+    debug.debugPackageConfig(pkgConfig);
+  }
 
   // 'Package': 'map' with keys name, packageUriRoot, and root (=pkgRoot)
   // Package

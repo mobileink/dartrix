@@ -77,7 +77,7 @@ Future<PackageConfig> getUserPackageConfig2() async {
     Config.logger.e(e);
     exit(0);
   }
-  print('pcfg2: $userPackageConfig2');
+  // print('pcfg2: $userPackageConfig2');
   // Config.logger.i('listing packages:');
   // userPackageConfig2.packages.forEach((pkg) => _log.fine('${pkg.name}'));
   return userPackageConfig2;
