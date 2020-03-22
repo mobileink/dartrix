@@ -236,11 +236,11 @@ void generateFromBuiltin() async {
 }
 
 void dispatchBuiltin(String template) async {
-  Config.debugLogger.d('dispatchBuiltin($template)');
+  // Config.debugLogger.d('dispatchBuiltin($template)');
   var tIndex = Config.options.arguments.indexOf('-t');
   //List<String>
   var subArgs = Config.options.arguments.sublist(tIndex + 2);
-  Config.debugLogger.d('subArgs: $subArgs');
+  // Config.debugLogger.d('subArgs: $subArgs');
   switch (template) {
     case 'bashrc':
       handleBashrc(subArgs);
