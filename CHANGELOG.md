@@ -1,3 +1,7 @@
+## 0.1.7-alpha
+
+- Polish template dart_clix: arg parsing, logging, structure as cmd processor
+
 ## 0.1.6-alpha
 
 - Initial commit of template dart_clix
