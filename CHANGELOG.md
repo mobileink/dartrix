@@ -1,3 +1,7 @@
+## 0.1.13-alpha
+
+- Fix logging, use prod filter without asserts
+
 ## 0.1.12-alpha
 
 - Fix bug in lists.dart, templatesRoot lookup
