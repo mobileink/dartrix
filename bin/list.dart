@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'dart:io';
-import 'dart:isolate';
+// import 'dart:isolate';
 
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
