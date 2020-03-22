@@ -15,7 +15,10 @@ class Config {
   static bool debug = false;
   static final logger = Logger(printer: SimplePrinter());
   static final debugLogger = Logger(printer: PrettyPrinter());
-  static final pplogger = Logger(printer: PrettyPrinter(methodCount: 0));
+  static final prodLogger = Logger(
+    filter: ProductionFilter(),
+    printer: PrettyPrinter(methodCount: 0)
+  );
   static String appName;
   static String appSfx = '_dartrix';
   static String home;

@@ -116,7 +116,7 @@ void initBuiltinTemplates() async {
 }
 
 void generateFromBuiltin() async {
-  // Config.pplogger.v('generateFromBuiltin');
+  // Config.prodLogger.v('generateFromBuiltin');
 
   //String
   var templatesRoot = await getBuiltinTemplatesRoot();
@@ -154,7 +154,7 @@ void generateFromBuiltin() async {
     if (exists != FileSystemEntityType.notFound) {
       if (exists == FileSystemEntityType.file) {
         if (!tData['dartrix']['force']) {
-          // Config.pplogger.e(
+          // Config.prodLogger.e(
           //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
           // exit(0);
           overWrites.add(outSubpath);
@@ -168,11 +168,11 @@ void generateFromBuiltin() async {
   });
 
   if (overWrites.isNotEmpty) {
-    Config.pplogger.w('This template would overwrite the following files:');
+    Config.prodLogger.w('This template would overwrite the following files:');
     overWrites.forEach((f) {
-      Config.pplogger.w('overwrite warning: $f');
+      Config.prodLogger.w('overwrite warning: $f');
     });
-    Config.pplogger.w('Rerun with flag "-f" (--force) to force overwrite.');
+    Config.prodLogger.w('Rerun with flag "-f" (--force) to force overwrite.');
     exit(0);
   }
 
@@ -213,7 +213,7 @@ void generateFromBuiltin() async {
       try {
         newContents = template.renderString(tData);
       } catch (e) {
-        Config.pplogger.e(e);
+        Config.prodLogger.e(e);
         exit(0);
       }
       // _log.finer(newContents);
@@ -238,7 +238,7 @@ void generateFromBuiltin() async {
       }
     }
   });
-  Config.pplogger.i("Generated ${tData['package']['dart']}");
+  Config.prodLogger.i("Generated ${tData['package']['dart']}");
 }
 
 void dispatchBuiltin(String template) async {
