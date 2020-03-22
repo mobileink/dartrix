@@ -1,3 +1,7 @@
+## 0.1.12-alpha
+
+- Fix bug in lists.dart, templatesRoot lookup
+
 ## 0.1.11-alpha
 
 - Fix lints
