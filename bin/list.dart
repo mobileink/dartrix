@@ -3,8 +3,6 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:args/args.dart';
-import 'package:logging/logging.dart';
-// import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
 import 'package:sprintf/sprintf.dart';
 

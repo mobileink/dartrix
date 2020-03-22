@@ -87,34 +87,6 @@ void printUsage(ArgParser argParser) {
 
 void main(List<String> args) async {
   Config.config('dartrix');
-  // hierarchicalLoggingEnabled = true;
-  // Logger.root.level = Level.ALL;
-  // Logger.root
-  //   ..onRecord.listen((record) {
-  //     var level;
-  //     switch (record.level.name) {
-  //       case 'SHOUT':
-  //         level = shoutPen(record.level.name);
-  //         break;
-  //       case 'SEVERE':
-  //         level = severePen(record.level.name);
-  //         break;
-  //       case 'WARNING':
-  //         level = warningPen(record.level.name);
-  //         break;
-  //       case 'INFO':
-  //         level = infoPen(record.level.name);
-  //         break;
-  //       case 'CONFIG':
-  //         level = configPen(record.level.name);
-  //         break;
-  //       default:
-  //         level = record.level.name;
-  //         break;
-  //     }
-  //     print('ROOT ${record.loggerName} ${level}: ${record.message}');
-  //   });
-
   Config.argParser = ArgParser(allowTrailingOptions: true);
   Config.argParser.addOption(
     'template', abbr: 't', // defaultsTo: 'hello',

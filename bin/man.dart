@@ -1,26 +1,16 @@
 // man.dart - display manpages
 
-// import 'dart:async';
-// import 'dart:core';
-// import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:args/args.dart';
-import 'package:logging/logging.dart';
-// import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/shell.dart';
-// import 'package:strings/strings.dart';
 
 import 'package:dartrix/dartrix.dart';
 
 import 'package:dartrix/src/config.dart';
-// import 'package:dartrix/src/data.dart';
-// import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
-
-// var _log = Logger('man');
 
 void getManPages(String rootDir) {}
 
@@ -111,33 +101,6 @@ void printUsage(ArgParser argParser) async {
 }
 
 void main(List<String> args) async {
-  Logger.root.level = Level.ALL;
-  Logger.root
-    ..onRecord.listen((record) {
-      var level;
-      switch (record.level.name) {
-        case 'SHOUT':
-          level = shoutPen(record.level.name);
-          break;
-        case 'SEVERE':
-          level = severePen(record.level.name);
-          break;
-        case 'WARNING':
-          level = warningPen(record.level.name);
-          break;
-        case 'INFO':
-          level = infoPen(record.level.name);
-          break;
-        case 'CONFIG':
-          level = configPen(record.level.name);
-          break;
-        default:
-          level = record.level.name;
-          break;
-      }
-      print('${record.loggerName} ${level}: ${record.message}');
-    });
-
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('library', abbr: 'l',
   //   valueHelp: 'name',
