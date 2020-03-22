@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:logger/logger.dart';
+// import 'package:logger/logger.dart';
 // import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
@@ -45,8 +45,8 @@ void handleDartClix(List<String> subArgs) async {
   }
 
   if (options['homepage'] == argParser.getDefault('homepage')) {
-    Config.logger.w(
-        'Using default homepage ${options["homepage"]} for pubspec.yaml.');
+    Config.logger
+        .w('Using default homepage ${options["homepage"]} for pubspec.yaml.');
   }
   tData['homepage'] = options['homepage'];
 

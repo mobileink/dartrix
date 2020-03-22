@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 // import 'package:args/args.dart';
-import 'package:logger/logger.dart';
+// import 'package:logger/logger.dart';
 import 'package:mustache_template/mustache_template.dart';
 // import 'package:package_config/package_config.dart';
 // import 'package:package_resolver/package_resolver.dart';
@@ -15,7 +15,6 @@ import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 // import 'package:dartrix/src/utils.dart';
-
 
 // Terminology:
 // userDartConfigDir :  $HOME/.dart.d
@@ -129,10 +128,12 @@ void spawnCallback(dynamic _xData) {
           Template(contents, name: outSubpath, htmlEscapeValues: false);
       var newContents = template.renderString(tData);
       // Config.logger.d(newContents);
-      if (Config.verbose) Config.logger.d('=> ${Directory.current.path}/$outSubpath');
+      if (Config.verbose)
+        Config.logger.d('=> ${Directory.current.path}/$outSubpath');
       File(outSubpath).writeAsStringSync(newContents);
     } else {
-      if (Config.verbose) Config.logger.d('=> ${Directory.current.path}/$outSubpath');
+      if (Config.verbose)
+        Config.logger.d('=> ${Directory.current.path}/$outSubpath');
       tfile.copySync(outSubpath);
     }
   });

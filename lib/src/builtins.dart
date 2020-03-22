@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 // import 'package:args/args.dart';
-import 'package:logger/logger.dart';
+// import 'package:logger/logger.dart';
 // import 'package:logger/logger.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:package_config/package_config.dart';
@@ -120,7 +120,7 @@ void generateFromBuiltin() async {
   // // _log.finer('template root: $templateRoot');
 
   List tFileset = Directory(templatesRoot + '/' + Config.options['template'])
-  .listSync(recursive: true);
+      .listSync(recursive: true);
   tFileset.removeWhere((f) => f.path.endsWith('~'));
   tFileset.retainWhere((f) => f is File);
 
@@ -132,105 +132,105 @@ void generateFromBuiltin() async {
   var overWrites = [];
   var exists;
   tFileset.forEach((tfile) {
-      var outSubpath = path.normalize(tData['out'] +
+    var outSubpath = path.normalize(tData['out'] +
         tfile.path.replaceFirst(
-          templatesRoot + '/' + Config.options['template'], ''));
-      outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-      // _log.finer('outSubpath: $outSubpath');
-      outSubpath = path.normalize(rewritePath(outSubpath));
-      // _log.finer('rewritten outSubpath: $outSubpath');
+            templatesRoot + '/' + Config.options['template'], ''));
+    outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+    // _log.finer('outSubpath: $outSubpath');
+    outSubpath = path.normalize(rewritePath(outSubpath));
+    // _log.finer('rewritten outSubpath: $outSubpath');
 
-      if (path.isRelative(outSubpath)) {
-        outSubpath = Directory.current.path + '/' + outSubpath;
-      }
+    if (path.isRelative(outSubpath)) {
+      outSubpath = Directory.current.path + '/' + outSubpath;
+    }
 
-      exists = FileSystemEntity.typeSync(outSubpath);
-      if (exists != FileSystemEntityType.notFound) {
-        if (exists == FileSystemEntityType.file) {
-          if (!tData['dartrix']['force']) {
-            // Config.pplogger.e(
-            //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
-            // exit(0);
-            overWrites.add(outSubpath);
-          } else {
-            if ((Config.verbose) || Config.options['dry-run']) {
-              Config.logger.i('Over-writing $outSubpath');
-            }
+    exists = FileSystemEntity.typeSync(outSubpath);
+    if (exists != FileSystemEntityType.notFound) {
+      if (exists == FileSystemEntityType.file) {
+        if (!tData['dartrix']['force']) {
+          // Config.pplogger.e(
+          //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+          // exit(0);
+          overWrites.add(outSubpath);
+        } else {
+          if ((Config.verbose) || Config.options['dry-run']) {
+            Config.logger.i('Over-writing $outSubpath');
           }
         }
       }
+    }
   });
 
   if (overWrites.isNotEmpty) {
     Config.pplogger.w('This template would overwrite the following files:');
     overWrites.forEach((f) {
-        Config.pplogger.w('overwrite warning: $f');
+      Config.pplogger.w('overwrite warning: $f');
     });
     Config.pplogger.w('Rerun with flag "-f" (--force) to force overwrite.');
     exit(0);
   }
 
   tFileset.forEach((tfile) {
-      // _log.finer('tfile: $tfile');
-      var outSubpath = path.normalize(tData['out'] +
+    // _log.finer('tfile: $tfile');
+    var outSubpath = path.normalize(tData['out'] +
         tfile.path.replaceFirst(
-          templatesRoot + '/' + Config.options['template'], ''));
-      outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-      // _log.finer('outSubpath: $outSubpath');
-      outSubpath = path.normalize(rewritePath(outSubpath));
-      // _log.finer('rewritten outSubpath: $outSubpath');
+            templatesRoot + '/' + Config.options['template'], ''));
+    outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+    // _log.finer('outSubpath: $outSubpath');
+    outSubpath = path.normalize(rewritePath(outSubpath));
+    // _log.finer('rewritten outSubpath: $outSubpath');
 
-      if (path.isRelative(outSubpath)) {
-        outSubpath = Directory.current.path + '/' + outSubpath;
-      }
-      // _log.finer('absolutized outSubpath: $outSubpath');
+    if (path.isRelative(outSubpath)) {
+      outSubpath = Directory.current.path + '/' + outSubpath;
+    }
+    // _log.finer('absolutized outSubpath: $outSubpath');
 
-      // create output dir if necessary
-      var dirname = path.dirname(outSubpath);
-      // Config.logger.i("dirname: $dirname");
-      exists = FileSystemEntity.typeSync(dirname);
-      if (exists == FileSystemEntityType.notFound) {
-        if ((Config.verbose) || Config.options['dry-run']) {
-          Config.logger.i('Creating output directory: $dirname');
-        }
-        if (!Config.options['dry-run']) {
-          Directory(dirname).createSync(recursive: true);
-        }
+    // create output dir if necessary
+    var dirname = path.dirname(outSubpath);
+    // Config.logger.i("dirname: $dirname");
+    exists = FileSystemEntity.typeSync(dirname);
+    if (exists == FileSystemEntityType.notFound) {
+      if ((Config.verbose) || Config.options['dry-run']) {
+        Config.logger.i('Creating output directory: $dirname');
       }
+      if (!Config.options['dry-run']) {
+        Directory(dirname).createSync(recursive: true);
+      }
+    }
 
-      if (tfile.path.endsWith('mustache')) {
-        var contents;
-        contents = tfile.readAsStringSync();
-        var template =
-        Template(contents, name: outSubpath, htmlEscapeValues: false);
-        var newContents;
-        try {
-          newContents = template.renderString(tData);
-        } catch (e) {
-          Config.pplogger.e(e);
-          exit(0);
-        }
-        // _log.finer(newContents);
-        if ((Config.verbose) || Config.options['dry-run']) {
-          if (debug.debug) {
-            Config.logger.i('   ' + tfile.path);
-          }
-          Config.logger.i('=> $outSubpath');
-        }
-        if (!Config.options['dry-run']) {
-          File(outSubpath).writeAsStringSync(newContents);
-        }
-      } else {
-        if ((Config.verbose) || Config.options['dry-run']) {
-          if (debug.debug) {
-            Config.logger.i('   ' + tfile.path);
-          }
-          Config.logger.i('=> $outSubpath');
-        }
-        if (!Config.options['dry-run']) {
-          tfile.copySync(outSubpath);
-        }
+    if (tfile.path.endsWith('mustache')) {
+      var contents;
+      contents = tfile.readAsStringSync();
+      var template =
+          Template(contents, name: outSubpath, htmlEscapeValues: false);
+      var newContents;
+      try {
+        newContents = template.renderString(tData);
+      } catch (e) {
+        Config.pplogger.e(e);
+        exit(0);
       }
+      // _log.finer(newContents);
+      if ((Config.verbose) || Config.options['dry-run']) {
+        if (debug.debug) {
+          Config.logger.i('   ' + tfile.path);
+        }
+        Config.logger.i('=> $outSubpath');
+      }
+      if (!Config.options['dry-run']) {
+        File(outSubpath).writeAsStringSync(newContents);
+      }
+    } else {
+      if ((Config.verbose) || Config.options['dry-run']) {
+        if (debug.debug) {
+          Config.logger.i('   ' + tfile.path);
+        }
+        Config.logger.i('=> $outSubpath');
+      }
+      if (!Config.options['dry-run']) {
+        tfile.copySync(outSubpath);
+      }
+    }
   });
   Config.pplogger.i("Generated ${tData['package']['dart']}");
 }

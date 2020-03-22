@@ -1,4 +1,4 @@
-import 'package:logger/logger.dart';
+// import 'package:logger/logger.dart';
 import 'package:package_config/package_config.dart';
 
 import 'package:dartrix/src/config.dart';
@@ -82,8 +82,8 @@ void debugPackageConfig(PackageConfig pkgConfig) {
   Config.logger.d(
       'packages (${pkgConfig.packages.length}) = contents of .packages file:');
   // file:///$HOME/.pub-cache/hosted/pub.dartlang.org/
-  Config.logger.d(
-      'Package URIs, relative to ~/.pub-cache/hosted/pub.dartlang.org/:');
+  Config.logger
+      .d('Package URIs, relative to ~/.pub-cache/hosted/pub.dartlang.org/:');
   pkgConfig.packages.forEach((pkg) {
     // NB: the uri is 'file://${HOME}/.pub-cache/hosted/pub.dartlang.org/'
     // but the .path property strips the file:// scheme, so we need:

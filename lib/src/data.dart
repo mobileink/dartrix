@@ -113,14 +113,14 @@ Map tData = {
       // androidx.test:runner:1.1.1
       // androidx.test.espresso:espresso-core:3.1.1'
     },
-    'args' : '^1.6.0',
+    'args': '^1.6.0',
     'cupertino_icons': '\'^0.1.2\'',
     'e2e': '^0.2.0',
     'flutter': '\'>=1.12.8 <2.0.0\'',
     'gradle': '3.5.0',
     'junit': '4.12',
     'kotlin': '1.3.50',
-    'logger' : '^0.8.3',
+    'logger': '^0.8.3',
     'meta': '^1.1.8',
     'mockito': '^4.1.1',
     'package': '0.0.1',
@@ -128,7 +128,7 @@ Map tData = {
     'pedantic': '^1.8.0',
     'platform_detect': '^1.4.0',
     'plugin_platform_interface': '^1.0.2',
-    'safe_config' : '^2.0.2',
+    'safe_config': '^2.0.2',
     'sdk': '\'>=2.1.0 <3.0.0\'',
     'test': '^1.9.4' // for compatibility with flutter_test
   },
