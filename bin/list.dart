@@ -13,8 +13,6 @@ import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/utils.dart';
 
-// var Config.logger = Logger('list');
-
 void listBuiltins(ArgResults options) async {
   // print('listBuiltins ${options.arguments}');
   //Uri
@@ -113,33 +111,6 @@ void printUsage(ArgParser argParser) async {
 }
 
 void main(List<String> args) async {
-  Logger.root.level = Level.ALL;
-  Logger.root
-    ..onRecord.listen((record) {
-      var level;
-      switch (record.level.name) {
-        case 'SHOUT':
-          level = shoutPen(record.level.name);
-          break;
-        case 'SEVERE':
-          level = severePen(record.level.name);
-          break;
-        case 'WARNING':
-          level = warningPen(record.level.name);
-          break;
-        case 'INFO':
-          level = infoPen(record.level.name);
-          break;
-        case 'CONFIG':
-          level = configPen(record.level.name);
-          break;
-        default:
-          level = record.level.name;
-          break;
-      }
-      print('${record.loggerName} ${level}: ${record.message}');
-    });
-
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('template', abbr: 't',
   //   valueHelp: '[a-z_][a-z0-9_]*',

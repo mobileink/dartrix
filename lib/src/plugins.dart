@@ -128,12 +128,14 @@ void spawnCallback(dynamic _xData) {
           Template(contents, name: outSubpath, htmlEscapeValues: false);
       var newContents = template.renderString(tData);
       // Config.logger.d(newContents);
-      if (Config.verbose)
+      if (Config.verbose) {
         Config.logger.d('=> ${Directory.current.path}/$outSubpath');
+      }
       File(outSubpath).writeAsStringSync(newContents);
     } else {
-      if (Config.verbose)
+      if (Config.verbose) {
         Config.logger.d('=> ${Directory.current.path}/$outSubpath');
+      }
       tfile.copySync(outSubpath);
     }
   });
