@@ -1,4 +1,4 @@
-name: dart_clix
+name: dart_cmdsuite
 version: 0.1.0
 docstring: Dart cli app
 description: A template for a command suite application.

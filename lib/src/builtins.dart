@@ -10,7 +10,7 @@ import 'package:sprintf/sprintf.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/handlers/dart_clix.dart';
+import 'package:dartrix/src/handlers/dart_cmdsuite.dart';
 import 'package:dartrix/src/handlers/bashrc.dart';
 import 'package:dartrix/src/paths.dart';
 import 'package:dartrix/src/resolver.dart';
@@ -382,35 +382,22 @@ void dispatchBuiltin(ArgResults _options) async {
   // print('bt: $templates, rtt: ${templates.runtimeType}');
   if (templates.keys.contains(template)) {
     // print('found template $template in lib');
+    // debugging:
+    // var pkg = templates[template];
+    // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
+    // var r = pkg['root'];
+    // Config.debugLogger.i('root: $r');
+    switch(template) {
+      case 'bashrc':
+      await handleBashrc(templates[template]['root'], tArgs);
+      break;
+      case 'dart_cmdsuite':
+      await handleDartCmdSuite(templates[template]['root'], tArgs);
+      break;
+      default:
+      Config.logger.e('No handler for template $template');
+    }
   } else {
     Config.logger.e('template $template not found in lib');
-    exit(0);
   }
-
-  // debugging:
-  // var pkg = templates[template];
-  // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
-  // var r = pkg['root'];
-  // Config.debugLogger.i('root: $r');
-
-  // await handleBashrc(templates[template]['root'], tArgs);
-  await handleDartClix(templates[template]['root'], tArgs);
-
-  exit(0);
-
-  // switch (template) {
-  //   case 'bashrc':
-  //   handleBashrc(subArgs);
-  //   break;
-  //   case 'dart_clix':
-  //   handleDartClix(subArgs);
-  //   break;
-  //   case null:
-  //   Config.logger.e('Template parameter required.');
-  //   exit(0);
-  //   break;
-  //   default:
-  //   Config.logger.i('handler for $template not implemented');
-  // }
-  // generateFromBuiltin(template, options);
 }

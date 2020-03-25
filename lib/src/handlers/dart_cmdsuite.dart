@@ -9,20 +9,20 @@ import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/builtins.dart';
 
 void printUsage(ArgParser argParser) async {
-  print('\nTemplate \'dartClix\' options:');
+  print('\nTemplate \'dart_cmdsuite\' options:');
   print(argParser.usage);
 }
 
-void handleDartClix(String dir, List<String> tArgs) async {
-  print('handleDartClix $dir, $tArgs');
+void handleDartCmdSuite(String dir, List<String> tArgs) async {
+  // print('handleDartCmdSuite $dir, $tArgs');
   // if (Config.debug) {
-  //   Config.debugLogger.i('handleDartClix, subargs $tArgs');
+  //   Config.debugLogger.i('handleDartCmdSuite, subargs $tArgs');
   // }
 
   // 1. construct arg parser from yaml file
 
   // next: construct arg parser from yaml file
-  var yaml = getTemplateConfig(dir); // templates['dartClix']['root']);
+  var yaml = getTemplateConfig(dir); // templates['dart_cmdsuite']['root']);
   // + '/templates/' + template);
   // Config.logger.i('yaml: ${yaml.params}');
 
@@ -47,7 +47,7 @@ void handleDartClix(String dir, List<String> tArgs) async {
 
   if (Config.debug) {
     Config.debugLogger
-        .i('Params for template dart_clix: ${_argParser.options}');
+        .i('Params for template dart_cmdsuite: ${_argParser.options}');
   }
 
   // print(_argParser.usage);
@@ -101,7 +101,7 @@ void handleDartClix(String dir, List<String> tArgs) async {
   // tData['prefix'] = myoptions['prefix'];
   // tData['enable-asserts'] = myoptions['enable-asserts']? ' --enable-asserts' : '';
 
-  // tData['segmap']['dart_clix'] = myoptions['name'];
+  // tData['segmap']['dart_cmdsuite'] = myoptions['name'];
 
   // var dcf = myoptions['dartrix-config-home'];
   // print('dartrix-config-home: ${dcf}');
@@ -114,5 +114,5 @@ void handleDartClix(String dir, List<String> tArgs) async {
 
   // tData['segmap']['DOTDIR_D'] = myoptions['config-dir'];
 
-  await generateFromBuiltin('dart_clix');
+  await generateFromBuiltin('dart_cmdsuite');
 }
