@@ -1,3 +1,7 @@
+## 0.1.14-alpha
+
+- Logging improvements; add template dart_cmdsuite; generate arg parsing from template yaml files
+
 ## 0.1.13-alpha
 
 - Fix logging, use prod filter without asserts
