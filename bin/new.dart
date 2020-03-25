@@ -126,7 +126,7 @@ void main(List<String> args) async {
   //   help: 'List plugins.',
   //   defaultsTo: false,
   // );
-  Config.argParser.addFlag('dry-run', abbr: 'n', defaultsTo: false);
+  Config.argParser.addFlag('dry-run', defaultsTo: false);
   Config.argParser.addFlag('force', abbr: 'f', defaultsTo: false);
   Config.argParser
       .addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
@@ -178,12 +178,10 @@ void main(List<String> args) async {
   }
 
   if (Config.options['dry-run'] ||
-      optionsRest.contains('-n') ||
       optionsRest.contains('--dry-run')) {
     Config.verbose = true;
     Config.dryRun = true;
     Config.ppLogger.w('Dry-run...');
-    optionsRest.remove('-n');
     optionsRest.remove('--dry-run');
   }
 
