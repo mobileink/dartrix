@@ -147,29 +147,62 @@ void main(List<String> args) async {
   try {
     Config.options = Config.argParser.parse(args);
   } catch (e) {
-    Config.debugLogger.d(e);
+    Config.prodLogger.e(e);
     exit(0);
   }
+
+  var optionsRest = Config.options.rest.toList();
 
   if (args.isEmpty) {
     await printUsage(Config.argParser);
     exit(0);
   }
 
-  if (Config.options['debug']) {
+  // if (Config.options['debug']) {
+  //   debug.debug = true;
+  //   Config.debug = true;
+  // }
+
+  if (
+    Config.options['debug']
+    || optionsRest.contains('--debug')
+  ) {
     debug.debug = true;
     Config.debug = true;
+    optionsRest.remove('--debug');
   }
 
-  Config.verbose = Config.options['verbose'];
-
-  if (Config.options['force']) {
-    tData['dartrix']['force'] = true;
-  }
-
-  if (Config.options['dry-run']) {
+  if (
+    Config.options['verbose']
+    || optionsRest.contains('-v')
+    || optionsRest.contains('--verbose')
+  ) {
+    Config.prodLogger.v('verbose');
     Config.verbose = true;
-    Config.logger.i('Dry-run...');
+    optionsRest.remove('-v');
+    optionsRest.remove('--verbose');
+  }
+
+  if (
+    Config.options['dry-run']
+    || optionsRest.contains('-n')
+    || optionsRest.contains('--dry-run')
+  ) {
+    Config.verbose = true;
+    Config.dryRun = true;
+    Config.prodLogger.w('Dry-run...');
+    optionsRest.remove('-n');
+    optionsRest.remove('--dry-run');
+  }
+
+  if (
+    Config.options['force']
+    || optionsRest.contains('-f')
+    || optionsRest.contains('--force')
+  ) {
+    tData['dartrix']['force'] = true;
+    optionsRest.remove('-f');
+    optionsRest.remove('--force');
   }
 
   if (debug.debug) debug.debugOptions();
@@ -197,7 +230,6 @@ void main(List<String> args) async {
       await printUsage(Config.argParser);
     }
   }
-
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
 
@@ -214,8 +246,8 @@ void main(List<String> args) async {
   // String dartPackage = Config.options['package'];
 
   // FIXME: initializing data to be done by each template
-  if (Config.options.rest.isNotEmpty && (Config.options.command == null)) {
-    var pkgSpec = Config.options.rest[0];
+  if (optionsRest.isNotEmpty && (Config.options.command == null)) {
+    var pkgSpec = optionsRest[0];
 
     // if (Config.options['template'] == null) {
     //   Config.logger.e('Missing template parameter; did you forget -t ?');
@@ -224,7 +256,7 @@ void main(List<String> args) async {
 
     switch (pkgSpec) {
       case 'dartrix':
-        dispatchBuiltin(Config.options);
+        dispatchBuiltin(Config.options, optionsRest);
         break;
       default:
         await generateFromPlugin(

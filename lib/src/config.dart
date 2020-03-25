@@ -17,6 +17,7 @@ AnsiPen configPen = AnsiPen()..green(bold: true);
 class Config {
   static bool verbose = false;
   static bool debug = false;
+  static bool dryRun = false;
   static final logger = Logger(printer: SimplePrinter());
   static final debugLogger = Logger(printer: PrettyPrinter(methodCount: 4));
   static final prodLogger = Logger(

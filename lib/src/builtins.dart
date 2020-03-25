@@ -179,31 +179,31 @@ void generateFromBuiltin(String template) async {
   tFileset.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    Config.logger.i('Generating files from templates and copying assets...');
+    Config.prodLogger.i('Generating files from templates and copying assets...');
   }
 
   // We iterate over all template content twice, first to get a list of
   // overwrites, then to overwrite.
 
   // prevent unauthorized overwrites
-  //FIXME: if not --force
+
   var overWrites = [];
   var exists;
   if (!tData['dartrix']['force']) {
     tFileset.forEach((tfile) {
-      Config.logger.v('cwd: ${Directory.current.path}');
-      Config.logger.v('tfile: $tfile');
-      Config.logger.v('tData[\'out\']: ${tData['out']}');
+      // Config.logger.v('cwd: ${Directory.current.path}');
+      // Config.logger.v('tfile: $tfile');
+      // Config.logger.v('tData[\'out\']: ${tData['out']}');
       var templateOutPath =
           tfile.path.replaceFirst(templatesRoot + '/' + template + '/', '');
       // templatesRoot + '/' + Config.options['template'] + '/', '');
-      Config.logger.v('templateOutPath: $templateOutPath');
+      // Config.logger.v('templateOutPath: $templateOutPath');
       var outSubpath = path.normalize(tData['out'] + templateOutPath);
       outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-      Config.logger.v('outSubpath: $outSubpath');
+      // Config.logger.v('outSubpath: $outSubpath');
 
       outSubpath = path.normalize(rewritePath(outSubpath));
-      Config.logger.v('rewritten outSubpath: $outSubpath');
+      // Config.logger.v('rewritten outSubpath: $outSubpath');
 
       // if (path.isRelative(outSubpath)) {
       //   outSubpath = Directory.current.path + '/' + outSubpath;
@@ -218,8 +218,8 @@ void generateFromBuiltin(String template) async {
             // exit(0);
             overWrites.add(outSubpath);
           } else {
-            if ((Config.verbose) || Config.options['dry-run']) {
-              Config.logger.i('Over-writing $outSubpath');
+            if ((Config.verbose) || Config.dryRun) {
+              Config.prodLogger.i('Over-writing $outSubpath');
             }
           }
         }
@@ -235,7 +235,6 @@ void generateFromBuiltin(String template) async {
     Config.prodLogger.w('Rerun with flag "-f" (--force) to force overwrite.');
     exit(0);
   }
-
   tFileset.forEach((tfile) {
     // _log.finer('tfile: $tfile');
 
@@ -261,10 +260,10 @@ void generateFromBuiltin(String template) async {
     // Config.logger.i("dirname: $dirname");
     exists = FileSystemEntity.typeSync(dirname);
     if (exists == FileSystemEntityType.notFound) {
-      if ((Config.verbose) || Config.options['dry-run']) {
-        Config.logger.i('Creating output directory: $dirname');
+      if ((Config.verbose) || Config.dryRun) {
+        Config.prodLogger.i('Creating output directory: $dirname');
       }
-      if (!Config.options['dry-run']) {
+      if (!Config.dryRun) {
         Directory(dirname).createSync(recursive: true);
       }
     }
@@ -282,29 +281,29 @@ void generateFromBuiltin(String template) async {
         exit(0);
       }
       // _log.finer(newContents);
-      if ((Config.verbose) || Config.options['dry-run']) {
+      if ((Config.verbose) || Config.dryRun) {
         if (debug.debug) {
-          Config.logger.i('   ' + tfile.path);
+          Config.debugLogger.i('   ' + tfile.path);
         }
-        Config.logger.i('=> $outSubpath');
+        Config.prodLogger.i('=> $outSubpath');
       }
-      if (!Config.options['dry-run']) {
+      if (!Config.dryRun) {
         File(outSubpath).writeAsStringSync(newContents);
       }
     } else {
-      if ((Config.verbose) || Config.options['dry-run']) {
+      if ((Config.verbose) || Config.dryRun) {
         if (debug.debug) {
-          Config.logger.i('   ' + tfile.path);
+          Config.debugLogger.i('   ' + tfile.path);
         }
-        Config.logger.i('=> $outSubpath');
+        Config.prodLogger.i('=> $outSubpath');
       }
-      if (!Config.options['dry-run']) {
+      if (!Config.dryRun) {
         tfile.copySync(outSubpath);
       }
     }
   });
   var action;
-  if (Config.options['dry-run']) {
+  if (Config.dryRun) {
     action = 'would generate';
   } else {
     action = 'generated';
@@ -318,7 +317,7 @@ void printDartrixUsage() {
       'Dartrix template library. A collection of general templates for softwared development.  Mainly but not exclusively Dart and Flutter code.');
 }
 
-void dispatchBuiltin(ArgResults _options) async {
+void dispatchBuiltin(ArgResults _options, List<String> subArgs) async {
   // Config.debugLogger.d('dispatchBuiltin');
   // print('option args: ${_options.arguments}');
   // print('option rest: ${_options.rest}');
@@ -328,7 +327,7 @@ void dispatchBuiltin(ArgResults _options) async {
     // exit(0);
   }
 
-  var subArgs = _options.rest.toList();
+  // var subArgs = _options.rest.toList();
   var dartrixArgs;
   var tArgs;
 
@@ -340,16 +339,16 @@ void dispatchBuiltin(ArgResults _options) async {
     ft = subArgs.indexOf('-t');
     if (ft < 0) {
       // not found
-      Config.logger.e('Missing required template option: -t | --template');
+      Config.prodLogger.e('Missing required template option: -t | --template');
       exit(0);
     } else {
       // Config.logger.e('found -t');
       if (ft != subArgs.lastIndexOf('-t')) {
-        Config.logger.e('Multiple --template options not allowed.');
+        Config.prodLogger.e('Multiple --template options not allowed.');
         exit(0);
       }
       if (subArgs.contains('--template')) {
-        Config.logger.e('Only one -t or --template option allowed.');
+        Config.prodLogger.e('Only one -t or --template option allowed.');
         exit(0);
       }
       template = subArgs[ft + 1];
@@ -359,11 +358,11 @@ void dispatchBuiltin(ArgResults _options) async {
   } else {
     // Config.logger.e('found --template');
     if (ft != subArgs.lastIndexOf('--template')) {
-      Config.logger.e('Only one -t or --template option allowed.');
+      Config.prodLogger.e('Only one -t or --template option allowed.');
       exit(0);
     }
     if (subArgs.contains('-t')) {
-      Config.logger.e('Only one -t or --template option allowed.');
+      Config.prodLogger.e('Only one -t or --template option allowed.');
       exit(0);
     }
     template = subArgs[ft + 1];
@@ -395,9 +394,9 @@ void dispatchBuiltin(ArgResults _options) async {
       await handleDartCmdSuite(templates[template]['root'], tArgs);
       break;
       default:
-      Config.logger.e('No handler for template $template');
+      Config.prodLogger.e('No handler for template $template');
     }
   } else {
-    Config.logger.e('template $template not found in lib');
+    Config.prodLogger.e('template $template not found in lib');
   }
 }

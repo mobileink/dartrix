@@ -58,7 +58,7 @@ void handleBashrc(String dir, List<String> tArgs) async {
   try {
     myoptions = _argParser.parse(tArgs);
   } catch (e) {
-    Config.logger.e(e);
+    Config.prodLogger.e(e);
     exit(0);
   }
   // print('myoptions: ${myoptions.options}');
