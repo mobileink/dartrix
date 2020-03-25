@@ -1,3 +1,7 @@
+## 0.1.15-alpha
+
+- Various fixes.
+
 ## 0.1.14-alpha
 
 - Logging improvements; add template dart_cmdsuite; generate arg parsing from template yaml files
