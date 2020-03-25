@@ -179,7 +179,7 @@ void generateFromBuiltin(String template) async {
   tFileset.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    Config.prodLogger
+    Config.ppLogger
         .i('Generating files from templates and copying assets...');
   }
 
@@ -229,11 +229,11 @@ void generateFromBuiltin(String template) async {
   }
 
   if (overWrites.isNotEmpty) {
-    Config.prodLogger.w('This template would overwrite the following files:');
+    Config.ppLogger.w('Canceling - this template would overwrite the following files:');
     overWrites.forEach((f) {
-      Config.prodLogger.w('overwrite warning: ${path.canonicalize(f)}');
+      Config.prodLogger.w('\t${path.canonicalize(f)}');
     });
-    Config.prodLogger.w('Rerun with flag "-f" (--force) to force overwrite.');
+    Config.ppLogger.i('Rerun with flag "-f" (--force) to force overwrite.');
     exit(0);
   }
   tFileset.forEach((tfile) {
@@ -262,7 +262,7 @@ void generateFromBuiltin(String template) async {
     exists = FileSystemEntity.typeSync(dirname);
     if (exists == FileSystemEntityType.notFound) {
       if ((Config.verbose) || Config.dryRun) {
-        Config.prodLogger.i('Creating output directory: $dirname');
+        // Config.logger.i('Creating output directory: $dirname');
       }
       if (!Config.dryRun) {
         Directory(dirname).createSync(recursive: true);
@@ -286,7 +286,7 @@ void generateFromBuiltin(String template) async {
         if (debug.debug) {
           Config.debugLogger.i('   ' + tfile.path);
         }
-        Config.prodLogger.i('=> $outSubpath');
+        Config.logger.i('=> $outSubpath');
       }
       if (!Config.dryRun) {
         File(outSubpath).writeAsStringSync(newContents);
@@ -309,7 +309,7 @@ void generateFromBuiltin(String template) async {
   } else {
     action = 'generated';
   }
-  Config.prodLogger
+  Config.ppLogger
       .i('Template ${template} ${action} ${tFileset.length} files.');
 }
 
@@ -323,9 +323,10 @@ void dispatchBuiltin(ArgResults _options, List<String> subArgs) async {
   // print('option args: ${_options.arguments}');
   // print('option rest: ${_options.rest}');
 
-  if (_options.wasParsed('help')) {
-    // Config.logger.i('new HELP');
-    // exit(0);
+  if (_options.wasParsed('help') ||
+    subArgs.contains('-h') ||
+    subArgs.contains('--help')) {
+    print('Library: dartrix');
   }
 
   // var subArgs = _options.rest.toList();

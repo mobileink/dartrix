@@ -243,7 +243,7 @@ Future<String> resolvePkgRoot(String pkg) async {
 ///     fullName   e.g. foobar_myapp
 ///     name       e.g. foobar
 Map<String, String> resolvePkgRef(String pkgRef) {
-  print('resolvePkgRef: $pkgRef');
+  // print('resolvePkgRef: $pkgRef');
   // String pkgName;
   // String pkgPackageUriStr;
   var name;
@@ -352,6 +352,6 @@ void printAvailableLibs() async {
 
 Future<String> getPkgVersion() async {
   // var pkgRoot = await getAppPkgRoot();
-  print('pkgRoot: ${Config.appPkgRoot}');
+  // print('pkgRoot: ${Config.appPkgRoot}');
   return '0.1.13';
 }

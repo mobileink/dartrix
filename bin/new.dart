@@ -172,7 +172,6 @@ void main(List<String> args) async {
   if (Config.options['verbose'] ||
       optionsRest.contains('-v') ||
       optionsRest.contains('--verbose')) {
-    Config.prodLogger.v('verbose');
     Config.verbose = true;
     optionsRest.remove('-v');
     optionsRest.remove('--verbose');
@@ -183,7 +182,7 @@ void main(List<String> args) async {
       optionsRest.contains('--dry-run')) {
     Config.verbose = true;
     Config.dryRun = true;
-    Config.prodLogger.w('Dry-run...');
+    Config.ppLogger.w('Dry-run...');
     optionsRest.remove('-n');
     optionsRest.remove('--dry-run');
   }
@@ -198,28 +197,28 @@ void main(List<String> args) async {
 
   if (debug.debug) debug.debugOptions();
 
-  if (Config.options['help']) {
-    // print('h: ${args.indexOf('-h')}');
-    // print('help: ${args.indexOf('--help')}');
-    // print('t: ${args.indexOf('-t')}');
-    // print('template: ${args.indexOf('--template')}');
-    if (args.contains('-t') || args.contains('template')) {
-      if (args.contains('-h') &&
-          ((args.indexOf('-h') < args.indexOf('-t')) ||
-              (args.indexOf('-h') < args.indexOf('--template')))) {
-        await printUsage(Config.argParser);
-        // exit(0);
-      } else {
-        if (args.contains('--help') &&
-            ((args.indexOf('--help') < args.indexOf('-t')) ||
-                (args.indexOf('--help') < args.indexOf('--template')))) {
-          await printUsage(Config.argParser);
-          // exit(0);
-        }
-      }
-    } else {
+  if (Config.options['help'] ||
+      optionsRest.contains('-h') ||
+      optionsRest.contains('--help')) {
       await printUsage(Config.argParser);
-    }
+      optionsRest.add('-h');
+    // if (args.contains('-t') || args.contains('template')) {
+    //   if (args.contains('-h') &&
+    //       ((args.indexOf('-h') < args.indexOf('-t')) ||
+    //           (args.indexOf('-h') < args.indexOf('--template')))) {
+    //     await printUsage(Config.argParser);
+    //     // exit(0);
+    //   } else {
+    //     if (args.contains('--help') &&
+    //         ((args.indexOf('--help') < args.indexOf('-t')) ||
+    //             (args.indexOf('--help') < args.indexOf('--template')))) {
+    //       await printUsage(Config.argParser);
+    //       // exit(0);
+    //     }
+    //   }
+    // } else {
+    //   await printUsage(Config.argParser);
+    // }
   }
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
