@@ -179,7 +179,8 @@ void generateFromBuiltin(String template) async {
   tFileset.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    Config.prodLogger.i('Generating files from templates and copying assets...');
+    Config.prodLogger
+        .i('Generating files from templates and copying assets...');
   }
 
   // We iterate over all template content twice, first to get a list of
@@ -386,15 +387,15 @@ void dispatchBuiltin(ArgResults _options, List<String> subArgs) async {
     // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
     // var r = pkg['root'];
     // Config.debugLogger.i('root: $r');
-    switch(template) {
+    switch (template) {
       case 'bashrc':
-      await handleBashrc(templates[template]['root'], tArgs);
-      break;
+        await handleBashrc(templates[template]['root'], tArgs);
+        break;
       case 'dart_cmdsuite':
-      await handleDartCmdSuite(templates[template]['root'], tArgs);
-      break;
+        await handleDartCmdSuite(templates[template]['root'], tArgs);
+        break;
       default:
-      Config.prodLogger.e('No handler for template $template');
+        Config.prodLogger.e('No handler for template $template');
     }
   } else {
     Config.prodLogger.e('template $template not found in lib');

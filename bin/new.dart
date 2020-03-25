@@ -163,31 +163,24 @@ void main(List<String> args) async {
   //   Config.debug = true;
   // }
 
-  if (
-    Config.options['debug']
-    || optionsRest.contains('--debug')
-  ) {
+  if (Config.options['debug'] || optionsRest.contains('--debug')) {
     debug.debug = true;
     Config.debug = true;
     optionsRest.remove('--debug');
   }
 
-  if (
-    Config.options['verbose']
-    || optionsRest.contains('-v')
-    || optionsRest.contains('--verbose')
-  ) {
+  if (Config.options['verbose'] ||
+      optionsRest.contains('-v') ||
+      optionsRest.contains('--verbose')) {
     Config.prodLogger.v('verbose');
     Config.verbose = true;
     optionsRest.remove('-v');
     optionsRest.remove('--verbose');
   }
 
-  if (
-    Config.options['dry-run']
-    || optionsRest.contains('-n')
-    || optionsRest.contains('--dry-run')
-  ) {
+  if (Config.options['dry-run'] ||
+      optionsRest.contains('-n') ||
+      optionsRest.contains('--dry-run')) {
     Config.verbose = true;
     Config.dryRun = true;
     Config.prodLogger.w('Dry-run...');
@@ -195,11 +188,9 @@ void main(List<String> args) async {
     optionsRest.remove('--dry-run');
   }
 
-  if (
-    Config.options['force']
-    || optionsRest.contains('-f')
-    || optionsRest.contains('--force')
-  ) {
+  if (Config.options['force'] ||
+      optionsRest.contains('-f') ||
+      optionsRest.contains('--force')) {
     tData['dartrix']['force'] = true;
     optionsRest.remove('-f');
     optionsRest.remove('--force');
