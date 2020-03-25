@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 // import 'package:logger/logger.dart';
-import 'package:path/path.dart' as path;
+// import 'package:path/path.dart' as path;
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 
@@ -21,26 +21,25 @@ void handleBashrc(String dir, List<String> tArgs) async {
   // 1. construct arg parser from yaml file
 
   // next: construct arg parser from yaml file
-  var yaml = getTemplateConfig(dir);  // templates['bashrc']['root']);
-    // + '/templates/' + template);
+  var yaml = getTemplateConfig(dir); // templates['bashrc']['root']);
+  // + '/templates/' + template);
   // Config.logger.i('yaml: ${yaml.params}');
 
   var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
   yaml.params.forEach((param) {
-      // Config.logger.i('param: $param');
-      if (param.typeHelp == 'bool') {
-        _argParser.addFlag(param.name,
+    // Config.logger.i('param: $param');
+    if (param.typeHelp == 'bool') {
+      _argParser.addFlag(param.name,
           abbr: param.abbr,
           help: param.help,
-          defaultsTo: (param.defaultsTo == 'true')? true : false);
-      } else {
-        _argParser.addOption(param.name,
+          defaultsTo: (param.defaultsTo == 'true') ? true : false);
+    } else {
+      _argParser.addOption(param.name,
           abbr: param.abbr,
           valueHelp: param.typeHelp,
-          help: param.docstring + " " + param.help,
-          defaultsTo: param.defaultsTo
-        );
-      }
+          help: param.docstring + ' ' + param.help,
+          defaultsTo: param.defaultsTo);
+    }
   });
   // always add --help
   _argParser.addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
@@ -58,7 +57,7 @@ void handleBashrc(String dir, List<String> tArgs) async {
   var myoptions;
   try {
     myoptions = _argParser.parse(tArgs);
-  } catch(e) {
+  } catch (e) {
     Config.logger.e(e);
     exit(0);
   }
@@ -73,27 +72,27 @@ void handleBashrc(String dir, List<String> tArgs) async {
   // now merge user passed args with default data map
   // print('MERGE user options');
   myoptions.options.forEach((option) {
-      // print('option: ${option} = ${myoptions[option]}');
-      // print('params rtt: ${yaml.params.runtimeType}');
-      var param;
-      try {
-        param = yaml.params.firstWhere((param) {
-            return param.name == option;
-        });
-        // print('yaml: ${param.name}');
-        if (param.segmap != null) {
-          tData['segmap'][param.segmap] = myoptions[option];
-        } else {
-          tData[option] = myoptions[option];
-        }
-        // if (params['segment'] == null) {
-        // } else {
-        // }
-      } catch(e) {
-        // this will happen for e.g. the help option that was not specified in
-        // the yaml file.
-        // print(e);
+    // print('option: ${option} = ${myoptions[option]}');
+    // print('params rtt: ${yaml.params.runtimeType}');
+    var param;
+    try {
+      param = yaml.params.firstWhere((param) {
+        return param.name == option;
+      });
+      // print('yaml: ${param.name}');
+      if (param.segmap != null) {
+        tData['segmap'][param.segmap] = myoptions[option];
+      } else {
+        tData[option] = myoptions[option];
       }
+      // if (params['segment'] == null) {
+      // } else {
+      // }
+    } catch (e) {
+      // this will happen for e.g. the help option that was not specified in
+      // the yaml file.
+      // print(e);
+    }
   });
 
   // tData['prefix'] = myoptions['prefix'];
@@ -101,7 +100,7 @@ void handleBashrc(String dir, List<String> tArgs) async {
 
   // tData['segmap']['bashrc'] = myoptions['name'];
 
-  // var dcf = myoptions["dartrix-config-home"];
+  // var dcf = myoptions['dartrix-config-home'];
   // print('dartrix-config-home: ${dcf}');
   // if (path.isAbsolute(dcf)) {
   //   tData['segmap']['HOME'] = dcf;

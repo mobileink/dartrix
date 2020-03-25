@@ -3,7 +3,7 @@ import 'dart:io';
 // import 'dart:isolate';
 
 import 'package:args/args.dart';
-import 'package:args/command_runner.dart';
+// import 'package:args/command_runner.dart';
 import 'package:path/path.dart' as path;
 import 'package:sprintf/sprintf.dart';
 
@@ -13,12 +13,14 @@ import 'package:dartrix/src/builtins.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/resolver.dart';
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/utils.dart';
 
 // void initBuiltinArgs(Dartrix cmd) async { //CommandRunner runner) async {
-void initBuiltinArgs() async { //CommandRunner runner) async {
+void initBuiltinArgs() async {
+  //CommandRunner runner) async {
   // {template : docstring }
-  Map biTemplates = await listBuiltinTemplates();
+  // Map
+  var biTemplates = await listBuiltinTemplates();
   // for each template, read yaml and construct arg parser
 
   // for (var t in biTemplates.keys) {
@@ -139,8 +141,8 @@ void printUsage(ArgParser argParser) async {
 
   print('\nAvailable template libraries:');
   //List<Package>
-  var pkgs = await getPlugins('_dartrix'); 
- print('\t${sprintf("%-18s", ["dartrix"])} Builtin templates');
+  var pkgs = await getPlugins('_dartrix');
+  print('\t${sprintf("%-18s", ["dartrix"])} Builtin templates');
   pkgs.forEach((pkg) {
     var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
     var docString = getDocStringFromPkg(pkg);
@@ -174,14 +176,14 @@ void main(List<String> args) async {
   //   // callback: (t) => validateTemplateName(t)
   // );
 
-  argParser.addFlag('help', abbr: 'h', defaultsTo: false,
-  help: 'Print this help message.');
+  argParser.addFlag('help',
+      abbr: 'h', defaultsTo: false, help: 'Print this help message.');
   // argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
   argParser.addFlag('debug', defaultsTo: false, hide: true);
 
   try {
     Config.options = argParser.parse(args);
-  } catch(e) {
+  } catch (e) {
     Config.logger.e(e);
     exit(0);
   }
@@ -210,8 +212,8 @@ void main(List<String> args) async {
   } else {
     switch (Config.options.rest[0]) {
       case 'dartrix':
-      await printBuiltins(); // Config.options);
-      break;
+        await printBuiltins(); // Config.options);
+        break;
       case 'help':
       case '-h':
       case '--help':

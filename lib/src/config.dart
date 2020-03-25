@@ -18,23 +18,20 @@ class Config {
   static bool verbose = false;
   static bool debug = false;
   static final logger = Logger(printer: SimplePrinter());
-  static final debugLogger = Logger(printer: PrettyPrinter(methodCount:4));
+  static final debugLogger = Logger(printer: PrettyPrinter(methodCount: 4));
   static final prodLogger = Logger(
-    filter: ProductionFilter(),
-    printer: PrettyPrinter(methodCount: 0)
-  );
+      filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
   static String appName;
   static String appSfx = '_dartrix';
   static String appPkgRoot;
-  static final String home
-  = Platform.isWindows
-  ? Platform.environment['UserProfile']
-  : Platform.environment['HOME'];
+  static final String home = Platform.isWindows
+      ? Platform.environment['UserProfile']
+      : Platform.environment['HOME'];
 
   static ArgParser argParser;
   static ArgResults options;
 
-  static String _version = null;
+  static String _version;
 
   static Future<String> get pkgVersion async {
     if (_version != null) return _version;
@@ -60,28 +57,28 @@ class Config {
 
 // safe_config yaml classes
 class ParamConfig extends Configuration {
- 	ParamConfig() : super();
- 	ParamConfig.fromFile(String fileName) : super.fromFile(File(fileName));
- 	ParamConfig.fromMap(Map m) : super.fromMap(m);
+  ParamConfig() : super();
+  ParamConfig.fromFile(String fileName) : super.fromFile(File(fileName));
+  ParamConfig.fromMap(Map m) : super.fromMap(m);
 
   String name;
-	String abbr;
-	String docstring;
+  String abbr;
+  String docstring;
   String help;
-  String typeHelp;            // parser 'valueHelp'
-	String defaultsTo;
+  String typeHelp; // parser 'valueHelp'
+  String defaultsTo;
   @optionalConfiguration
   String segmap;
 }
 
 class TemplateConfig extends Configuration {
- 	TemplateConfig(String fileName) : super.fromFile(File(fileName));
+  TemplateConfig(String fileName) : super.fromFile(File(fileName));
 
-    String name;
-	  String description;
-    String docstring;
-    String version;
-	  List<ParamConfig> params;
+  String name;
+  String description;
+  String docstring;
+  String version;
+  List<ParamConfig> params;
 }
 
 // String loadTemplateFileSync(String path) {
@@ -105,7 +102,7 @@ TemplateConfig getTemplateConfig(String template) {
   var config;
   try {
     config = TemplateConfig(template + '.yaml');
-  } catch(e) {
+  } catch (e) {
     if (Config.debug) {
       Config.debugLogger.e(e);
     } else {

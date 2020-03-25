@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'dart:isolate';
+// import 'dart:isolate';
 
 import 'package:args/args.dart';
 import 'package:mustache_template/mustache_template.dart';
-import 'package:package_config/package_config.dart';
+// import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
 import 'package:sprintf/sprintf.dart';
 
@@ -15,8 +15,8 @@ import 'package:dartrix/src/handlers/bashrc.dart';
 import 'package:dartrix/src/paths.dart';
 import 'package:dartrix/src/resolver.dart';
 
-
-void printBuiltins() async { // ArgResults options)
+void printBuiltins() async {
+  // ArgResults options)
   // print('builtins.printBuiltins'); // ${options.arguments}');
   //Uri
   // var packageConfigUri = await Isolate.packageConfig;
@@ -48,9 +48,8 @@ void printBuiltins() async { // ArgResults options)
 
   // FIXME: use listBuiltinTemplates
   var templatesRoot = await resolveBuiltinTemplatesRoot();
-  var templates = Directory(templatesRoot)
-  .listSync()
-  ..retainWhere((f) => f is Directory);
+  var templates = Directory(templatesRoot).listSync()
+    ..retainWhere((f) => f is Directory);
 
   print('Builtin templates:');
   templates.forEach((t) {
@@ -73,7 +72,8 @@ void printBuiltins() async { // ArgResults options)
   });
 }
 
-Future<Map> listBuiltinTemplates() async { // ArgResults options) async {
+Future<Map> listBuiltinTemplates() async {
+  // ArgResults options) async {
   // print('printBuiltins ${options.arguments}');
   //Uri
   // var packageConfigUri = await Isolate.packageConfig;
@@ -104,14 +104,15 @@ Future<Map> listBuiltinTemplates() async { // ArgResults options) async {
   // path.dirname(packageConfigUri.path) + '/templates'; List
 
   var templatesRoot = await resolveBuiltinTemplatesRoot();
-  var templates = Directory(templatesRoot)
-  .listSync()
-  ..retainWhere((f) => f is Directory);
+  var templates = Directory(templatesRoot).listSync()
+    ..retainWhere((f) => f is Directory);
 
   var tlist = {
     for (var tdir in templates)
-    path.basename(tdir.path)
-    : { 'root': tdir.path, 'docstring':  getDocString(templatesRoot, tdir)},
+      path.basename(tdir.path): {
+        'root': tdir.path,
+        'docstring': getDocString(templatesRoot, tdir)
+      },
   };
   return tlist;
 }
@@ -171,8 +172,9 @@ void generateFromBuiltin(String template) async {
   // String templateRoot = templatesRoot + '/' + Config.options['template'];
   // // _log.finer('template root: $templateRoot');
 
-  List tFileset = Directory(templatesRoot + '/' + template) //Config.options['template'])
-      .listSync(recursive: true);
+  List tFileset =
+      Directory(templatesRoot + '/' + template) //Config.options['template'])
+          .listSync(recursive: true);
   tFileset.removeWhere((f) => f.path.endsWith('~'));
   tFileset.retainWhere((f) => f is File);
 
@@ -189,39 +191,39 @@ void generateFromBuiltin(String template) async {
   var exists;
   if (!tData['dartrix']['force']) {
     tFileset.forEach((tfile) {
-        Config.logger.v('cwd: ${Directory.current.path}');
-        Config.logger.v('tfile: $tfile');
-        Config.logger.v('tData[\'out\']: ${tData['out']}');
-        var templateOutPath = tfile.path.replaceFirst(
-          templatesRoot + '/' + template + '/', '');
-        // templatesRoot + '/' + Config.options['template'] + '/', '');
-        Config.logger.v('templateOutPath: $templateOutPath');
-        var outSubpath = path.normalize(tData['out'] + templateOutPath);
-        outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-        Config.logger.v('outSubpath: $outSubpath');
+      Config.logger.v('cwd: ${Directory.current.path}');
+      Config.logger.v('tfile: $tfile');
+      Config.logger.v('tData[\'out\']: ${tData['out']}');
+      var templateOutPath =
+          tfile.path.replaceFirst(templatesRoot + '/' + template + '/', '');
+      // templatesRoot + '/' + Config.options['template'] + '/', '');
+      Config.logger.v('templateOutPath: $templateOutPath');
+      var outSubpath = path.normalize(tData['out'] + templateOutPath);
+      outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+      Config.logger.v('outSubpath: $outSubpath');
 
-        outSubpath = path.normalize(rewritePath(outSubpath));
-        Config.logger.v('rewritten outSubpath: $outSubpath');
+      outSubpath = path.normalize(rewritePath(outSubpath));
+      Config.logger.v('rewritten outSubpath: $outSubpath');
 
-        // if (path.isRelative(outSubpath)) {
-        //   outSubpath = Directory.current.path + '/' + outSubpath;
-        // }
+      // if (path.isRelative(outSubpath)) {
+      //   outSubpath = Directory.current.path + '/' + outSubpath;
+      // }
 
-        exists = FileSystemEntity.typeSync(outSubpath);
-        if (exists != FileSystemEntityType.notFound) {
-          if (exists == FileSystemEntityType.file) {
-            if (!tData['dartrix']['force']) {
-              // Config.prodLogger.e(
-              //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
-              // exit(0);
-              overWrites.add(outSubpath);
-            } else {
-              if ((Config.verbose) || Config.options['dry-run']) {
-                Config.logger.i('Over-writing $outSubpath');
-              }
+      exists = FileSystemEntity.typeSync(outSubpath);
+      if (exists != FileSystemEntityType.notFound) {
+        if (exists == FileSystemEntityType.file) {
+          if (!tData['dartrix']['force']) {
+            // Config.prodLogger.e(
+            //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+            // exit(0);
+            overWrites.add(outSubpath);
+          } else {
+            if ((Config.verbose) || Config.options['dry-run']) {
+              Config.logger.i('Over-writing $outSubpath');
             }
           }
         }
+      }
     });
   }
 
@@ -239,8 +241,8 @@ void generateFromBuiltin(String template) async {
 
     // first remove template name prefix path
     var outSubpath = path.normalize(tData['out'] +
-      tfile.path.replaceFirst(templatesRoot + '/' + template, ''));
-        // templatesRoot + '/' + Config.options['template'], ''));
+        tfile.path.replaceFirst(templatesRoot + '/' + template, ''));
+    // templatesRoot + '/' + Config.options['template'], ''));
     // then remove mustache extension
     outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
     // now rewrite and normalize outpath
@@ -303,15 +305,17 @@ void generateFromBuiltin(String template) async {
   });
   var action;
   if (Config.options['dry-run']) {
-    action = "would generate";
+    action = 'would generate';
   } else {
-    action = "generated";
+    action = 'generated';
   }
-  Config.prodLogger.i('Template ${template} ${action} ${tFileset.length} files.');
+  Config.prodLogger
+      .i('Template ${template} ${action} ${tFileset.length} files.');
 }
 
 void printDartrixUsage() {
-  print('Dartrix template library. A collection of general templates for softwared development.  Mainly but not exclusively Dart and Flutter code.');
+  print(
+      'Dartrix template library. A collection of general templates for softwared development.  Mainly but not exclusively Dart and Flutter code.');
 }
 
 void dispatchBuiltin(ArgResults _options) async {
@@ -331,9 +335,11 @@ void dispatchBuiltin(ArgResults _options) async {
   var ft;
   var template;
   ft = subArgs.indexOf('--template');
-  if (ft < 0) { // not found
+  if (ft < 0) {
+    // not found
     ft = subArgs.indexOf('-t');
-    if (ft < 0) { // not found
+    if (ft < 0) {
+      // not found
       Config.logger.e('Missing required template option: -t | --template');
       exit(0);
     } else {
@@ -346,9 +352,9 @@ void dispatchBuiltin(ArgResults _options) async {
         Config.logger.e('Only one -t or --template option allowed.');
         exit(0);
       }
-      template = subArgs[ft+1];
-      dartrixArgs = subArgs.sublist(0,ft);
-      tArgs = subArgs.sublist(ft+2);
+      template = subArgs[ft + 1];
+      dartrixArgs = subArgs.sublist(0, ft);
+      tArgs = subArgs.sublist(ft + 2);
     }
   } else {
     // Config.logger.e('found --template');
@@ -360,9 +366,9 @@ void dispatchBuiltin(ArgResults _options) async {
       Config.logger.e('Only one -t or --template option allowed.');
       exit(0);
     }
-    template = subArgs[ft+1];
-    dartrixArgs = subArgs.sublist(0,ft);
-    tArgs = subArgs.sublist(ft+2);
+    template = subArgs[ft + 1];
+    dartrixArgs = subArgs.sublist(0, ft);
+    tArgs = subArgs.sublist(ft + 2);
   }
   // print('template: $template');
   // print('dartrixArgs: $dartrixArgs');

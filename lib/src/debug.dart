@@ -84,7 +84,7 @@ void debugPackageConfig(PackageConfig pkgConfig) {
       'packages (${pkgConfig.packages.length}) = contents of .packages file:');
   // file:///$HOME/.pub-cache/hosted/pub.dartlang.org/
   Config.logger
-  .d('File paths relative to ~/.pub-cache/hosted/pub.dartlang.org/:');
+      .d('File paths relative to ~/.pub-cache/hosted/pub.dartlang.org/:');
 
   var pn = sprintf('%-24s', ['Package Name']);
   var pur = sprintf('%-40s', ['Package URI Root']);

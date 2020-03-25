@@ -2,7 +2,7 @@ import 'dart:io';
 
 // import 'package:args/args.dart';
 // import 'package:logger/logger.dart';
-import 'package:path/path.dart' as path;
+// import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/debug.dart' as debug;
@@ -69,9 +69,7 @@ Map mergeExternalData(Map _data, Map xData) {
 }
 
 Map tData = {
-  'dartrix': {
-    'force' : false
-  },
+  'dartrix': {'force': false},
   'version': {
     'android': {
       'compile_sdk': '28',
@@ -128,12 +126,12 @@ Map tData = {
   },
   // segmap keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
-  'out'   : './',
+  'out': './',
   'segmap': {
     // keys are segment placeholders in path templates
-    'ROOT' : '/',
-    'HOME' : Config.home,
-    'CWD'  : Directory.current.path,
+    'ROOT': '/',
+    'HOME': Config.home,
+    'CWD': Directory.current.path,
     'DOTFILE': '', // rewrite DOTFILE.foo as .foo
     'DOTDIR_D': ''
   }

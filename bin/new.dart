@@ -1,17 +1,17 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
-import 'package:args/command_runner.dart';
-import 'package:path/path.dart' as path;
-import 'package:process_run/which.dart';
-import 'package:strings/strings.dart';
+// import 'package:args/command_runner.dart';
+// import 'package:path/path.dart' as path;
+// import 'package:process_run/which.dart';
+// import 'package:strings/strings.dart';
 
 import 'package:dartrix/dartrix.dart';
 import 'package:dartrix/src/builtins.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/paths.dart';
+// import 'package:dartrix/src/paths.dart';
 import 'package:dartrix/src/plugins.dart';
 // import 'package:dartrix/src/utils.dart';
 
@@ -128,8 +128,10 @@ void main(List<String> args) async {
   // );
   Config.argParser.addFlag('dry-run', abbr: 'n', defaultsTo: false);
   Config.argParser.addFlag('force', abbr: 'f', defaultsTo: false);
-  Config.argParser.addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
-  Config.argParser.addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
+  Config.argParser
+      .addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
+  Config.argParser
+      .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('version', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('debug', defaultsTo: false, negatable: false);
 
@@ -220,67 +222,67 @@ void main(List<String> args) async {
     //   exit(0);
     // }
 
-    switch(pkgSpec) {
+    switch (pkgSpec) {
       case 'dartrix':
-      dispatchBuiltin(Config.options);
-      break;
+        dispatchBuiltin(Config.options);
+        break;
       default:
-      await generateFromPlugin(
-          pkgSpec,
-          Config.options['template'],
-          (Config.options.command == null)
-              ? null
-              : Config.options.command.arguments);
+        await generateFromPlugin(
+            pkgSpec,
+            Config.options['template'],
+            (Config.options.command == null)
+                ? null
+                : Config.options.command.arguments);
     }
   }
 }
-    // if (pkgSpec.startsWith('pkg:')) {
-    //   print('PKG');
-    //   await generateFromPlugin(
-    //       pkgSpec,
-    //       Config.options['template'],
-    //       (Config.options.command == null)
-    //           ? null
-    //           : Config.options.command.arguments);
-    //   exit(0);
-    // } else {
-    //   if (pkgSpec.startsWith('package:')) {
-    //     print('PACKAGE');
-    //     exit(0);
-    //   } else {
-    //     if (pkgSpec.startsWith('path:')) {
-    //       print('PATH');
-    //       exit(0);
-    //     } else {
-    //       Config.logger.e('Unrecognized param: $pkgSpec. Did you forget -t?');
-    //       exit(0);
-    //     }
-    //   }
-    // }
-  // }
+// if (pkgSpec.startsWith('pkg:')) {
+//   print('PKG');
+//   await generateFromPlugin(
+//       pkgSpec,
+//       Config.options['template'],
+//       (Config.options.command == null)
+//           ? null
+//           : Config.options.command.arguments);
+//   exit(0);
+// } else {
+//   if (pkgSpec.startsWith('package:')) {
+//     print('PACKAGE');
+//     exit(0);
+//   } else {
+//     if (pkgSpec.startsWith('path:')) {
+//       print('PATH');
+//       exit(0);
+//     } else {
+//       Config.logger.e('Unrecognized param: $pkgSpec. Did you forget -t?');
+//       exit(0);
+//     }
+//   }
+// }
+// }
 
-  // if (tData['plugin'] != null) {
-  //   generateFromPlugin(tData['plugin'], template,
-  //     (Config.options.command == null)? null : Config.options.command.arguments);
-  // } else {
-  //FIXME: we don't need to list all, just get the one we want!
-  // await initBuiltinTemplates();
-  // if ( builtinTemplates.keys.contains(template) ) {
-  //   Config.logger.i('FIXME: run builtin');
-  //     (Config.options.command == null)? null : Config.options.command.arguments);
-  // } else {
-  //   Config.logger.d('EXCEPTION: template $template not found.');
-  //   exit(0);
-  // }
-  // }
-  // Config.logger.d('script locn: ${Platform.script.toString()}');
-  // Config.logger.d('built-ins: $builtinTemplates');
+// if (tData['plugin'] != null) {
+//   generateFromPlugin(tData['plugin'], template,
+//     (Config.options.command == null)? null : Config.options.command.arguments);
+// } else {
+//FIXME: we don't need to list all, just get the one we want!
+// await initBuiltinTemplates();
+// if ( builtinTemplates.keys.contains(template) ) {
+//   Config.logger.i('FIXME: run builtin');
+//     (Config.options.command == null)? null : Config.options.command.arguments);
+// } else {
+//   Config.logger.d('EXCEPTION: template $template not found.');
+//   exit(0);
+// }
+// }
+// Config.logger.d('script locn: ${Platform.script.toString()}');
+// Config.logger.d('built-ins: $builtinTemplates');
 
-  // String inDir = getInDir(Config.options['template']);
-  // Config.logger.d('inDir: $inDir');
+// String inDir = getInDir(Config.options['template']);
+// Config.logger.d('inDir: $inDir');
 
-  // getResource('hello_template');
+// getResource('hello_template');
 
-  // if (template == 'plugin')
-  // transformDirectory(inDir, outPathPrefix, tData);
+// if (template == 'plugin')
+// transformDirectory(inDir, outPathPrefix, tData);
 // }

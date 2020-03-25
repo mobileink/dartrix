@@ -10,7 +10,7 @@ import 'package:process_run/shell.dart';
 import 'package:dartrix/dartrix.dart';
 
 import 'package:dartrix/src/config.dart';
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/utils.dart';
 
 void getManPages(String rootDir) {}
 

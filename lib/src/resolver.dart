@@ -4,12 +4,12 @@ import 'dart:isolate';
 
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
-import 'package:safe_config/safe_config.dart';
+// import 'package:safe_config/safe_config.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/utils.dart';
 
 // var _log = Logger('resolver');
 
@@ -54,7 +54,7 @@ Future<String> getAppPkgRoot() async {
   var currentIsoPkgConfigUri;
   try {
     currentIsoPkgConfigUri = await Isolate.packageConfig;
-  } catch(e) {
+  } catch (e) {
     print(e);
     Config.debugLogger.e(e);
     exit(0);
@@ -116,7 +116,7 @@ Future<String> resolveBuiltinTemplatesRoot() async {
   var currentIsoPkgConfigUri;
   try {
     currentIsoPkgConfigUri = await Isolate.packageConfig;
-  } catch(e) {
+  } catch (e) {
     print(e);
   }
   if (Config.debug) {
@@ -302,14 +302,14 @@ String getDocString(String templatesRoot, Directory tdir) {
   var docString;
   try {
     docString =
-    File(templatesRoot + '/' + template + '.docstring').readAsStringSync();
+        File(templatesRoot + '/' + template + '.docstring').readAsStringSync();
     // } on FileSystemException {
-  } catch(e) {
+  } catch (e) {
     // docString = warningPen('${template}.docstring not found');
     if (Config.debug) {
       Config.debugLogger.w(e);
-    // } else {
-    //   Config.logger.w(e);
+      // } else {
+      //   Config.logger.w(e);
     }
   }
   return docString;
@@ -333,7 +333,8 @@ String getDocString(String templatesRoot, Directory tdir) {
 // }
 
 //FIXME: which file does this belong in?
-void printAvailableLibs() async { //CommandRunner runner) async {
+void printAvailableLibs() async {
+  //CommandRunner runner) async {
   // {template : docstring }
 
   print('\nLibraries:');
@@ -349,8 +350,8 @@ void printAvailableLibs() async { //CommandRunner runner) async {
   print('');
 }
 
-Future<String> getPkgVersion() async{
-  var pkgRoot = await getAppPkgRoot();
+Future<String> getPkgVersion() async {
+  // var pkgRoot = await getAppPkgRoot();
   print('pkgRoot: ${Config.appPkgRoot}');
   return '0.1.13';
 }
