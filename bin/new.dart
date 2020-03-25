@@ -200,8 +200,8 @@ void main(List<String> args) async {
   if (Config.options['help'] ||
       optionsRest.contains('-h') ||
       optionsRest.contains('--help')) {
-      await printUsage(Config.argParser);
-      optionsRest.add('-h');
+    await printUsage(Config.argParser);
+    optionsRest.add('-h');
     // if (args.contains('-t') || args.contains('template')) {
     //   if (args.contains('-h') &&
     //       ((args.indexOf('-h') < args.indexOf('-t')) ||

@@ -179,8 +179,7 @@ void generateFromBuiltin(String template) async {
   tFileset.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    Config.ppLogger
-        .i('Generating files from templates and copying assets...');
+    Config.ppLogger.i('Generating files from templates and copying assets...');
   }
 
   // We iterate over all template content twice, first to get a list of
@@ -229,7 +228,8 @@ void generateFromBuiltin(String template) async {
   }
 
   if (overWrites.isNotEmpty) {
-    Config.ppLogger.w('Canceling - this template would overwrite the following files:');
+    Config.ppLogger
+        .w('Canceling - this template would overwrite the following files:');
     overWrites.forEach((f) {
       Config.prodLogger.w('\t${path.canonicalize(f)}');
     });
@@ -309,8 +309,7 @@ void generateFromBuiltin(String template) async {
   } else {
     action = 'generated';
   }
-  Config.ppLogger
-      .i('Template ${template} ${action} ${tFileset.length} files.');
+  Config.ppLogger.i('Template ${template} ${action} ${tFileset.length} files.');
 }
 
 void printDartrixUsage() {
@@ -324,8 +323,8 @@ void dispatchBuiltin(ArgResults _options, List<String> subArgs) async {
   // print('option rest: ${_options.rest}');
 
   if (_options.wasParsed('help') ||
-    subArgs.contains('-h') ||
-    subArgs.contains('--help')) {
+      subArgs.contains('-h') ||
+      subArgs.contains('--help')) {
     print('Library: dartrix');
   }
 

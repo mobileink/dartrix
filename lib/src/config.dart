@@ -21,10 +21,10 @@ class Config {
   static final logger = Logger(printer: SimplePrinter());
   static final debugLogger = Logger(printer: PrettyPrinter(methodCount: 4));
 
-  static final prodLogger = Logger(
-    filter: ProductionFilter(), printer: SimplePrinter());
+  static final prodLogger =
+      Logger(filter: ProductionFilter(), printer: SimplePrinter());
   static final ppLogger = Logger(
-    filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
+      filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
   static String appName;
   static String appSfx = '_dartrix';
   static String appPkgRoot;
