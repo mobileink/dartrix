@@ -1,0 +1,50 @@
+name: bashrc
+version: 0.1.0
+docstring: A sample bashrc template. Short description.
+description: Longer description. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ut dictum nibh, eget placerat nulla. Donec eu elementum tortor. Duis sodales tincidunt enim, eu euismod massa facilisis vitae. Duis quis maximus magna. Pellentesque non dolor at purus rhoncus consequat. Aenean sapien nunc, dapibus sit amet est luctus, malesuada aliquam est. In justo mi, facilisis vitae suscipit ac, congue sit amet dui. Morbi congue odio vel orci suscipit vestibulum vitae non nisl. Quisque a iaculis ligula. Aenean mollis vel ex quis posuere. Praesent eget nisi congue, mattis nibh at, ultrices lectus.
+
+params:
+- name: 'name'
+  abbr: 'n'
+  docstring: 'Name of output file.'
+  help: 'Name of output file containing bash alias definitions.'
+  typeHelp: 'string'
+  defaultsTo: 'bashrc'
+  segmap: 'FILE'
+
+- name: 'prefix'
+  abbr: 'p'
+  docstring: 'Cmd prefix.'
+  help: 'String prefixed to each command name.'
+  typeHelp: 'string'
+  defaultsTo: 'dev'
+
+- name: 'config-dir'
+  abbr: 'c'
+  docstring: 'Directory for Dartrix config files.'
+  help: 'The output file will be written to this directory, relative to --dartrix-config-home.'
+  typeHelp: 'dir'
+  defaultsTo: '.dart.d'
+  segmap:     'DARTDIR'
+
+- name: 'dartrix-config-home'
+  abbr: 'd'
+  docstring: 'Home directory for Dartrix config dir.'
+  help: 'The output file will be written to the --config-dir subdirectory of this directory.  Relative override paths relative to current working directory.'
+  typeHelp: 'dir'
+  defaultsTo: '$HOME'
+  segmap: 'HOME'
+
+- name: 'enable-asserts'
+  abbr: 'e'
+  docstring: 'Enable asserts'
+  help: 'Pass flag --enable-asserts to "pub global run".'
+  typeHelp: 'bool'
+  defaultsTo: 'true'
+
+- name: 'verbose'
+  abbr: 'v'
+  docstring: 'Verbose output'
+  help: 'A longer, more detailed description.'
+  typeHelp: 'bool'
+  defaultsTo: 'false'

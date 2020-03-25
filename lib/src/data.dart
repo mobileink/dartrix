@@ -1,3 +1,5 @@
+import 'dart:io';
+
 // import 'package:args/args.dart';
 // import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
@@ -11,43 +13,6 @@ import 'package:dartrix/src/config.dart';
 Map<String, String> builtinTemplates = {};
 
 Map xData; // external data
-
-String rewritePath(String _path) {
-  // Config.logger.i('rewritePath: $_path');
-  // List<String> segs = domPath.split(path.separator);
-  //List<String>
-  var segs = _path.split(path.separator);
-  var sm = segs.map((seg) {
-    // _log.fine('seg: $seg');
-    if (tData['segmap'][seg] == null) {
-      // no rewrite for full seg, check for partial
-      var base = path.basenameWithoutExtension(seg);
-      if (tData['segmap'][base] == null) {
-        // no rewrite for FOO of FOO.bar, check for BAR of foo.BAR
-        var ext = path.extension(seg);
-        if (tData['segmap'][ext] == null) {
-          return seg;
-        } else {
-          var rw = base + tData['segmap'][ext];
-          return rw;
-        }
-      } else {
-        // e.g. FOO.bar matched FOO
-        var rw;
-        if (base == 'DOTFILE_D') {
-          rw = tData['segmap'][base] + path.extension(seg) + '.d';
-        } else {
-          rw = tData['segmap'][base] + path.extension(seg);
-        }
-        return rw;
-      }
-    } else {
-      return tData['segmap'][seg];
-    }
-  });
-  var result = sm.join('/');
-  return result;
-}
 
 // String domain2RDomPath(String domain) {
 // }
@@ -104,7 +69,9 @@ Map mergeExternalData(Map _data, Map xData) {
 }
 
 Map tData = {
-  'dartrix': {},
+  'dartrix': {
+    'force' : false
+  },
   'version': {
     'android': {
       'compile_sdk': '28',
@@ -145,10 +112,11 @@ Map tData = {
     'windows': 'A Flutter Plugin implementation for the Windows platform.',
   },
   'platform': null,
-  'domain': {
-    // 'default' : 'example.org'
-    // 'user'    : 'foo.com'
-  },
+  'domain': 'example.org',
+  //   // 'default' : 'example.org'
+  //   // 'user'    : 'foo.com'
+  // },
+  'rdomain': 'org.example',
   'package': {
     // 'dart' : Config.options['package'],
     // 'java' : javaPackage
@@ -160,6 +128,13 @@ Map tData = {
   },
   // segmap keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
-
-  'segmap': {'DOTFILE': '', 'DOTFILE_D': ''} // rewrite DOTFILE.foo as .foo
+  'out'   : './',
+  'segmap': {
+    // keys are segment placeholders in path templates
+    'ROOT' : '/',
+    'HOME' : Config.home,
+    'CWD'  : Directory.current.path,
+    'DOTFILE': '', // rewrite DOTFILE.foo as .foo
+    'DOTDIR_D': ''
+  }
 };

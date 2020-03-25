@@ -1,5 +1,6 @@
 // import 'package:logger/logger.dart';
 import 'package:package_config/package_config.dart';
+import 'package:sprintf/sprintf.dart';
 
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
@@ -75,7 +76,7 @@ void debugListBuiltins() {
 }
 
 void debugPackageConfig(PackageConfig pkgConfig) {
-  Config.debugLogger.d('debugPackageConfig');
+  Config.debugLogger.d('debugPackageConfig:::::');
   Config.logger.d('extra data: ${pkgConfig.extraData}');
   Config.logger.d('version: ${pkgConfig.version}');
   Config.logger.d('maxVersion: ${PackageConfig.maxVersion}');
@@ -83,7 +84,12 @@ void debugPackageConfig(PackageConfig pkgConfig) {
       'packages (${pkgConfig.packages.length}) = contents of .packages file:');
   // file:///$HOME/.pub-cache/hosted/pub.dartlang.org/
   Config.logger
-      .d('Package URIs, relative to ~/.pub-cache/hosted/pub.dartlang.org/:');
+  .d('File paths relative to ~/.pub-cache/hosted/pub.dartlang.org/:');
+
+  var pn = sprintf('%-24s', ['Package Name']);
+  var pur = sprintf('%-40s', ['Package URI Root']);
+  var pr = sprintf('%-40s', ['Package Root']);
+  Config.logger.d(infoPen('\t${pn}${pr}${pur}'));
   pkgConfig.packages.forEach((pkg) {
     // NB: the uri is 'file://${HOME}/.pub-cache/hosted/pub.dartlang.org/'
     // but the .path property strips the file:// scheme, so we need:
@@ -92,6 +98,19 @@ void debugPackageConfig(PackageConfig pkgConfig) {
     // Config.logger.d('pfx: $pfx');
     var pkgUriRoot = pkg.packageUriRoot.path.replaceFirst(pfx, '');
     var pkgRoot = pkg.root.path.replaceFirst(pfx, '');
-    Config.logger.d('${pkg.name}: uriRoot: $pkgUriRoot; root: ${pkgRoot}\n');
+
+    var pn = sprintf('%-24s', [pkg.name]);
+    var pur = sprintf('%-40s', [pkgUriRoot]);
+    var pr = sprintf('%-40s', [pkgRoot]);
+
+    var outline;
+    if (pkg.name.endsWith('dartrix')) {
+      outline = infoPen('\t${pn}${pr}${pur}');
+    } else {
+      outline = '\t${pn}${pr}${pur}';
+    }
+
+    Config.logger.d(outline);
   });
+  Config.logger.d('');
 }

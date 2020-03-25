@@ -5,9 +5,9 @@ import 'package:args/command_runner.dart';
 
 import 'logging.dart';
 
-import 'package:{{package.dart}}/src/config.dart';
-import 'package:{{package.dart}}/foo.dart' as foo;
-import 'package:{{package.dart}}/bar.dart' as bar;
+import 'package:{{package}}/src/config.dart';
+import 'package:{{package}}/foo.dart' as foo;
+import 'package:{{package}}/bar.dart' as bar;
 
 class FooCommand extends Command {
   final name = 'foo';
@@ -62,7 +62,7 @@ class LoggingCommand extends Command {
 void main(List<String> args) {
 
   var runner = CommandRunner(
-  '{{package.dart}}', '{{description.package}}')
+  '{{package}}', '{{description.package}}')
   ..addCommand(FooCommand())
   ..addCommand(BarCommand())
   ..addCommand(LoggingCommand())

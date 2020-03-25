@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:args/args.dart';
-import 'package:myapp/src/config.dart';
+import 'package:{{package}}/src/config.dart';
 
 void msgsDemo() {
   print('To see options pass -h or --help');
@@ -18,12 +18,12 @@ void msgsDemo() {
   if (Config.debug) {
     try {
       assert(1 == 0);
-      logger.i('Asserts must be enabled for debug logging: dart --enable-asserts bin/{{package.dart}} --debug');
+      logger.i('Asserts must be enabled for debug logging: dart --enable-asserts bin/{{package}} --debug');
     } catch(e) {
       debugLogger.d('Debug logging with stack trace enabled');
     }
   } else {
-    print('Debug logging disabled. To enable: dart --enable-asserts bin/{{package.dart}} --debug');
+    print('Debug logging disabled. To enable: dart --enable-asserts bin/{{package}} --debug');
   }
   logger.i('Info log');
   logger.w('Warning log');

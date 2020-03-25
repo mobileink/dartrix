@@ -89,7 +89,7 @@ void printUsage(ArgParser argParser) async {
   pkgs.forEach((pkg) {
     var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
     var spacer = pkgName.length < 8 ? '\t\t' : '\t';
-    var docString = getDocstring(pkg);
+    var docString = getDocStringFromPkg(pkg);
     print('\t${pkgName}${spacer}${docString}');
   });
   print('');

@@ -1,19 +1,120 @@
 import 'dart:io';
 import 'dart:isolate';
 
-// import 'package:args/args.dart';
-// import 'package:logger/logger.dart';
-// import 'package:logger/logger.dart';
+import 'package:args/args.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
+import 'package:sprintf/sprintf.dart';
 
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-
-import 'package:dartrix/src/handlers/bashrc.dart';
 import 'package:dartrix/src/handlers/dart_clix.dart';
+import 'package:dartrix/src/handlers/bashrc.dart';
+import 'package:dartrix/src/paths.dart';
+import 'package:dartrix/src/resolver.dart';
+
+
+void printBuiltins() async { // ArgResults options)
+  // print('builtins.printBuiltins'); // ${options.arguments}');
+  //Uri
+  // var packageConfigUri = await Isolate.packageConfig;
+  // // e.g. file:///Users/gar/mobileink/dartrix/.packages
+  // if (Config.debug) {
+  //   Config.logger.i('packageConfigUri $packageConfigUri');
+  // }
+
+  // WARNING: for pub global activateds, the current dir of the script contains
+  // .packages, which is the value of Isolate.packageConfig, but it does NOT
+  // contain all of the subdirs of the original pkg root. It only the bin dir,
+  // plus the pub stuff (.dart_tool, .packages, pubspec.lock).
+
+  // e.g.
+  // $ l ~/.pub-cache/global_packages/stagehand/
+  // total 8.0K
+  // drwxr-xr-x 3 gar staff  102 Mar 10 18:40 .dart_tool/
+  // -rw-r--r-- 1 gar staff 2.9K Mar 10 18:40 .dart_tool/package_config.json
+  // -rw-r--r-- 1 gar staff 1.3K Mar 10 18:40 .packages
+  // drwxr-xr-x 3 gar staff  102 Mar 10 18:40 bin/
+  // -rw-r--r-- 1 gar staff 1.3M Mar 10 18:40 bin/stagehand.dart.snapshot.dart2
+  // -rw-r--r-- 1 gar staff 2.4K Mar 10 18:40 pubspec.lock
+
+  // So to find the templates/ dir, we have to look it up in the .packages file
+  // using findPackageConfigUri.  this is a v1 pkg config, i.e. a .packages
+  // file, so back up one segment: String libDir =
+  // path.dirname(packageConfigUri.path); var templatesRoot =
+  // path.dirname(packageConfigUri.path) + '/templates'; List
+
+  // FIXME: use listBuiltinTemplates
+  var templatesRoot = await resolveBuiltinTemplatesRoot();
+  var templates = Directory(templatesRoot)
+  .listSync()
+  ..retainWhere((f) => f is Directory);
+
+  print('Builtin templates:');
+  templates.forEach((t) {
+    var tName = path.basename(t.path);
+    //String
+    var docString;
+    try {
+      docString =
+          File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
+    } on FileSystemException {
+      // if (debug.debug)
+      // Config.logger.i('docstring not found for ${builtin.path}');
+      if (debug.debug) {
+        docString = warningPen('${tName}.docstring not found');
+        // tName = warningPen(sprintf('%-18s', [tName]));
+      }
+    }
+    tName = sprintf('%-18s', [tName]);
+    print('\t${tName} ${docString}');
+  });
+}
+
+Future<Map> listBuiltinTemplates() async { // ArgResults options) async {
+  // print('printBuiltins ${options.arguments}');
+  //Uri
+  // var packageConfigUri = await Isolate.packageConfig;
+  // // e.g. file:///Users/gar/mobileink/dartrix/.packages
+  // if (Config.debug) {
+  //   Config.logger.i('packageConfigUri $packageConfigUri');
+  // }
+
+  // WARNING: for pub global activateds, the current dir of the script contains
+  // .packages, which is the value of Isolate.packageConfig, but it does NOT
+  // contain all of the subdirs of the original pkg root. It only the bin dir,
+  // plus the pub stuff (.dart_tool, .packages, pubspec.lock).
+
+  // e.g.
+  // $ l ~/.pub-cache/global_packages/stagehand/
+  // total 8.0K
+  // drwxr-xr-x 3 gar staff  102 Mar 10 18:40 .dart_tool/
+  // -rw-r--r-- 1 gar staff 2.9K Mar 10 18:40 .dart_tool/package_config.json
+  // -rw-r--r-- 1 gar staff 1.3K Mar 10 18:40 .packages
+  // drwxr-xr-x 3 gar staff  102 Mar 10 18:40 bin/
+  // -rw-r--r-- 1 gar staff 1.3M Mar 10 18:40 bin/stagehand.dart.snapshot.dart2
+  // -rw-r--r-- 1 gar staff 2.4K Mar 10 18:40 pubspec.lock
+
+  // So to find the templates/ dir, we have to look it up in the .packages file
+  // using findPackageConfigUri.  this is a v1 pkg config, i.e. a .packages
+  // file, so back up one segment: String libDir =
+  // path.dirname(packageConfigUri.path); var templatesRoot =
+  // path.dirname(packageConfigUri.path) + '/templates'; List
+
+  var templatesRoot = await resolveBuiltinTemplatesRoot();
+  var templates = Directory(templatesRoot)
+  .listSync()
+  ..retainWhere((f) => f is Directory);
+
+  var tlist = {
+    for (var tdir in templates)
+    path.basename(tdir.path)
+    : { 'root': tdir.path, 'docstring':  getDocString(templatesRoot, tdir)},
+  };
+  return tlist;
+}
 
 // final Logger _logfoo = Logger('foo')
 // ..onRecord.listen((record) {
@@ -25,64 +126,6 @@ import 'package:dartrix/src/handlers/dart_clix.dart';
 // });
 //var _log = Logger('builtin');
 
-Future<String> getBuiltinTemplatesRoot() async {
-  // Procedure: get path to app pkg root (as opposed to the package UriRoot,
-  // which is the package's lib/ dir).  In this case the package is
-  // package:dartrix; the pkg root is ~/mobileink/dartrix, and the package
-  // UriRoot is ~/mobileink/dartrix/lib.  The templates are in the package
-  // root, not the package UriRoot.
-
-  // So to find the templates, we need to find the package root.
-
-  // Location fo currently running script does not work - pub global separates
-  // the script from the project dir structure.
-
-  // Location of "currently running Dart script": dart:io/Platform.script
-  // Current Working Directory: dart:io/Directory.current
-  // Current Isolate
-
-  // Config.logger.i('cwd: ${Directory.current}');
-  // e.g. Directory: '/Users/gar/tmp/dartrix'
-
-  // String scriptPath = path.prettyUri(Platform.script.toString());
-  // relative path, e.g. ../../mobileink/dartrix/bin/new.dart
-  // Config.logger.i('platformScriptPath: ${scriptPath}');
-  // Config.logger.i('platformScriptPath, normalized: ${path.normalize(scriptPath)}');
-  // Config.logger.i('platformScriptPath, canonical: ${path.canonicalize(scriptPath)}');
-
-  //Uri
-  var currentIsoPkgConfigUri = await Isolate.packageConfig;
-  if (Config.debug) {
-    // e.g. file:///Users/gar/mobileink/dartrix/.packages
-    Config.debugLogger.d('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
-  }
-  // Isolate.packageConfig finds the version 1 .packages file;
-  // use that to get the PackageConfig and you get the contents
-  // of the version 2 .dart_tool/package_config.json
-  // findPackageConfigUri is a fn in package:package_confg
-  //PackageConfig
-  var pkgConfig = await findPackageConfigUri(currentIsoPkgConfigUri);
-  if (Config.debug) {
-    // PackageConfig is an object containing list of deps
-    // Config.debugLogger.d('current iso PackageConfig: $pkgConfig');
-    debug.debugPackageConfig(pkgConfig);
-  }
-
-  // 'Package': 'map' with keys name, packageUriRoot, and root (=pkgRoot)
-  // Package
-  var appConfig = pkgConfig.packages.firstWhere((pkg) {
-    return pkg.name == Config.appName;
-  });
-  // Config.logger.i('appConfig: ${appConfig.name} : ${appConfig.root}');
-  //String
-  var templatesRoot = appConfig.root.path + '/templates';
-  // using scriptPath is undoubtedly more efficient
-  // String templatesRoot = path.dirname(scriptPath) + '/../templates';
-  templatesRoot = path.canonicalize(templatesRoot);
-  // Config.logger.i('templatesRoot: $templatesRoot');
-  return templatesRoot;
-}
-
 /// Initialize builtinTemplates variable (Set).
 ///
 /// Read the <root>/templates directory, retaining only directory entries. Each
@@ -91,7 +134,7 @@ void initBuiltinTemplates() async {
   // Config.logger.i('builtins.initBuiltinTemplates');
 
   //String
-  var templatesRoot = await getBuiltinTemplatesRoot();
+  var templatesRoot = await resolveBuiltinTemplatesRoot();
 
   //List
   var builtins = Directory(templatesRoot).listSync();
@@ -115,17 +158,20 @@ void initBuiltinTemplates() async {
   if (debug.debug) debug.debugListBuiltins();
 }
 
-void generateFromBuiltin() async {
+void generateFromBuiltin(String template) async {
   // Config.prodLogger.v('generateFromBuiltin');
 
+  if (Config.debug) {
+    debug.debugData({});
+  }
   //String
-  var templatesRoot = await getBuiltinTemplatesRoot();
+  var templatesRoot = await resolveBuiltinTemplatesRoot();
   // _log.finer('templatesRoot: $templatesRoot');
 
   // String templateRoot = templatesRoot + '/' + Config.options['template'];
   // // _log.finer('template root: $templateRoot');
 
-  List tFileset = Directory(templatesRoot + '/' + Config.options['template'])
+  List tFileset = Directory(templatesRoot + '/' + template) //Config.options['template'])
       .listSync(recursive: true);
   tFileset.removeWhere((f) => f.path.endsWith('~'));
   tFileset.retainWhere((f) => f is File);
@@ -134,43 +180,55 @@ void generateFromBuiltin() async {
     Config.logger.i('Generating files from templates and copying assets...');
   }
 
+  // We iterate over all template content twice, first to get a list of
+  // overwrites, then to overwrite.
+
   // prevent unauthorized overwrites
+  //FIXME: if not --force
   var overWrites = [];
   var exists;
-  tFileset.forEach((tfile) {
-    var outSubpath = path.normalize(tData['out'] +
-        tfile.path.replaceFirst(
-            templatesRoot + '/' + Config.options['template'], ''));
-    outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-    // _log.finer('outSubpath: $outSubpath');
-    outSubpath = path.normalize(rewritePath(outSubpath));
-    // _log.finer('rewritten outSubpath: $outSubpath');
+  if (!tData['dartrix']['force']) {
+    tFileset.forEach((tfile) {
+        Config.logger.v('cwd: ${Directory.current.path}');
+        Config.logger.v('tfile: $tfile');
+        Config.logger.v('tData[\'out\']: ${tData['out']}');
+        var templateOutPath = tfile.path.replaceFirst(
+          templatesRoot + '/' + template + '/', '');
+        // templatesRoot + '/' + Config.options['template'] + '/', '');
+        Config.logger.v('templateOutPath: $templateOutPath');
+        var outSubpath = path.normalize(tData['out'] + templateOutPath);
+        outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
+        Config.logger.v('outSubpath: $outSubpath');
 
-    if (path.isRelative(outSubpath)) {
-      outSubpath = Directory.current.path + '/' + outSubpath;
-    }
+        outSubpath = path.normalize(rewritePath(outSubpath));
+        Config.logger.v('rewritten outSubpath: $outSubpath');
 
-    exists = FileSystemEntity.typeSync(outSubpath);
-    if (exists != FileSystemEntityType.notFound) {
-      if (exists == FileSystemEntityType.file) {
-        if (!tData['dartrix']['force']) {
-          // Config.prodLogger.e(
-          //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
-          // exit(0);
-          overWrites.add(outSubpath);
-        } else {
-          if ((Config.verbose) || Config.options['dry-run']) {
-            Config.logger.i('Over-writing $outSubpath');
+        // if (path.isRelative(outSubpath)) {
+        //   outSubpath = Directory.current.path + '/' + outSubpath;
+        // }
+
+        exists = FileSystemEntity.typeSync(outSubpath);
+        if (exists != FileSystemEntityType.notFound) {
+          if (exists == FileSystemEntityType.file) {
+            if (!tData['dartrix']['force']) {
+              // Config.prodLogger.e(
+              //     'ERROR: $outSubpath already exists. Use -f to force overwrite.');
+              // exit(0);
+              overWrites.add(outSubpath);
+            } else {
+              if ((Config.verbose) || Config.options['dry-run']) {
+                Config.logger.i('Over-writing $outSubpath');
+              }
+            }
           }
         }
-      }
-    }
-  });
+    });
+  }
 
   if (overWrites.isNotEmpty) {
     Config.prodLogger.w('This template would overwrite the following files:');
     overWrites.forEach((f) {
-      Config.prodLogger.w('overwrite warning: $f');
+      Config.prodLogger.w('overwrite warning: ${path.canonicalize(f)}');
     });
     Config.prodLogger.w('Rerun with flag "-f" (--force) to force overwrite.');
     exit(0);
@@ -178,18 +236,23 @@ void generateFromBuiltin() async {
 
   tFileset.forEach((tfile) {
     // _log.finer('tfile: $tfile');
+
+    // first remove template name prefix path
     var outSubpath = path.normalize(tData['out'] +
-        tfile.path.replaceFirst(
-            templatesRoot + '/' + Config.options['template'], ''));
+      tfile.path.replaceFirst(templatesRoot + '/' + template, ''));
+        // templatesRoot + '/' + Config.options['template'], ''));
+    // then remove mustache extension
     outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-    // _log.finer('outSubpath: $outSubpath');
-    outSubpath = path.normalize(rewritePath(outSubpath));
+    // now rewrite and normalize outpath
+    // result is normalized absolute path
+    // outSubpath = path.normalize(rewritePath(outSubpath));
+    outSubpath = rewritePath(outSubpath);
     // _log.finer('rewritten outSubpath: $outSubpath');
 
     if (path.isRelative(outSubpath)) {
       outSubpath = Directory.current.path + '/' + outSubpath;
     }
-    // _log.finer('absolutized outSubpath: $outSubpath');
+    // Config.logger.i('absolutized outSubpath: $outSubpath');
 
     // create output dir if necessary
     var dirname = path.dirname(outSubpath);
@@ -213,7 +276,7 @@ void generateFromBuiltin() async {
       try {
         newContents = template.renderString(tData);
       } catch (e) {
-        Config.prodLogger.e(e);
+        Config.debugLogger.e(e);
         exit(0);
       }
       // _log.finer(newContents);
@@ -238,24 +301,110 @@ void generateFromBuiltin() async {
       }
     }
   });
-  Config.prodLogger.i("Generated ${tData['package']['dart']}");
+  var action;
+  if (Config.options['dry-run']) {
+    action = "would generate";
+  } else {
+    action = "generated";
+  }
+  Config.prodLogger.i('Template ${template} ${action} ${tFileset.length} files.');
 }
 
-void dispatchBuiltin(String template) async {
-  // Config.debugLogger.d('dispatchBuiltin($template)');
-  var tIndex = Config.options.arguments.indexOf('-t');
-  //List<String>
-  var subArgs = Config.options.arguments.sublist(tIndex + 2);
-  // Config.debugLogger.d('subArgs: $subArgs');
-  switch (template) {
-    case 'bashrc':
-      handleBashrc(subArgs);
-      break;
-    case 'dart_clix':
-      handleDartClix(subArgs);
-      break;
-    default:
-      Config.logger.i('handler for $template not implemented');
+void printDartrixUsage() {
+  print('Dartrix template library. A collection of general templates for softwared development.  Mainly but not exclusively Dart and Flutter code.');
+}
+
+void dispatchBuiltin(ArgResults _options) async {
+  // Config.debugLogger.d('dispatchBuiltin');
+  // print('option args: ${_options.arguments}');
+  // print('option rest: ${_options.rest}');
+
+  if (_options.wasParsed('help')) {
+    // Config.logger.i('new HELP');
+    // exit(0);
   }
+
+  var subArgs = _options.rest.toList();
+  var dartrixArgs;
+  var tArgs;
+
+  var ft;
+  var template;
+  ft = subArgs.indexOf('--template');
+  if (ft < 0) { // not found
+    ft = subArgs.indexOf('-t');
+    if (ft < 0) { // not found
+      Config.logger.e('Missing required template option: -t | --template');
+      exit(0);
+    } else {
+      // Config.logger.e('found -t');
+      if (ft != subArgs.lastIndexOf('-t')) {
+        Config.logger.e('Multiple --template options not allowed.');
+        exit(0);
+      }
+      if (subArgs.contains('--template')) {
+        Config.logger.e('Only one -t or --template option allowed.');
+        exit(0);
+      }
+      template = subArgs[ft+1];
+      dartrixArgs = subArgs.sublist(0,ft);
+      tArgs = subArgs.sublist(ft+2);
+    }
+  } else {
+    // Config.logger.e('found --template');
+    if (ft != subArgs.lastIndexOf('--template')) {
+      Config.logger.e('Only one -t or --template option allowed.');
+      exit(0);
+    }
+    if (subArgs.contains('-t')) {
+      Config.logger.e('Only one -t or --template option allowed.');
+      exit(0);
+    }
+    template = subArgs[ft+1];
+    dartrixArgs = subArgs.sublist(0,ft);
+    tArgs = subArgs.sublist(ft+2);
+  }
+  // print('template: $template');
+  // print('dartrixArgs: $dartrixArgs');
+  // print('tArgs: $tArgs');
+
+  if (dartrixArgs.contains('-h') || dartrixArgs.contains('--help')) {
+    printDartrixUsage();
+  }
+
+  var templates = await listBuiltinTemplates();
+  // print('bt: $templates, rtt: ${templates.runtimeType}');
+  if (templates.keys.contains(template)) {
+    // print('found template $template in lib');
+  } else {
+    Config.logger.e('template $template not found in lib');
+    exit(0);
+  }
+
+  // debugging:
+  // var pkg = templates[template];
+  // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
+  // var r = pkg['root'];
+  // Config.debugLogger.i('root: $r');
+
+  // await handleBashrc(templates[template]['root'], tArgs);
+  await handleDartClix(templates[template]['root'], tArgs);
+
+  exit(0);
+
+  // switch (template) {
+  //   case 'bashrc':
+  //   handleBashrc(subArgs);
+  //   break;
+  //   case 'dart_clix':
+  //   handleDartClix(subArgs);
+  //   break;
+  //   case null:
+  //   Config.logger.e('Template parameter required.');
+  //   exit(0);
+  //   break;
+  //   default:
+  //   Config.logger.i('handler for $template not implemented');
+  // }
   // generateFromBuiltin(template, options);
 }

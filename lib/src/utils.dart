@@ -12,15 +12,6 @@ import 'package:dartrix/src/config.dart';
 
 //var Config.logger = Logger('utils');
 
-String getDocstring(Package pkg) {
-  var rootDir = pkg.root.path;
-  var libName = pkg.name.replaceFirst(RegExp('_dartrix'), '');
-  var docstringName = libName + '.docstring';
-  var docstring = File(rootDir + '/' + docstringName).readAsStringSync();
-  //TODO: break long lines
-  return docstring;
-}
-
 /// Verify that cwd is root of a Dartrix package.
 void sanityCheck() {
   if (Config.verbose) Config.logger.i('Sanity check...');

@@ -1,0 +1,29 @@
+name: dart_clix
+version: 0.1.0
+docstring: Dart cli app
+description: A template for a command suite application.
+
+params:
+- name: 'homepage'
+  abbr: 'x'
+  docstring: 'cmd prefix'
+  defaultsTo: 'https://example.org/myapp'
+  typeHelp: 'URL'
+  help: 'Homepage for app.'
+
+- name: 'package'
+  abbr: 'p'
+  docstring: 'Dart package name.'
+  help: 'Dart package name.'
+  typeHelp: '[_a-z][a-zA-Z0-9_]*'
+  defaultsTo: 'myapp'
+  segmap: 'myapp'
+
+- name: 'dartrix-config-home'
+  abbr: 'd'
+  docstring: 'Home directory for Dartrix config dir.'
+  help: 'The output file will be written to the --config-dir subdirectory of this directory.'
+  typeHelp: 'dir'
+  defaultsTo: '$HOME'
+  segmap : 'HOME'
+

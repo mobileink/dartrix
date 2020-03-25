@@ -2,11 +2,7 @@
 import 'dart:io';
 import 'dart:isolate';
 
-// import 'package:args/args.dart';
-// import 'package:logger/logger.dart';
 import 'package:mustache_template/mustache_template.dart';
-// import 'package:package_config/package_config.dart';
-// import 'package:package_resolver/package_resolver.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:dartrix/dartrix.dart';
@@ -14,7 +10,7 @@ import 'package:dartrix/dartrix.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-// import 'package:dartrix/src/utils.dart';
+import 'package:dartrix/src/paths.dart';
 
 // Terminology:
 // userDartConfigDir :  $HOME/.dart.d

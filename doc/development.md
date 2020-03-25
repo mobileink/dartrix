@@ -2,19 +2,27 @@
 
 ## terminology
 
-* package: all the stuff in the package root directory
+* package: all the stuff in a package root directory
 * package config: the list of its deps
+** NB: each dep is also a pkg
 * package uri: a uri of the form `package:foobar_dartrix`; NOT the
   file:// uri of its root directory. The package URI resolves to
   <root>/lib/, NOT <root>/ - the former is called the PkgUriRoot, the
   latter, the PkgRoot.
 * package name: `foobar_dartrix`
+* package root:  package name qua directory
+* package uri root:  package_root/lib
 * plugin name:  `foobar`
 
 * app name  : `dartrix`
 * app suffix: `_dartrix`
 
-* package root:  package name qua directory
+Dartrix is composed of several commands and a lib.  To distinguish between the dartrix app, cmds, and plugins:
+
+* cmdPkg - the pkg for the command, by default always dartrix for each cmd
+** resolveCmdPkgRoot(), etc
+* pluginPkg
+
 
 ## packages and package configs
 
