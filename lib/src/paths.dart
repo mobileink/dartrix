@@ -28,7 +28,10 @@ void initSegmap(ArgResults options) {
 }
 
 String rewritePath(String _path) {
-  // Config.logger.i('rewritePath: $_path');
+  // Config.ppLogger.i('rewritePath: $_path');
+  // tData['segmap'].forEach((k,v) {
+  //     Config.logger.v('seg $k => $v');
+  // });
   // List<String> segs = domPath.split(path.separator);
   //List<String>
   var segs = _path.split(path.separator);
@@ -57,7 +60,27 @@ String rewritePath(String _path) {
         return rw;
       }
     } else {
-      return tData['segmap'][seg];
+      switch (seg) {
+        // case 'FILE':
+        // break;
+        case 'HOME':
+          // Config.ppLogger.v('segmap HOME: ${tData["segmap"]["HOME"]}');
+          // Config.ppLogger.v('HOME: ${Config.home}');
+
+          if (tData['segmap']['HOME'] != Config.home) {
+            if (path.isRelative(tData['segmap']['HOME'])) {
+              tData['segmap']['HOME'] =
+                  path.normalize(Config.home + '/' + tData['segmap']['HOME']);
+            }
+          }
+          // Config.ppLogger.v('rewritten segmap HOME: ${tData["segmap"]["HOME"]}');
+          return tData['segmap'][seg];
+          break;
+        // case 'CWD':
+        // break;
+        default:
+          return tData['segmap'][seg];
+      }
     }
   });
   var result = sm.join('/');

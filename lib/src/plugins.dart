@@ -11,6 +11,7 @@ import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/paths.dart';
+import 'package:dartrix/src/utils.dart';
 
 // Terminology:
 // userDartConfigDir :  $HOME/.dart.d
@@ -30,122 +31,165 @@ import 'package:dartrix/src/paths.dart';
 
 //FIXME: use PathSet?
 String _externalPkgPath;
-String _templatesRoot;
+// String _templatesRoot;
 
 Map<String, String> _externalTemplates;
 
-void initPluginTemplates(String pkgRef) async {
-  // Config.logger.i("initPluginTemplates $pkgRef");
-  Map pkg = resolvePkgRef(pkgRef);
+// void initPluginTemplates(String pkgRef) async {
+//   // Config.logger.i("initPluginTemplates $pkgRef");
+//   Map pkg = resolvePkgRef(pkgRef);
 
-  if (pkg['path'] != null) {
-    _externalPkgPath = path.canonicalize(pkgRef);
-    // Config.logger.d('_externalPkgPath path: $_externalPkgPath');
-  } else {
-    _externalPkgPath = await resolvePkgRoot(pkgRef);
-  }
-  //String
-  var templatesRoot = _externalPkgPath + '/templates';
-  _templatesRoot = path.canonicalize(templatesRoot);
+//   if (pkg['path'] != null) {
+//     _externalPkgPath = path.canonicalize(pkgRef);
+//     // Config.logger.d('_externalPkgPath path: $_externalPkgPath');
+//   } else {
+//     _externalPkgPath = await resolvePkgRoot(pkgRef);
+//   }
+//   //String
+//   var templatesRoot = _externalPkgPath + '/templates';
+//   _templatesRoot = path.canonicalize(templatesRoot);
 
-  List externals = Directory(_templatesRoot).listSync();
-  externals.retainWhere((f) => f is Directory);
-  // Config.logger.d('getExternalTemplates: $externals');
-  // _externalTemplates = Map.fromIterable(
-  //   externals,
-  //   key: (dir) => path.basename(dir.path),
-  //   value: (dir) => dir.path.replaceFirst(_templatesRoot, '')
-  // );
-  _externalTemplates = {
-    for (var dir in externals)
-      path.basename(dir.path): dir.path.replaceFirst(_templatesRoot, ''),
-  };
-}
+//   List externals = Directory(_templatesRoot).listSync();
+//   externals.retainWhere((f) => f is Directory);
+//   // Config.logger.d('getExternalTemplates: $externals');
+//   // _externalTemplates = Map.fromIterable(
+//   //   externals,
+//   //   key: (dir) => path.basename(dir.path),
+//   //   value: (dir) => dir.path.replaceFirst(_templatesRoot, '')
+//   // );
+//   _externalTemplates = {
+//     for (var dir in externals)
+//       path.basename(dir.path): dir.path.replaceFirst(_templatesRoot, ''),
+//   };
+// }
 
 /// This routine is invoke when the external isolate returns data.
 void spawnCallback(dynamic _xData) {
-  Config.logger.d('spawnCallback: $_xData');
+  // Config.logger.d('spawnCallback: $_xData');
   // Config.logger.d('_externalPkgPath path: $_externalPkgPath');
-  // Config.logger.d('_templatesRoot path: $_templatesRoot');
+  // Config.logger.d('Config.templateRoot: ${Config.templateRoot}');
   // Config.logger.d('_externalTemplates: $_externalTemplates');
 
   xData = _xData;
   // step one: merge data maps
-  if (_xData['dartrix']['mergeData']) {
-    mergeExternalData(tData, _xData);
-    if (tData['class'] != Config.argParser.getDefault('class')) {}
+  if (xData.isNotEmpty) {
+    if (_xData['dartrix']['mergeData']) {
+      mergeExternalData(tData, _xData);
+      // if (tData['class'] != Config.argParser.getDefault('class')) {}
+    }
   }
-  mergeUserOptions();
+  // mergeUserOptions();
 
   if (debug.debug) debug.debugData(null);
+  // if (debug.debug) debug.debugPathRewriting(_xData);
 
-  if (debug.debug) debug.debugPathRewriting(_xData);
   // get out path
-  var outPathPrefix = tData['outpath'];
+  // var outPathPrefix = tData['outpath'];
+  // Config.logger.v('outPathPrefix: $outPathPrefix');
 
   // iterate over template fileset
   // var t = tData['template'];
-  var _templateRoot = _templatesRoot + _externalTemplates[tData['template']];
+  // var _templateRoot = _templatesRoot + _externalTemplates[tData['template']];
   // Config.logger.d('_templateRoot: $_templateRoot');
-  List tFileset = Directory(_templateRoot).listSync(recursive: true);
-  tFileset.removeWhere((f) => f.path.endsWith('~'));
-  tFileset.retainWhere((f) => f is File);
+  List tFileList = Directory(Config.templateRoot).listSync(recursive: true);
+  tFileList.removeWhere((f) => f.path.endsWith('~'));
+  tFileList.retainWhere((f) => f is File);
 
   if (Config.verbose) {
-    Config.logger.d(
-        'Generating files from templates and copying assets (cwd: ${Directory.current.path}):');
+    Config.ppLogger.v(
+        'Generating files from templates and copying assets from ${Config.templateRoot}');
   }
-  tFileset.forEach((tfile) {
-    // Config.logger.d('tfile: $tfile');
-    var outSubpath = path
-        .normalize(outPathPrefix + tfile.path.replaceFirst(_templatesRoot, ''));
+
+  var writtenFiles = [];
+
+  tFileList.forEach((tfile) {
+    // Config.ppLogger.d('tfile: $tfile');
+    var outSubpath = path.normalize(// outPathPrefix +
+        tfile.path.replaceFirst(Config.templateRoot, ''));
     outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-    // Config.logger.d('outSubpath: $outSubpath');
+    if (Config.debug) {
+      Config.ppLogger.d('outSubpath: $outSubpath');
+    }
     outSubpath = path.normalize(rewritePath(outSubpath));
+    if (Config.debug) {
+      Config.ppLogger.d('outSubpath rewritten: $outSubpath');
+    }
 
     // exists?
     if (!tData['dartrix']['force']) {
       var exists = FileSystemEntity.typeSync(outSubpath);
       if (exists != FileSystemEntityType.notFound) {
-        Config.logger.e(
+        Config.ppLogger.e(
             'ERROR: $outSubpath already exists; cancelling. Use -f to force overwrite.');
         exit(0);
       }
     }
     var dirname = path.dirname(outSubpath);
     // Config.logger.d('dirname: $dirname');
-    Directory(dirname).createSync(recursive: true);
+    if (!Config.dryRun) {
+      Directory(dirname).createSync(recursive: true);
+    }
 
-    if (Config.verbose) Config.logger.d('   ' + tfile.path);
     if (tfile.path.endsWith('mustache')) {
       var contents;
       contents = tfile.readAsStringSync();
       var template =
           Template(contents, name: outSubpath, htmlEscapeValues: false);
-      var newContents = template.renderString(tData);
+      var newContents;
+      try {
+        newContents = template.renderString(tData);
+      } catch (e) {
+        Config.ppLogger.e('Template processing error: $e');
+        exit(0);
+      }
       // Config.logger.d(newContents);
       if (Config.verbose) {
-        Config.logger.d('=> ${Directory.current.path}/$outSubpath');
+        Config.ppLogger.v('   ' + tfile.path + '\n=> $outSubpath');
       }
-      File(outSubpath).writeAsStringSync(newContents);
+      if (!Config.dryRun) {
+        File(outSubpath).writeAsStringSync(newContents);
+        writtenFiles.add(outSubpath);
+      }
     } else {
       if (Config.verbose) {
-        Config.logger.d('=> ${Directory.current.path}/$outSubpath');
+        // Config.ppLogger.v('=> $outSubpath');
+        Config.ppLogger.v('   ' + tfile.path + '\n=> $outSubpath');
       }
-      tfile.copySync(outSubpath);
+      if (!Config.dryRun) {
+        tfile.copySync(outSubpath);
+        writtenFiles.add(outSubpath);
+      }
     }
   });
+  var action;
+  if (Config.dryRun) {
+    action = 'would generate';
+  } else {
+    action = 'generated';
+  }
+
+  if (writtenFiles.isNotEmpty) {
+    //List<String>
+    var ofs = [
+      for (var f in writtenFiles) path.dirname(f),
+    ];
+    ofs.sort((a, b) => a.length.compareTo(b.length));
+    print('ofx ${ofs.first}');
+    var template = path.basename(Config.templateRoot);
+    Config.ppLogger.i(
+        'Template ${template} ${action} ${tFileList.length} files to ${ofs.first}.');
+  }
 }
 
 void spawnExternalFromPath(
     String pkg, String template, List<String> args) async {
-  // Config.logger.d('spawnExternalFromPath: $pkg');
+  Config.ppLogger.v('spawnExternalFromPath: $pkg');
 
   // 1. this constructs the file:// url for the pkg as _externalPkgPath
   // and a list of its template roots in _exterternalTemplates.
   //String
-  var packagePath = pkg.replaceFirst('path:', '');
-  initPluginTemplates(packagePath);
+  // var packagePath = pkg.replaceFirst('path:', '');
+  // initPluginTemplates(packagePath);
 
   // 2. get the .packages file for the pkg. we need this because the pkg may
   // have deps that dartrix does not have.  It will be passed as the
@@ -216,7 +260,7 @@ void spawnExternalFromPath(
     }
 
     if (Config.verbose) {
-      Config.logger.i('${infoPen("Spawning")} $packageUri with args $args');
+      Config.ppLogger.v('${infoPen("Spawning")} $packageUri with args $args');
     }
     // Isolate externIso =
     await Isolate.spawnUri(
@@ -258,21 +302,50 @@ void externalOnDone() {
 //   Config.logger.d('_onStopDone');
 // }
 
-void generateFromPlugin(String pkg, String template, List<String> args) async {
-  Config.logger.d('generateFromPlugin: $pkg, $template, args: $args');
-  if (pkg.startsWith('path:')) {
-    spawnExternalFromPath(pkg, template, args);
-  } else {
-    // Before spawning the package, get the templates.
-    if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
-      // initPluginTemplates(pkg);
-      await spawnPluginFromPackage(
-          spawnCallback, externalOnDone, pkg, [template, ...?args]);
-      // template, args);
-    } else {
-      throw ArgumentError('-x $pkg: must start with path: or package: or pkg:');
-    }
+void dispatchPlugin(String pkg, String template, List<String> args) async {
+  // Config.debugLogger.v('dispatchPlugin: $pkg, $template');
+
+  var pkgRoot = await resolvePkgRoot('package:' + pkg + '_dartrix');
+  if (Config.verbose) {
+    Config.ppLogger.v('resolved $pkg to package:${pkg}_dartrix to $pkgRoot');
   }
+
+  var templates = await getTemplatesMap(pkgRoot);
+  // Config.debugLogger.v(templates);
+
+  Config.templateRoot = pkgRoot + 'templates/' + template;
+  // Config.debugLogger.v('Config.templateRoot: ${Config.templateRoot}');
+
+  await processArgs(Config.templateRoot, args);
+
+  if ( // _options.wasParsed('help') ||
+      args.contains('-h') || args.contains('--help')) {
+    print('Library: $pkg');
+    // printDartrixUsage();
+  }
+
+  // initPluginTemplates(pkg);
+
+  Config.templateRoot = path.normalize(templates[template]['root']);
+  // Config.prodLogger.v('saving Config.templateRoot = ${Config.templateRoot}');
+
+  await spawnPluginFromPackage(
+      spawnCallback, externalOnDone, pkg, [template, ...?args]);
+  // template, args);
+
+  // if (pkg.startsWith('path:')) {
+  //   spawnExternalFromPath(pkg, template, args);
+  // } else {
+  //   // Before spawning the package, get the templates.
+  //   if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
+  //     // initPluginTemplates(pkg);
+  //     await spawnPluginFromPackage(
+  //         spawnCallback, externalOnDone, pkg, [template, ...?args]);
+  //     // template, args);
+  //   } else {
+  //     throw ArgumentError('-x $pkg: must start with path: or package: or pkg:');
+  //   }
+  // }
 }
 
 // void generateFromExternal(String template, Map data) {

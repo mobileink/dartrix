@@ -17,19 +17,19 @@ Map xData; // external data
 // String domain2RDomPath(String domain) {
 // }
 
-void mergeUserOptions() {
-  if (Config.options['root'] != Config.argParser.getDefault('root')) {
-    tData['segmap']['ROOT'] = Config.options['root'];
-  }
-  if (Config.options['domain'] != Config.argParser.getDefault('domain')) {
-    // user specified domain
-    tData['segmap']['RDOMAINPATH'] =
-        Config.options['domain'].split('.').reversed.join('/');
-  }
-  if (Config.options['class'] != Config.argParser.getDefault('class')) {
-    tData['segmap']['CLASS'] = Config.options['class'];
-  }
-}
+// void mergeUserOptions() {
+//   if (Config.options['root'] != Config.argParser.getDefault('root')) {
+//     tData['segmap']['ROOT'] = Config.options['root'];
+//   }
+//   if (Config.options['domain'] != Config.argParser.getDefault('domain')) {
+//     // user specified domain
+//     tData['segmap']['RDOMAINPATH'] =
+//         Config.options['domain'].split('.').reversed.join('/');
+//   }
+//   if (Config.options['class'] != Config.argParser.getDefault('class')) {
+//     tData['segmap']['CLASS'] = Config.options['class'];
+//   }
+// }
 
 Map _mergeExternalData(Map _data, Map xData) {
   xData.forEach((k, v) {
@@ -132,6 +132,7 @@ Map tData = {
     'ROOT': '/',
     'HOME': Config.home,
     'CWD': Directory.current.path,
+    'SYSTEMP': Directory.systemTemp,
     'DOTFILE': '', // rewrite DOTFILE.foo as .foo
     'DOTDIR_D': ''
   }

@@ -32,6 +32,8 @@ class Config {
       ? Platform.environment['UserProfile']
       : Platform.environment['HOME'];
 
+  static String templateRoot;
+
   static ArgParser argParser;
   static ArgResults options;
 
@@ -68,6 +70,7 @@ class ParamConfig extends Configuration {
   String name;
   String abbr;
   String docstring;
+  @optionalConfiguration
   String help;
   String typeHelp; // parser 'valueHelp'
   String defaultsTo;

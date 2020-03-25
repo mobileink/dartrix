@@ -74,6 +74,56 @@ void printUsage(ArgParser argParser) async {
   //     '\nTo list available commands and templates: pub global run dartrix:list\n');
 }
 
+Map getTemplate(List<String> subArgs) {
+  // print('getTemplate: $subArgs');
+  List<String> dartrixArgs;
+  List<String> tArgs;
+
+  var ft;
+  var template;
+  ft = subArgs.indexOf('--template');
+  if (ft < 0) {
+    // not found
+    ft = subArgs.indexOf('-t');
+    if (ft < 0) {
+      // not found
+      Config.prodLogger.e('Missing required template option: -t | --template');
+      exit(0);
+    } else {
+      if (ft != subArgs.lastIndexOf('-t')) {
+        Config.prodLogger.e('Multiple --template options not allowed.');
+        exit(0);
+      }
+      if (subArgs.contains('--template')) {
+        Config.prodLogger.e('Only one -t or --template option allowed.');
+        exit(0);
+      }
+      template = subArgs[ft + 1];
+      dartrixArgs = subArgs.sublist(0, ft);
+      // print('dartrixArgs: $dartrixArgs');
+      tArgs = subArgs.sublist(ft + 2);
+      // print('tArgs: $tArgs');
+    }
+  } else {
+    // Config.logger.e('found --template');
+    if (ft != subArgs.lastIndexOf('--template')) {
+      Config.prodLogger.e('Only one -t or --template option allowed.');
+      exit(0);
+    }
+    if (subArgs.contains('-t')) {
+      Config.prodLogger.e('Only one -t or --template option allowed.');
+      exit(0);
+    }
+    template = subArgs[ft + 1];
+    dartrixArgs = subArgs.sublist(0, ft);
+    tArgs = subArgs.sublist(ft + 2);
+  }
+  // print('template: $template');
+  // print('dartrixArgs: $dartrixArgs');
+  // print('tArgs: $tArgs');
+  return {'template': template, 'dartrixArgs': dartrixArgs, 'tArgs': tArgs};
+}
+
 void main(List<String> args) async {
   Config.config('dartrix');
 
@@ -177,8 +227,7 @@ void main(List<String> args) async {
     optionsRest.remove('--verbose');
   }
 
-  if (Config.options['dry-run'] ||
-      optionsRest.contains('--dry-run')) {
+  if (Config.options['dry-run'] || optionsRest.contains('--dry-run')) {
     Config.verbose = true;
     Config.dryRun = true;
     Config.ppLogger.w('Dry-run...');
@@ -195,11 +244,13 @@ void main(List<String> args) async {
 
   if (debug.debug) debug.debugOptions();
 
-  if (Config.options['help'] ||
-      optionsRest.contains('-h') ||
-      optionsRest.contains('--help')) {
+  if (Config.options['help']) {
     await printUsage(Config.argParser);
     optionsRest.add('-h');
+  } else {
+    if (optionsRest.contains('-h') || optionsRest.contains('--help')) {
+      await printUsage(Config.argParser);
+    }
     // if (args.contains('-t') || args.contains('template')) {
     //   if (args.contains('-h') &&
     //       ((args.indexOf('-h') < args.indexOf('-t')) ||
@@ -221,17 +272,10 @@ void main(List<String> args) async {
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
 
-  // var cmdOptions;
-  // if (Config.options.command != null) {
-  //   cmdOptions = pluginCmd.parse(Config.options.command.arguments);
-  //   // Config.logger.d('command: ${Config.options.command.name}');
-  //   // Config.logger.d('command args: ${Config.options.command.arguments}');
-  //   // Config.logger.d('command opts: ${Config.options.command.options}');
-  //   // Config.logger.d('command rest: ${Config.options.command.rest}');
-  // }
-
-  // 'package.java' = Java package string, e.g. org.example.foo
-  // String dartPackage = Config.options['package'];
+  var template = getTemplate(optionsRest); //, dartrixArgs, tArgs);
+  // Config.logger.i('template: ${template["template"]}');
+  // Config.logger.i('dartrixArgs: ${template["dartrixArgs"]}');
+  // Config.logger.i('tArgs: ${template["tArgs"]}');
 
   // FIXME: initializing data to be done by each template
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
@@ -244,21 +288,25 @@ void main(List<String> args) async {
 
     switch (pkgSpec) {
       case 'dartrix':
-        dispatchBuiltin(Config.options, optionsRest);
+        dispatchBuiltin(template['template'], Config.options,
+            template['dartrixArgs'], template['tArgs']); // optionsRest);
         break;
       default:
-        await generateFromPlugin(
+        await dispatchPlugin(
             pkgSpec,
-            Config.options['template'],
-            (Config.options.command == null)
-                ? null
-                : Config.options.command.arguments);
+            // Config.options, optionsRest);
+            // Config.options['template'],
+            template['template'],
+            template['tArgs']);
+      // (Config.options.command == null)
+      //     ? null
+      //     : Config.options.command.arguments);
     }
   }
 }
 // if (pkgSpec.startsWith('pkg:')) {
 //   print('PKG');
-//   await generateFromPlugin(
+//   await dispatchPlugin(
 //       pkgSpec,
 //       Config.options['template'],
 //       (Config.options.command == null)
@@ -282,7 +330,7 @@ void main(List<String> args) async {
 // }
 
 // if (tData['plugin'] != null) {
-//   generateFromPlugin(tData['plugin'], template,
+//   dispatchPlugin(tData['plugin'], template,
 //     (Config.options.command == null)? null : Config.options.command.arguments);
 // } else {
 //FIXME: we don't need to list all, just get the one we want!

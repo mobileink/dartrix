@@ -20,7 +20,7 @@ void initBuiltinArgs() async {
   //CommandRunner runner) async {
   // {template : docstring }
   // Map
-  var biTemplates = await listBuiltinTemplates();
+  var biTemplates = await getTemplatesMap(null); // listBuiltinTemplates();
   // for each template, read yaml and construct arg parser
 
   // for (var t in biTemplates.keys) {

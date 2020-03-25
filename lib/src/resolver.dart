@@ -61,7 +61,7 @@ Future<String> getAppPkgRoot() async {
   }
   if (Config.debug) {
     // e.g. file:///Users/gar/mobileink/dartrix/.packages
-    Config.debugLogger.d('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
+    Config.ppLogger.v('Isolate pkg cfg: $currentIsoPkgConfigUri');
   }
   // Isolate.packageConfig finds the version 1 .packages file;
   // use that to get the PackageConfig and you get the contents
@@ -121,7 +121,7 @@ Future<String> resolveBuiltinTemplatesRoot() async {
   }
   if (Config.debug) {
     // e.g. file:///Users/gar/mobileink/dartrix/.packages
-    Config.debugLogger.d('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
+    // Config.debugLogger.d('currentIsoPkgConfigUri: $currentIsoPkgConfigUri');
   }
   // Isolate.packageConfig finds the version 1 .packages file;
   // use that to get the PackageConfig and you get the contents
@@ -170,8 +170,8 @@ Future<PackageConfig> getUserPackageConfig2() async {
       exit(0);
     }
   }
-  if (Config.verbose) {
-    Config.logger.i('found dartConfigDirPath: $dartConfigDirPath');
+  if (Config.debug) {
+    Config.ppLogger.v('found dartConfigDirPath: $dartConfigDirPath');
   }
   Directory dartConfigDir;
   dartConfigDir = Directory(dartConfigDirPath);
@@ -192,6 +192,7 @@ Future<PackageConfig> getUserPackageConfig2() async {
 }
 
 /// pkg arg:  package:foo_dartrix or pkg:foo_dartrix
+/// returns pkg root (dir containing .packages file)
 Future<String> resolvePkgRoot(String pkg) async {
   // _log.finer('resolvePkgRoot: $pkg');
   // validate pkg string
@@ -243,7 +244,7 @@ Future<String> resolvePkgRoot(String pkg) async {
 ///     fullName   e.g. foobar_myapp
 ///     name       e.g. foobar
 Map<String, String> resolvePkgRef(String pkgRef) {
-  // print('resolvePkgRef: $pkgRef');
+  print('resolvePkgRef: $pkgRef');
   // String pkgName;
   // String pkgPackageUriStr;
   var name;
@@ -354,4 +355,26 @@ Future<String> getPkgVersion() async {
   // var pkgRoot = await getAppPkgRoot();
   // print('pkgRoot: ${Config.appPkgRoot}');
   return '0.1.13';
+}
+
+/// return map of templates for pkgRoot
+/// map keys:  name, root, docstring
+Future<Map> getTemplatesMap(String pkgRoot) async {
+  var templatesRoot;
+  if (pkgRoot == null) {
+    templatesRoot = await resolveBuiltinTemplatesRoot();
+  } else {
+    templatesRoot = pkgRoot + '/templates';
+  }
+  var templates = Directory(templatesRoot).listSync()
+    ..retainWhere((f) => f is Directory);
+
+  var tmap = {
+    for (var tdir in templates)
+      path.basename(tdir.path): {
+        'root': tdir.path,
+        'docstring': getDocString(templatesRoot, tdir)
+      },
+  };
+  return tmap;
 }

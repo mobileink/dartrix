@@ -76,7 +76,7 @@ void debugListBuiltins() {
 }
 
 void debugPackageConfig(PackageConfig pkgConfig) {
-  Config.debugLogger.d('debugPackageConfig:::::');
+  Config.ppLogger.v('Package Config (.packages) content:');
   Config.logger.d('extra data: ${pkgConfig.extraData}');
   Config.logger.d('version: ${pkgConfig.version}');
   Config.logger.d('maxVersion: ${PackageConfig.maxVersion}');
