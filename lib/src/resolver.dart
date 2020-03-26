@@ -56,7 +56,7 @@ Future<String> getAppPkgRoot() async {
     currentIsoPkgConfigUri = await Isolate.packageConfig;
   } catch (e) {
     print(e);
-    Config.debugLogger.e(e);
+    Config.ppLogger.e(e);
     exit(0);
   }
   if (Config.debug) {
@@ -166,7 +166,7 @@ Future<PackageConfig> getUserPackageConfig2() async {
   if (!verifyExists(dartConfigDirPath)) {
     dartConfigDirPath = Config.home + '/.dart';
     if (!verifyExists(dartConfigDirPath)) {
-      Config.logger.e('dartConfigDirPath (~/.dart.d or ~/.dart) not found)');
+      Config.ppLogger.e('dartConfigDirPath (~/.dart.d or ~/.dart) not found)');
       exit(0);
     }
   }
@@ -182,7 +182,7 @@ Future<PackageConfig> getUserPackageConfig2() async {
     userPackageConfig2 = await findPackageConfig(dartConfigDir);
     // onError: (e) => Config.logger.e(e));
   } catch (e) {
-    Config.logger.e(e);
+    Config.ppLogger.e(e);
     exit(0);
   }
   // print('pcfg2: $userPackageConfig2');
@@ -202,7 +202,7 @@ Future<String> resolvePkgRoot(String pkg) async {
   if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
     // Config.logger.i('foo');
   } else {
-    Config.logger.e(
+    Config.ppLogger.e(
         'Malformed package URI. Must begin with "package:" or "pkg:" URI: $pkg');
     exit(0);
   }
@@ -230,7 +230,7 @@ Future<String> resolvePkgRoot(String pkg) async {
     pkgPackage =
         userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
   } catch (e) {
-    Config.logger.e('Dartrix library package:$pkgName not found.');
+    Config.ppLogger.e('Dartrix library package:$pkgName not found.');
     exit(0);
   }
   // Config.logger.i('pkgPackage: $pkgPackage');
@@ -254,7 +254,7 @@ Map<String, String> resolvePkgRef(String pkgRef) {
   if (pkgRef.endsWith(Config.appSfx)) {
     name = pkgRef.replaceAll(RegExp('${Config.appSfx}\$'), '');
   } else {
-    Config.logger.e('bad package suffix; should be ${Config.appSfx}');
+    Config.ppLogger.e('bad package suffix; should be ${Config.appSfx}');
     exit(0);
   }
   if (pkgRef.startsWith('package:')) {
