@@ -1,3 +1,7 @@
+## 0.1.16-alpha
+
+- Improve builtin/plugin handling
+
 ## 0.1.15-alpha
 
 - Various fixes.
