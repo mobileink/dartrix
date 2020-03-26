@@ -73,7 +73,7 @@ void spawnPluginFromPackage(
   // Step 5. Construct the packageConfig Uri required by spawnUri.
   // WARNING: spawnUri evidently does not yet support version 2, so
   // construct a version 1 packageConfig (i.e. using a .packages file)
-  var pkgConfigUriPath = path.normalize(pkgRootUri.path + '/.packages');
+  var pkgConfigUriPath = path.normalize(pkgRootUri.path); // + '/.packages');
   var pkgPackageConfig1Uri = Uri.parse(pkgConfigUriPath);
 
   // Version 2 will use /.dart_tools/package_config.json
@@ -86,21 +86,24 @@ void spawnPluginFromPackage(
   // if (config.verbose) {
   // print('Spawning package:${pkgName}_dartrix with args $args');
   // }
-  var pkgUri = 'package:${pkgName}_dartrix';
-  var spawnUri = Uri.parse(pkgUri + '/' + pkgName + '_dartrix.dart');
+  // var pkgUri = 'package:${pkgName}_dartrix';
+  // var spawnUri = Uri.parse(pkgUri + '/' + pkgName + '_dartrix.dart');
+  var spawnUri =
+      Uri.parse(pkgRootUri.path + 'lib/' + pkgName + '_dartrix.dart');
   if (Config.debug) {
     Config.ppLogger.v('spawnUri: $spawnUri\nconfigUri: $pkgPackageConfig1Uri');
   }
   try {
     // Isolate externIso =
     await Isolate.spawnUri(
-      // To avoid annoying warning, always use a package: Uri, not a file: Uri
-      // Uri.parse(pkg['uri'] + '/' + pkg['name'] + '_dartrix.dart'),
+      // Use a file:// URI, together with automaticPackageResolution: true.
+      // This works when there is no .packages file, as in the case of hosted
+      // packages in .pub-cache.
       spawnUri,
       args, // [template, ...?args],
       dataPort.sendPort,
-      // WARNING: packageConfig evidently does not support v2
-      packageConfig: pkgPackageConfig1Uri,
+      // packageConfig: pkgPackageConfig1Uri, // breaks if pkg is in pub-cache
+      automaticPackageResolution: true,
       // onError: errorPort.sendPort,
       onExit: stopPort.sendPort,
       // debugName: template
