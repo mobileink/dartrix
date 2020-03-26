@@ -10,7 +10,7 @@ params:
   help: 'Name of output file containing bash alias definitions.'
   typeHelp: 'string'
   defaultsTo: 'bashrc'
-  segmap: 'FILE'
+  seg: 'FILE'
 
 - name: 'prefix'
   abbr: 'p'
@@ -25,7 +25,7 @@ params:
   help: 'The output file will be written to this directory, relative to --dartrix-config-home.'
   typeHelp: 'dir'
   defaultsTo: '.dart.d'
-  segmap:     'DARTDIR'
+  seg:     'DARTDIR'
 
 - name: 'dartrix-config-home'
   abbr: 'd'
@@ -33,7 +33,7 @@ params:
   help: 'The output file will be written to the --config-dir subdirectory of this directory.  Relative override paths relative to current working directory.'
   typeHelp: 'dir'
   defaultsTo: '$HOME'
-  segmap: 'HOME'
+  seg: 'HOME'
 
 - name: 'enable-asserts'
   abbr: 'e'

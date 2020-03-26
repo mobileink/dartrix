@@ -194,7 +194,10 @@ Future<PackageConfig> getUserPackageConfig2() async {
 /// pkg arg:  package:foo_dartrix or pkg:foo_dartrix
 /// returns pkg root (dir containing .packages file)
 Future<String> resolvePkgRoot(String pkg) async {
-  // _log.finer('resolvePkgRoot: $pkg');
+  // Config.ppLogger.i('resolvePkgRoot: $pkg');
+
+  if (pkg == 'package:dartrix_dartrix') return await getAppPkgRoot();
+
   // validate pkg string
   if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
     // Config.logger.i('foo');

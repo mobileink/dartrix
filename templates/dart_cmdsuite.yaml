@@ -17,7 +17,7 @@ params:
   help: 'Dart package name.'
   typeHelp: '[_a-z][a-zA-Z0-9_]*'
   defaultsTo: 'myapp'
-  segmap: 'myapp'
+  seg: 'myapp'
 
 - name: 'dartrix-config-home'
   abbr: 'd'
@@ -25,5 +25,5 @@ params:
   help: 'The output file will be written to the --config-dir subdirectory of this directory.'
   typeHelp: 'dir'
   defaultsTo: '$HOME'
-  segmap : 'HOME'
+  seg : 'HOME'
 

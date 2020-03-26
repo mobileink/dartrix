@@ -10,11 +10,12 @@ import 'package:sprintf/sprintf.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/dispatch.dart';
 import 'package:dartrix/src/handlers/dart_cmdsuite.dart';
 import 'package:dartrix/src/handlers/bashrc.dart';
 import 'package:dartrix/src/paths.dart';
 import 'package:dartrix/src/resolver.dart';
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/utils.dart';
 
 void printBuiltins() async {
   // var templatesRoot = await resolveBuiltinTemplatesRoot();
@@ -239,11 +240,14 @@ void generateFromBuiltin() async {
   });
 
   //List<String>
-  var ofs = [
-    for (var f in writtenFiles) path.normalize(path.dirname(f)),
-  ];
-  ofs.sort((a, b) => a.length.compareTo(b.length));
-  // print(ofs.first);
+  var outdir;
+  if (writtenFiles.isNotEmpty) {
+    var outs = [
+      for (var f in writtenFiles) path.normalize(path.dirname(f)),
+    ];
+    outs.sort((a, b) => a.length.compareTo(b.length));
+    outdir = outs.first;
+  }
 
   var action;
   if (Config.dryRun) {
@@ -252,7 +256,7 @@ void generateFromBuiltin() async {
     action = 'generated';
   }
   Config.ppLogger.i(
-      'Template ${template} ${action} ${tFileList.length} files to ${ofs.first}');
+      'Template ${template} ${action} ${tFileList.length} files to ${outdir}');
 }
 
 void printDartrixUsage() {
@@ -260,32 +264,35 @@ void printDartrixUsage() {
       'Dartrix template library. A collection of general templates for softwared development.  Mainly but not exclusively Dart and Flutter code.');
 }
 
+// FIXME: _options == Config.options
 void dispatchBuiltin(String template, ArgResults _options,
     List<String> dartrixArgs, List<String> tArgs) async {
   // Config.debugLogger.d('dispatchBuiltin');
   // print('option args: ${_options.arguments}');
   // print('option rest: ${_options.rest}');
 
-  if (_options.wasParsed('help') ||
-      dartrixArgs.contains('-h') ||
-      dartrixArgs.contains('--help')) {
-    print('Library: dartrix');
-    printDartrixUsage();
-  }
+  await processArgs('dartrix', template, _options, dartrixArgs, tArgs);
+
+  // if (_options.wasParsed('help') ||
+  //     dartrixArgs.contains('-h') ||
+  //     dartrixArgs.contains('--help')) {
+  //   print('Library: dartrix');
+  //   printDartrixUsage();
+  // }
 
   var templates = await getTemplatesMap(null); // listBuiltinTemplates();
-  // print('bt: $templates, rtt: ${templates.runtimeType}');
+  // // print('bt: $templates, rtt: ${templates.runtimeType}');
   if (templates.keys.contains(template)) {
-    // print('found template $template in lib');
-    // debugging:
-    // var pkg = templates[template];
-    // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
-    // var r = pkg['root'];
-    // Config.debugLogger.i('root: $r');
+    //   // print('found template $template in lib');
+    //   // debugging:
+    //   // var pkg = templates[template];
+    //   // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
+    //   // var r = pkg['root'];
+    //   // Config.debugLogger.i('root: $r');
 
-    Config.templateRoot = templates[template]['root'];
+    //   Config.templateRoot = templates[template]['root'];
 
-    await processArgs(Config.templateRoot, tArgs);
+    //   await processYamlArgs(Config.templateRoot, tArgs);
 
     switch (template) {
       case 'bashrc':

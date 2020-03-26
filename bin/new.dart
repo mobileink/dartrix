@@ -292,12 +292,12 @@ void main(List<String> args) async {
             template['dartrixArgs'], template['tArgs']); // optionsRest);
         break;
       default:
-        await dispatchPlugin(
-            pkgSpec,
-            // Config.options, optionsRest);
-            // Config.options['template'],
-            template['template'],
-            template['tArgs']);
+        await dispatchPlugin(pkgSpec, template['template'], Config.options,
+            template['dartrixArgs'], template['tArgs']); // optionsRest);
+      // Config.options, optionsRest);
+      // Config.options['template'],
+      // template['template'],
+      // template['tArgs']);
       // (Config.options.command == null)
       //     ? null
       //     : Config.options.command.arguments);

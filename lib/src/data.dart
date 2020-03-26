@@ -70,6 +70,9 @@ Map mergeExternalData(Map _data, Map xData) {
 
 Map tData = {
   'dartrix': {'force': false},
+  'now': DateTime.now(),
+  'today':
+      '${DateTime.now().year}, ${DateTime.now().month}, ${DateTime.now().day}',
   'version': {
     'android': {
       'compile_sdk': '28',
@@ -111,10 +114,8 @@ Map tData = {
   },
   'platform': null,
   'domain': 'example.org',
-  //   // 'default' : 'example.org'
-  //   // 'user'    : 'foo.com'
-  // },
   'rdomain': 'org.example',
+  'pkg': 'org.example',
   'package': {
     // 'dart' : Config.options['package'],
     // 'java' : javaPackage
@@ -134,6 +135,9 @@ Map tData = {
     'CWD': Directory.current.path,
     'SYSTEMP': Directory.systemTemp,
     'DOTFILE': '', // rewrite DOTFILE.foo as .foo
-    'DOTDIR_D': ''
+    'DOTDIR_D': '',
+    'DOMAIN': 'example.org',
+    // 'ORG' : 'org/example',  // reverse-domain notation
+    'DEPT': 'hello' // forms part of package url, org.example.hello
   }
 };

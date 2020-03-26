@@ -68,6 +68,7 @@ class ParamConfig extends Configuration {
   ParamConfig.fromMap(Map m) : super.fromMap(m);
 
   String name;
+  @optionalConfiguration
   String abbr;
   String docstring;
   @optionalConfiguration
@@ -75,7 +76,9 @@ class ParamConfig extends Configuration {
   String typeHelp; // parser 'valueHelp'
   String defaultsTo;
   @optionalConfiguration
-  String segmap;
+  String seg;
+  @optionalConfiguration
+  String hook;
 }
 
 class TemplateConfig extends Configuration {
@@ -86,6 +89,8 @@ class TemplateConfig extends Configuration {
   String docstring;
   String version;
   List<ParamConfig> params;
+  @optionalConfiguration
+  String note;
 }
 
 // String loadTemplateFileSync(String path) {

@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:args/args.dart';
 import 'package:mustache_template/mustache_template.dart';
 import 'package:path/path.dart' as path;
 
@@ -10,8 +11,9 @@ import 'package:dartrix/dartrix.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/dispatch.dart';
 import 'package:dartrix/src/paths.dart';
-import 'package:dartrix/src/utils.dart';
+// import 'package:dartrix/src/utils.dart';
 
 // Terminology:
 // userDartConfigDir :  $HOME/.dart.d
@@ -174,7 +176,7 @@ void spawnCallback(dynamic _xData) {
       for (var f in writtenFiles) path.dirname(f),
     ];
     ofs.sort((a, b) => a.length.compareTo(b.length));
-    print('ofx ${ofs.first}');
+    // print('ofx ${ofs.first}');
     var template = path.basename(Config.templateRoot);
     Config.ppLogger.i(
         'Template ${template} ${action} ${tFileList.length} files to ${ofs.first}.');
@@ -302,50 +304,64 @@ void externalOnDone() {
 //   Config.logger.d('_onStopDone');
 // }
 
-void dispatchPlugin(String pkg, String template, List<String> args) async {
-  // Config.debugLogger.v('dispatchPlugin: $pkg, $template');
+// void dispatchPlugin(String pkg, String template, List<String> args) async {
+//   // Config.debugLogger.v('dispatchPlugin: $pkg, $template, $args');
 
-  var pkgRoot = await resolvePkgRoot('package:' + pkg + '_dartrix');
-  if (Config.verbose) {
-    Config.ppLogger.v('resolved $pkg to package:${pkg}_dartrix to $pkgRoot');
-  }
+// FIXME: _options == Config.options
+void dispatchPlugin(String pkg, String template, ArgResults _options,
+    List<String> pluginArgs, List<String> tArgs) async {
+  // Config.ppLogger.v('dispatchPlugin $pkg, $template, $_options, $pluginArgs, $tArgs');
 
-  var templates = await getTemplatesMap(pkgRoot);
-  // Config.debugLogger.v(templates);
+  await processArgs(pkg, template, _options, pluginArgs, tArgs);
 
-  Config.templateRoot = pkgRoot + 'templates/' + template;
-  // Config.debugLogger.v('Config.templateRoot: ${Config.templateRoot}');
+//   if (_options.wasParsed('help') ||
+//       pluginArgs.contains('-h') ||
+//       pluginArgs.contains('--help')) {
+//     print('Library: $pkg');
+//     // printDartrixUsage();
+//   }
 
-  await processArgs(Config.templateRoot, args);
+//   var pkgRoot = await resolvePkgRoot('package:' + pkg + '_dartrix');
+//   if (Config.verbose) {
+//     Config.ppLogger.v('resolved $pkg to package:${pkg}_dartrix to $pkgRoot');
+//   }
 
-  if ( // _options.wasParsed('help') ||
-      args.contains('-h') || args.contains('--help')) {
-    print('Library: $pkg');
-    // printDartrixUsage();
-  }
+//   var templates = await getTemplatesMap(pkgRoot);
+//   // Config.debugLogger.v(templates);
 
-  // initPluginTemplates(pkg);
+//   Config.templateRoot = pkgRoot + 'templates/' + template;
+//   // Config.debugLogger.v('Config.templateRoot: ${Config.templateRoot}');
 
-  Config.templateRoot = path.normalize(templates[template]['root']);
-  // Config.prodLogger.v('saving Config.templateRoot = ${Config.templateRoot}');
+//   await processArgs(Config.templateRoot, pluginArgs); // args);
+
+//   if ( // _options.wasParsed('help') ||
+//       pluginArgs.contains('-h') || pluginArgs.contains('--help')) {
+//       print('Library: $pkg');
+//     // printDartrixUsage();
+//   }
+
+//   // initPluginTemplates(pkg);
+
+//   Config.templateRoot = path.normalize(templates[template]['root']);
+//   // Config.prodLogger.v('saving Config.templateRoot = ${Config.templateRoot}');
 
   await spawnPluginFromPackage(
-      spawnCallback, externalOnDone, pkg, [template, ...?args]);
+      spawnCallback, externalOnDone, pkg, [template, ...?tArgs]);
   // template, args);
 
-  // if (pkg.startsWith('path:')) {
-  //   spawnExternalFromPath(pkg, template, args);
-  // } else {
-  //   // Before spawning the package, get the templates.
-  //   if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
-  //     // initPluginTemplates(pkg);
-  //     await spawnPluginFromPackage(
-  //         spawnCallback, externalOnDone, pkg, [template, ...?args]);
-  //     // template, args);
-  //   } else {
-  //     throw ArgumentError('-x $pkg: must start with path: or package: or pkg:');
-  //   }
-  // }
+//   // if (pkg.startsWith('path:')) {
+//   //   spawnExternalFromPath(pkg, template, args);
+//   // } else {
+//   //   // Before spawning the package, get the templates.
+//   //   if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
+//   //     // initPluginTemplates(pkg);
+//   //     await spawnPluginFromPackage(
+//   //         spawnCallback, externalOnDone, pkg, [template, ...?args]);
+//   //     // template, args);
+//   //   } else {
+//   //     throw ArgumentError('-x $pkg: must start with path: or package: or pkg:');
+//   //   }
+//   // }
 }
 
 // void generateFromExternal(String template, Map data) {
