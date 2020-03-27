@@ -57,22 +57,10 @@ void validateTemplateName(String t) {
 void printUsage(ArgParser argParser) async {
   // print('\n\t\tDartrix Templating System - "new" command\n');
   print('dartrix:new,  version ${await Config.dartrixVersion}\n');
-  print(
-      'usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
-  // print('Usage:');
-  // print('  Builtins: pub global run dartrix:new [ordpcfhvt]\n');
-  // print(
-  //     '  Plugins: pub global run dartrix:new [ordpcfv] plugin [th][toptions]\n');
-  // print(
-  //     '\t plugin:  pkg:package_name | package:package_name | path:path/to/package_name\n');
-  // print('\t toptions:  per template; pass -h or use dartrix:man to view.\n');
+  print('usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
+;
   print('Options:');
   print(argParser.usage);
-  // await printAvailableLibs();
-
-  // await printBuiltins();
-  // print(
-  //     '\nTo list available commands and templates: pub global run dartrix:list\n');
 }
 
 Map getTemplate(List<String> subArgs) {
@@ -134,8 +122,9 @@ void main(List<String> args) async {
       .addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
-  Config.argParser.addOption('config-file',
-      help: 'Configuration file. JSON or yaml.', defaultsTo: './dartrix.yaml');
+      Config.argParser.addOption('config-file',
+        help: 'Configuration file. JSON or yaml.',
+        defaultsTo: './dartrix.yaml');
   Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('version', defaultsTo: false, negatable: false);
@@ -198,23 +187,6 @@ void main(List<String> args) async {
     if (optionsRest.contains('-h') || optionsRest.contains('--help')) {
       await printUsage(Config.argParser);
     }
-    // if (args.contains('-t') || args.contains('template')) {
-    //   if (args.contains('-h') &&
-    //       ((args.indexOf('-h') < args.indexOf('-t')) ||
-    //           (args.indexOf('-h') < args.indexOf('--template')))) {
-    //     await printUsage(Config.argParser);
-    //     // exit(0);
-    //   } else {
-    //     if (args.contains('--help') &&
-    //         ((args.indexOf('--help') < args.indexOf('-t')) ||
-    //             (args.indexOf('--help') < args.indexOf('--template')))) {
-    //       await printUsage(Config.argParser);
-    //       // exit(0);
-    //     }
-    //   }
-    // } else {
-    //   await printUsage(Config.argParser);
-    // }
   }
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
@@ -235,15 +207,12 @@ void main(List<String> args) async {
     if (libName != 'dartrix') {
       var requiredVersion = await verifyDartrixVersion(Config.libPkgRoot);
       if (requiredVersion != null) {
-        Config.prodLogger.e(
-            'Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.dartrixVersion}.');
+        Config.prodLogger.e('Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.dartrixVersion}.');
         exit(0);
       }
     }
-    if (!verifyExists(
-        Config.libPkgRoot + '/templates/' + template['template'])) {
-      Config.prodLogger
-          .e('Template ${template["template"]} not found in library $libName');
+    if ( !verifyExists(Config.libPkgRoot + '/templates/' + template['template'])) {
+      Config.prodLogger.e('Template ${template["template"]} not found in library $libName');
       exit(0);
     }
 
@@ -251,69 +220,12 @@ void main(List<String> args) async {
 
     switch (libName) {
       case 'dartrix':
-        dispatchBuiltin(template['template'], Config.options,
-            template['dartrixArgs'], template['tArgs']); // optionsRest);
-        break;
+      dispatchBuiltin(template['template'], Config.options,
+        template['dartrixArgs'], template['tArgs']); // optionsRest);
+      break;
       default:
-        await dispatchPlugin(libName, template['template'], Config.options,
-            template['dartrixArgs'], template['tArgs']); // optionsRest);
-      // Config.options, optionsRest);
-      // Config.options['template'],
-      // template['template'],
-      // template['tArgs']);
-      // (Config.options.command == null)
-      //     ? null
-      //     : Config.options.command.arguments);
+      await dispatchPlugin(libName, template['template'], Config.options,
+        template['dartrixArgs'], template['tArgs']); // optionsRest);
     }
   }
 }
-// if (libName.startsWith('pkg:')) {
-//   print('PKG');
-//   await dispatchPlugin(
-//       libName,
-//       Config.options['template'],
-//       (Config.options.command == null)
-//           ? null
-//           : Config.options.command.arguments);
-//   exit(0);
-// } else {
-//   if (libName.startsWith('package:')) {
-//     print('PACKAGE');
-//     exit(0);
-//   } else {
-//     if (libName.startsWith('path:')) {
-//       print('PATH');
-//       exit(0);
-//     } else {
-//       Config.logger.e('Unrecognized param: $libName. Did you forget -t?');
-//       exit(0);
-//     }
-//   }
-// }
-// }
-
-// if (tData['plugin'] != null) {
-//   dispatchPlugin(tData['plugin'], template,
-//     (Config.options.command == null)? null : Config.options.command.arguments);
-// } else {
-//FIXME: we don't need to list all, just get the one we want!
-// await initBuiltinTemplates();
-// if ( builtinTemplates.keys.contains(template) ) {
-//   Config.logger.i('FIXME: run builtin');
-//     (Config.options.command == null)? null : Config.options.command.arguments);
-// } else {
-//   Config.logger.d('EXCEPTION: template $template not found.');
-//   exit(0);
-// }
-// }
-// Config.logger.d('script locn: ${Platform.script.toString()}');
-// Config.logger.d('built-ins: $builtinTemplates');
-
-// String inDir = getInDir(Config.options['template']);
-// Config.logger.d('inDir: $inDir');
-
-// getResource('hello_template');
-
-// if (template == 'plugin')
-// transformDirectory(inDir, outPathPrefix, tData);
-// }
