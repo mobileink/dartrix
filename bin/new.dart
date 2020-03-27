@@ -123,7 +123,7 @@ void main(List<String> args) async {
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
   Config.argParser.addOption('config-file',
-      help: 'Configuration file. JSON or yaml.',
+      help: 'Configuration file.',
       defaultsTo: './dartrix.yaml');
   Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
