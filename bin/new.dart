@@ -122,9 +122,9 @@ void main(List<String> args) async {
       .addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
-      Config.argParser.addOption('config-file',
-        help: 'Configuration file. JSON or yaml.',
-        defaultsTo: './dartrix.yaml');
+  Config.argParser.addOption('config-file',
+      help: 'Configuration file. JSON or yaml.',
+      defaultsTo: './dartrix.yaml');
   Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('version', defaultsTo: false, negatable: false);
@@ -188,6 +188,9 @@ void main(List<String> args) async {
       await printUsage(Config.argParser);
     }
   }
+
+  await loadConfigFile(Config.options['config-file']);
+
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
 

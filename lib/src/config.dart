@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 import 'package:logger/logger.dart';
-// import 'package:path/path.dart' as path;
+import 'package:merge_map/merge_map.dart';
+import 'package:path/path.dart' as path;
 import 'package:pub_semver/pub_semver.dart';
 import 'package:safe_config/safe_config.dart';
 import 'package:yaml/yaml.dart';
 
+import 'package:dartrix/src/data.dart';
+import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/resolver.dart';
 
 AnsiPen shoutPen = AnsiPen()..red(bold: true);
@@ -197,4 +200,21 @@ Future<String> verifyDartrixVersion(String libPkgRoot) async {
   } else {
     return dartrixVersionStr;
   }
+}
+
+// dynamic mergeMapx(Map val) {
+//   val.forEach((k,v) {
+//       if (v is Map) {
+//         var m = mergeMap(v);
+//         return {k : m};
+//       } else {
+//         return {k: v};
+//       }
+//   });
+// }
+
+void loadConfigFile(String configFile) async {
+  var f = path.normalize(Directory.current.path + '/' + configFile);
+  var yaml = loadYamlFileSync(f);
+  tData = mergeMap([tData, yaml['data']]);
 }

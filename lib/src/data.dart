@@ -85,7 +85,7 @@ var flutter_sdk =
 
 Map tData = {
   'dartrix': {'force': false},
-  'now': DateTime.now(),
+  'now': '${DateTime.now()}',
   'today':
       '${DateTime.now().year}, ${DateTime.now().month}, ${DateTime.now().day}',
   'version': {
@@ -118,10 +118,10 @@ Map tData = {
   },
   'description': {
     'adapter': 'A Flutter plugin adapter component.',
+    'android': 'A Flutter Plugin implementation for the Android platform.',
     'app': 'A Flutter application.',
     'component': 'A Flutter Plugin.',
     'demo': 'Demo using a Flutter Plugin.',
-    'android': 'A Flutter Plugin implementation for the Android platform.',
     'ios': 'A Flutter Plugin implementation for the iOS platform.',
     'linux': 'A Flutter Plugin implementation for the Linux platform.',
     'macos': 'A Flutter Plugin implementation for the MacOS platform.',
@@ -133,15 +133,16 @@ Map tData = {
   'domain': 'example.org',
   'rdomain': 'org.example',
   'pkg': 'org.example',
+  'jpkg': 'org.example',
   'package': {
     // 'dart' : Config.options['package'],
     // 'java' : javaPackage
   },
   // 'plugin-class' : pluginClass,
   'sdk': {
+    'android': android_sdk,
     'dart': '\'>=2.1.0 <3.0.0\'',
     'flutter': flutter_sdk,
-    'android': android_sdk,
   },
   // segmap keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
@@ -151,7 +152,7 @@ Map tData = {
     'ROOT': '/',
     'HOME': Config.home,
     'CWD': Directory.current.path,
-    'SYSTEMP': Directory.systemTemp,
+    'SYSTEMP': Directory.systemTemp.path,
     'DOTFILE': '', // rewrite DOTFILE.foo as .foo
     'DOTDIR_D': '',
     'DOMAIN': 'example.org',

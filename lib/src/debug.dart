@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:convert';
+
 // import 'package:logger/logger.dart';
 import 'package:package_config/package_config.dart';
 import 'package:sprintf/sprintf.dart';
@@ -11,33 +14,11 @@ import 'package:dartrix/src/data.dart';
 bool debug = false;
 
 void debugData(Map xData) {
-  if (xData != null) {
-    Config.logger.d('External datamap:');
-    xData.forEach((k, v) {
-      if (v is Map) {
-        Config.logger.d('xdata["$k"]:');
-        v.forEach((kk, vv) {
-          Config.logger.d('\txdata["$k"]["$kk"]: $vv');
-        });
-      } else {
-        Config.logger.d('xdata["$k"]: $v');
-      }
-    });
-  }
   Config.logger.d('Datrix datamap:');
-  tData.keys.toList()
-    ..sort()
-    ..forEach((k) {
-      var v = tData[k];
-      if (v is Map) {
-        Config.logger.d('tData["$k"]:');
-        v.forEach((kk, vv) {
-          Config.logger.d('\ttData["$k"]["$kk"]: $vv');
-        });
-      } else {
-        Config.logger.d('tData["$k"]: $v');
-      }
-    });
+  var sorted = SplayTreeMap.from(tData);
+  var encoder = JsonEncoder.withIndent('    ');
+  var j = encoder.convert(sorted);
+  print(j);
 }
 
 void debugPathRewriting(Map xData) {
