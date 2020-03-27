@@ -1,3 +1,7 @@
+## 0.1.18-alpha
+
+- Fix other spawning bug - for pkgs in syscache
+
 ## 0.1.17-alpha
 
 - Fix spawning bug
