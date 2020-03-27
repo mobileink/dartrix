@@ -129,54 +129,6 @@ void main(List<String> args) async {
   await Config.config('dartrix');
 
   Config.argParser = ArgParser(allowTrailingOptions: false);
-  // Config.argParser.addOption(
-  //   'template', abbr: 't', // defaultsTo: 'hello',
-  //   valueHelp: '[a-z][a-z0-9_]*',
-  //   help: 'Template name.',
-  //   // callback: (t) => validateTemplateName(t)
-  // );
-  // Config.argParser.addOption('relative-root', abbr: 'r',
-  //   defaultsTo: Directory.current.path,
-  //     valueHelp: 'directory',
-  //     help:
-  //     'Root of template output, relative to ROOT prefix path. Defaults to cwd.',
-  //     // Defaults to value of --package arg (i.e. "hello").'
-  //     // callback: (pkg) => validateSnakeCase(pkg)
-  //     );
-  // Config.argParser.addOption('ROOT',
-  //     abbr: 'R',
-  //     defaultsTo: Config.home,
-  //     help: 'Absolute output path.',
-  //     valueHelp: '/path/to/template/output.');
-  // Config.argParser.addOption('domain',
-  //     abbr: 'd',
-  //     defaultsTo: 'example.org',
-  //     help:
-  //         'Domain name. Must be legal as a Java package name;\ne.g. must not begin with a number, or match a Java keyword.',
-  //     valueHelp: 'segmented.domain.name');
-  // Config.argParser.addOption('package',
-  //     abbr: 'p',
-  //     defaultsTo: 'hello',
-  //     valueHelp: '[_a-z][a-z0-9_]*',
-  //     help: 'snake_cased name.  Used e.g. as Dart package name.',
-  //     callback: (pkg) => validateSnakeCase(pkg));
-  // Config.argParser.addOption('class',
-  //     abbr: 'c',
-  //     defaultsTo: 'Hello',
-  //     valueHelp: '[A-Z][a-zA-Z0-9_]*',
-  //     help:
-  //         'CamelCased name. Used as class/type name for Java, Kotline, etc.\nDefaults to --package value, CamelCased (i.e. "Hello").\nE.g. -p foo_bar => -c FooBar.',
-  //     callback: (name) => validateCamelCase(name));
-  // Config.argParser.addOption('plugin', abbr: 'x',
-  //   valueHelp: 'path:path/to/local/pkg | package:pkg_name',
-  //   help: 'External template package'
-  //   // defaultsTo: 'plugin',
-  //   // callback: (t) => validateTemplateName(t)
-  // );
-  // Config.argParser.addFlag('list', abbr: 'l',
-  //   help: 'List plugins.',
-  //   defaultsTo: false,
-  // );
   Config.argParser.addFlag('dry-run', defaultsTo: false);
   Config.argParser.addFlag('force', abbr: 'f', defaultsTo: false);
   Config.argParser
@@ -185,15 +137,6 @@ void main(List<String> args) async {
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('version', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('debug', defaultsTo: false, negatable: false);
-
-  // Config.argParser.addFlag('manpage', defaultsTo: false);
-
-  // var pluginCmd = ArgParser.allowAnything();
-  // Config.argParser.addCommand('pkg:', pluginCmd);
-  // // var packageCmd = ArgParser.allowAnything();
-  // Config.argParser.addCommand('package:', pluginCmd);
-  // // var pathCmd = ArgParser.allowAnything();
-  // Config.argParser.addCommand('path:', pluginCmd);
 
   try {
     Config.options = Config.argParser.parse(args);
