@@ -429,23 +429,6 @@ String getDocString(String templatesRoot, Directory tdir) {
   return docString;
 }
 
-// Map loadYamlFileSync(String path) {
-//   File file = new File(path);
-//   if (file?.existsSync() == true) {
-//     return loadYaml(file.readAsStringSync());
-//   }
-//   return null;
-// }
-
-// Future<Map> loadYamlFile(String path) async{
-//   File file = new File(path);
-//   if ((await file?.exists()) == true) {
-//     String content = await file.readAsString();
-//     return loadYaml(content);
-//   }
-//   return null;
-// }
-
 //FIXME: which file does this belong in?
 // void printAvailableLibs() async {
 //   //CommandRunner runner) async {
@@ -463,12 +446,6 @@ String getDocString(String templatesRoot, Directory tdir) {
 //   });
 //   print('');
 // }
-
-Future<String> getPkgVersion() async {
-  // var pkgRoot = await getAppPkgRoot();
-  // print('pkgRoot: ${Config.appPkgRoot}');
-  return '0.1.13';
-}
 
 /// return map of templates for pkgRoot
 /// map keys:  name, root, docstring

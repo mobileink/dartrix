@@ -56,7 +56,7 @@ void validateTemplateName(String t) {
 
 void printUsage(ArgParser argParser) async {
   // print('\n\t\tDartrix Templating System - "new" command\n');
-  print('dartrix:new,  version ${await Config.pkgVersion}\n');
+  print('dartrix:new,  version ${await Config.dartrixVersion}\n');
   print('usage:\tdartrix:new [options] LIBRARY -t TEMPLATE [template-options]');
   // print('Usage:');
   // print('  Builtins: pub global run dartrix:new [ordpcfhvt]\n');
@@ -284,6 +284,15 @@ void main(List<String> args) async {
 
     Config.libPkgRoot = await resolvePkgRoot(libName);
 
+    // Config.ppLogger.v('libname: $libName');
+
+    if (libName != 'dartrix') {
+      var requiredVersion = await verifyDartrixVersion(Config.libPkgRoot);
+      if (requiredVersion != null) {
+        Config.prodLogger.e('Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.dartrixVersion}.');
+        exit(0);
+      }
+    }
     if ( !verifyExists(Config.libPkgRoot + '/templates/' + template['template'])) {
       Config.prodLogger.e('Template ${template["template"]} not found in library $libName');
       exit(0);

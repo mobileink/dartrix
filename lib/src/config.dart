@@ -3,7 +3,10 @@ import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 import 'package:logger/logger.dart';
+import 'package:path/path.dart' as path;
+import 'package:pub_semver/pub_semver.dart';
 import 'package:safe_config/safe_config.dart';
+import 'package:yaml/yaml.dart';
 
 import 'package:dartrix/src/resolver.dart';
 
@@ -54,12 +57,12 @@ class Config {
   static ArgParser argParser;
   static ArgResults options;
 
-  static String _version;
+  static String _dartrixVersion;
 
-  static Future<String> get pkgVersion async {
-    if (_version != null) return _version;
-    _version = await getPkgVersion();
-    return _version;
+  static Future<String> get dartrixVersion async {
+    if (_dartrixVersion != null) return _dartrixVersion;
+    _dartrixVersion = await getDartrixVersion();
+    return _dartrixVersion;
   }
 
   static void config(String _appName) async {
@@ -139,4 +142,57 @@ TemplateConfig getTemplateConfig(String template) {
     }
   }
   return config;
+}
+
+//FIXME: implement
+Future<String> getDartrixVersion() async {
+  // var pkgRoot = await getAppPkgRoot();
+  // print('pkgRoot: ${Config.appPkgRoot}');
+  return '0.1.19-alpha';
+}
+
+Map loadYamlFileSync(String path) {
+  File file = new File(path);
+  if (file?.existsSync() == true) {
+    return loadYaml(file.readAsStringSync());
+  }
+  return null;
+}
+
+Future<Map> loadYamlFile(String path) async{
+  File file = new File(path);
+  if ((await file?.exists()) == true) {
+    String content = await file.readAsString();
+    return loadYaml(content);
+  }
+  return null;
+}
+
+//FIXME: support constraints and ranges
+Future<String> verifyDartrixVersion(String libPkgRoot) async {
+  // Config.ppLogger.v('verifyDartrixVersion $libPkgRoot');
+  var yaml = loadYamlFileSync(libPkgRoot + '/pubspec.yaml');
+  // print('yaml: $yaml');
+  var dartrixVersionStr;
+  try {
+    dartrixVersionStr = yaml['dartrix']['version'];
+  } catch(e) {
+    //FIXME: exit?
+    Config.prodLogger.w('Invalid plugin ${libPkgRoot} - missing required dartrix version in pubspec.yaml. Continuing anyway...');
+    // exit(1);
+    return null;
+  }
+  print('required dartrix version: $dartrixVersionStr');
+
+  var dartrixVersion = Version.parse(dartrixVersionStr);
+  // print('parse version: $dartrixVersion');
+  // print('min: ${dartrixVersion.min}');
+  // print('min: ${dartrixVersion.max}');
+
+  // print('dartrix version: ${await Config.dartrixVersion}');
+  if (dartrixVersion <= Version.parse(await Config.dartrixVersion)) {
+    return null;
+  } else {
+    return dartrixVersionStr;
+  }
 }
