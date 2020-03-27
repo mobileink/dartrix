@@ -57,8 +57,9 @@ void validateTemplateName(String t) {
 void printUsage(ArgParser argParser) async {
   // print('\n\t\tDartrix Templating System - "new" command\n');
   print('dartrix:new,  version ${await Config.dartrixVersion}\n');
-  print('usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
-;
+  print(
+      'usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
+  ;
   print('Options:');
   print(argParser.usage);
 }
@@ -123,8 +124,7 @@ void main(List<String> args) async {
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
   Config.argParser.addOption('config-file',
-      help: 'Configuration file.',
-      defaultsTo: './dartrix.yaml');
+      help: 'Configuration file.', defaultsTo: './dartrix.yaml');
   Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('version', defaultsTo: false, negatable: false);
@@ -210,12 +210,15 @@ void main(List<String> args) async {
     if (libName != 'dartrix') {
       var requiredVersion = await verifyDartrixVersion(Config.libPkgRoot);
       if (requiredVersion != null) {
-        Config.prodLogger.e('Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.dartrixVersion}.');
+        Config.prodLogger.e(
+            'Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.dartrixVersion}.');
         exit(0);
       }
     }
-    if ( !verifyExists(Config.libPkgRoot + '/templates/' + template['template'])) {
-      Config.prodLogger.e('Template ${template["template"]} not found in library $libName');
+    if (!verifyExists(
+        Config.libPkgRoot + '/templates/' + template['template'])) {
+      Config.prodLogger
+          .e('Template ${template["template"]} not found in library $libName');
       exit(0);
     }
 
@@ -223,12 +226,12 @@ void main(List<String> args) async {
 
     switch (libName) {
       case 'dartrix':
-      dispatchBuiltin(template['template'], Config.options,
-        template['dartrixArgs'], template['tArgs']); // optionsRest);
-      break;
+        dispatchBuiltin(template['template'], Config.options,
+            template['dartrixArgs'], template['tArgs']); // optionsRest);
+        break;
       default:
-      await dispatchPlugin(libName, template['template'], Config.options,
-        template['dartrixArgs'], template['tArgs']); // optionsRest);
+        await dispatchPlugin(libName, template['template'], Config.options,
+            template['dartrixArgs'], template['tArgs']); // optionsRest);
     }
   }
 }

@@ -10,7 +10,7 @@ import 'package:safe_config/safe_config.dart';
 import 'package:yaml/yaml.dart';
 
 import 'package:dartrix/src/data.dart';
-import 'package:dartrix/src/debug.dart' as debug;
+// import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/resolver.dart';
 
 AnsiPen shoutPen = AnsiPen()..red(bold: true);
