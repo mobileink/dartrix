@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:http/http.dart' as http;
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/cmd_run.dart';
@@ -204,10 +206,6 @@ Future<String> downloadPackage(String uri) async {
   return uri;
 }
 
-// String fetchPackageSync(String uri) {
-//   return fetchPackage(uri);
-// }
-
 Future<String> fetchPackage(String uri) async {
   // Config.ppLogger.v('fetchPackage $uri');
   // 1. search syscache
@@ -320,7 +318,50 @@ Map<String, String> resolvePkgRef(String pkgRef) {
   }
 }
 
-Future<List<Package>> getPlugins(String suffix) async {
+//FIXME: bettr name
+Future<List<FileSystemEntity>> searchSysCache() async {
+  Config.ppLogger.v('searchSysCache');
+  // 1. search syscache
+  var syscache = Directory(Config.home + '/.pub-cache/hosted/pub.dartlang.org')
+  .listSync();
+  // syscache.forEach((pkg) => Config.ppLogger.v(pkg.path));
+  var base;
+  syscache.retainWhere((pkg) {
+      base = path.basename(pkg.path).split('-')[0];
+      // Config.logger.v(base);
+      return base.endsWith(Config.appSfx);
+  });
+  if (syscache.isEmpty) {
+    Config.ppLogger.v('no dartrix plugins found in syscache.');
+  } else {
+    Config.ppLogger.v('found: $syscache');
+  }
+  return syscache;
+}
+
+dynamic getPubDevPlugins(String url) async {
+  if (url == null) {
+    url = 'https://pub.dartlang.org/api/packages?q=_dartrix';
+  }
+  // response is map of two keys, next_url and packages
+  var response = await http.get(url);
+  print('Response status: ${response.statusCode}');
+  var body = json.decode(response.body);
+  var pkgs = body['packages'];
+  print('body: ${response.body}');
+  print('Response pkg count: ${pkgs.length}');
+  // print('pkg 37: ${pkgs[37]}');
+  pkgs.retainWhere((pkg) {
+      return pkg['name'].endsWith('_dartrix')? true : false;
+  });
+  print('dartrix pkgs: $pkgs');
+  // if (body['next_url'] != null) {
+  //   getPubDevPlugins(body['next_url'+ '?q=dartrix']);
+  // }
+}
+
+Future<List<Map>> getPlugins(String suffix) async {
+  // 1. usercache
   //PackageConfig
   var userPkgConfig2 = await getUserPackageConfig2();
   var pkgs = userPkgConfig2.packages.toList();
@@ -332,14 +373,40 @@ Future<List<Package>> getPlugins(String suffix) async {
   //       Config.logger.i('${pkg.name} => ${pkg.root}');
   //   });
   // }
-  return pkgs;
+  var userPkgs;
+  if (pkgs.isNotEmpty) {
+    Config.ppLogger.v('found user plugins');
+    userPkgs = [
+      for (var p in pkgs)
+      {'name' : p.name, 'rootUri' : path.dirname(p.packageUriRoot.path)}
+    ];
+  }
+
+  // 2. syscache
+  var pkgDirs = await searchSysCache();
+  if (Config.verbose) {
+    Config.ppLogger.i('found in syscache: $pkgDirs');
+  }
+  var base;
+  var sysPkgs = [
+    for (var dir in pkgDirs)
+    {'name' : path.basename(dir.path).split('-')[0],
+      'rootUri' : dir.path,
+      'syscache' : 'true'}
+  ];
+  userPkgs.addAll(sysPkgs);
+
+  var pubDevPlugins = await getPubDevPlugins(null);
+
+  return userPkgs;
 }
 
-String getDocStringFromPkg(Package pkg) {
-  var rootDir = pkg.root.path;
-  var libName = pkg.name.replaceFirst(RegExp('_dartrix'), '');
+String getDocStringFromPkg(String libName, String uri) {
+  Config.ppLogger.v('getDocStringFromPkg $libName, $uri');
+  // var rootDir = pkgName.root.path;
+  // var libName = pkg.name.replaceFirst(RegExp('_dartrix'), '');
   var docstringName = libName + '.docstring';
-  var docstring = File(rootDir + '/' + docstringName).readAsStringSync();
+  var docstring = File(uri + '/' + docstringName).readAsStringSync();
   //TODO: break long lines
   return docstring;
 }
@@ -380,22 +447,22 @@ String getDocString(String templatesRoot, Directory tdir) {
 // }
 
 //FIXME: which file does this belong in?
-void printAvailableLibs() async {
-  //CommandRunner runner) async {
-  // {template : docstring }
+// void printAvailableLibs() async {
+//   //CommandRunner runner) async {
+//   // {template : docstring }
 
-  print('\nLibraries:');
-  //List<Package>
-  var pkgs = await getPlugins('_dartrix');
-  print('\t${sprintf("%-18s", ["dartrix"])} Builtin templates');
-  pkgs.forEach((pkg) {
-    var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
-    var docString = getDocStringFromPkg(pkg);
-    pkgName = sprintf('%-18s', [pkgName]);
-    print('\t${pkgName} ${docString}');
-  });
-  print('');
-}
+//   print('\nLibraries:');
+//   //List<Package>
+//   var pkgs = await getPlugins('_dartrix');
+//   print('\t${sprintf("%-18s", ["dartrix"])} Builtin templates');
+//   pkgs.forEach((pkg) {
+//     var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
+//     var docString = getDocStringFromPkg(pkg);
+//     pkgName = sprintf('%-18s', [pkgName]);
+//     print('\t${pkgName} ${docString}');
+//   });
+//   print('');
+// }
 
 Future<String> getPkgVersion() async {
   // var pkgRoot = await getAppPkgRoot();

@@ -86,12 +86,13 @@ void printUsage(ArgParser argParser) async {
   //List<Package>
   var pkgs = await getPlugins('_dartrix');
   print('\tdartrix\t\tBuiltin templates');
-  pkgs.forEach((pkg) {
-    var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
-    var spacer = pkgName.length < 8 ? '\t\t' : '\t';
-    var docString = getDocStringFromPkg(pkg);
-    print('\t${pkgName}${spacer}${docString}');
-  });
+//FIXME
+  // pkgs.forEach((pkg) {
+  //   var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
+  //   var spacer = pkgName.length < 8 ? '\t\t' : '\t';
+  //   var docString = getDocStringFromPkg(pkg);
+  //   print('\t${pkgName}${spacer}${docString}');
+  // });
   print('');
   // print('\tdartrix\t\tBuiltin templates. Optional; if no <libname> specified,');
   // print('\t\t\tthe -t option refers to a builtin template.');

@@ -67,7 +67,7 @@ void printUsage(ArgParser argParser) async {
   // print('\t toptions:  per template; pass -h or use dartrix:man to view.\n');
   print('Options:');
   print(argParser.usage);
-  await printAvailableLibs();
+  // await printAvailableLibs();
 
   // await printBuiltins();
   // print(

@@ -99,20 +99,23 @@ void initBuiltinArgs() async {
 //   });
 // }
 
-void printPlugins(String lib, ArgResults options) async {
-  // print('printPlugins');
-  var lib = options.rest[0];
+void printPlugins(String libName, ArgResults options) async {
+  Config.ppLogger.v('printPlugins $libName, $options');
+  // var libName = options.rest[0];
   //String
-  var libDir = await resolvePkgRoot('package:' + lib + '_dartrix');
+  Config.libPkgRoot = await resolvePkgRoot(libName);
   if (Config.verbose) {
-    Config.logger.i('resolved $lib to package:${lib}_dartrix to $libDir');
+    Config.logger.i('resolved $libName to package:${libName}_dartrix to $Config.libPkgRoot');
   }
   //String
-  var templatesRoot = libDir + '/templates';
+  var templatesRoot = Config.libPkgRoot + '/templates';
+  if (Config.verbose) {
+    Config.logger.i('templatesRoot: $templatesRoot');
+  }
   //List
   var templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
-  print('package:${lib}_dartrix templates:');
+  print('package:${libName}_dartrix templates:');
   templates.forEach((t) {
     var tName = path.basename(t.path);
     //String
@@ -141,13 +144,19 @@ void printUsage(ArgParser argParser) async {
 
   print('\nAvailable template libraries:');
   //List<Package>
-  var pkgs = await getPlugins('_dartrix');
+  // Builtins lib:
   print('\t${sprintf("%-18s", ["dartrix"])} Builtin templates');
+
+  // pkgs: map of pkgname: uri
+  var pkgs = await getPlugins(Config.appSfx);
+  Config.ppLogger.v('pkgs: $pkgs');
+  var libName;
   pkgs.forEach((pkg) {
-    var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
-    var docString = getDocStringFromPkg(pkg);
-    pkgName = sprintf('%-18s', [pkgName]);
-    print('\t${pkgName} ${docString}');
+      libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
+      var docString = getDocStringFromPkg(libName, pkg['rootUri']);
+      libName = sprintf('%-18s', [libName]);
+      var star = (pkg['syscache'] == 'true') ? '*' : ' ';
+      print('\t${star}${libName} ${docString}');
   });
   print('');
   // print('\nOther Dartrix commands:');
@@ -165,6 +174,10 @@ void printUsage(ArgParser argParser) async {
 }
 
 void main(List<String> args) async {
+  if (args.contains('--debug')) {
+    Config.debug = true;
+    debug.debug = true;
+  }
   Config.config('dartrix');
 
   var argParser = ArgParser(usageLineLength: 120);
@@ -178,7 +191,7 @@ void main(List<String> args) async {
 
   argParser.addFlag('help',
       abbr: 'h', defaultsTo: false, help: 'Print this help message.');
-  // argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
+  argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
   argParser.addFlag('debug', defaultsTo: false, hide: true);
 
   try {
@@ -188,9 +201,12 @@ void main(List<String> args) async {
     exit(0);
   }
 
-  // Config.verbose = Config.options['verbose'];
-  debug.debug = Config.options['debug'];
+  // if (Config.options['debug']) {
+  //   Config.debug = true;
+  //   debug.debug = true;
+  // }
 
+  Config.verbose = Config.options['verbose'];
   if (debug.debug) {
     debug.debugOptions();
     Config.debug = true;
@@ -221,7 +237,7 @@ void main(List<String> args) async {
         exit(0);
         break;
       default:
-        printPlugins(args[0], Config.options);
+        printPlugins(Config.options.rest[0], Config.options);
     }
   }
 }

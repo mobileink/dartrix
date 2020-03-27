@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:process_run/which.dart';
+
 // import 'package:args/args.dart';
 // import 'package:logger/logger.dart';
-// import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/debug.dart' as debug;
@@ -68,6 +70,24 @@ Map mergeExternalData(Map _data, Map xData) {
   return tData;
 }
 
+  // FIXME: find best way to get these values.
+  // They're for android/local.properties
+  // print("resolvedExecutable: ${Platform.resolvedExecutable}");
+  var androidExecutable = whichSync('android');
+  // print("android exe: $androidExecutable");
+  var android_sdk = path.joinAll(
+    path.split(androidExecutable)
+    ..removeLast()
+    ..removeLast());
+
+  var flutterExecutable = whichSync('flutter');
+  // print("flutter exe: $flutterExecutable");
+  var flutter_sdk = path.joinAll(
+    path.split(flutterExecutable)
+    ..removeLast()
+    ..removeLast());
+
+
 Map tData = {
   'dartrix': {'force': false},
   'now': DateTime.now(),
@@ -81,8 +101,9 @@ Map tData = {
       // androidx.test:runner:1.1.1
       // androidx.test.espresso:espresso-core:3.1.1'
     },
+    'app' : '0.1.0',
     'args': '^1.6.0',
-    'cupertino_icons': '\'^0.1.2\'',
+    'cupertino_icons': '\'^0.1.3\'',
     'e2e': '^0.2.0',
     'flutter': '\'>=1.12.8 <2.0.0\'',
     'gradle': '3.5.0',
@@ -102,6 +123,7 @@ Map tData = {
   },
   'description': {
     'adapter': 'A Flutter plugin adapter component.',
+    'app': 'A Flutter application.',
     'component': 'A Flutter Plugin.',
     'demo': 'Demo using a Flutter Plugin.',
     'android': 'A Flutter Plugin implementation for the Android platform.',
@@ -122,8 +144,9 @@ Map tData = {
   },
   // 'plugin-class' : pluginClass,
   'sdk': {
-    // 'flutter' : flutter_sdk,
-    // 'android' : android_sdk
+    'dart': '\'>=2.1.0 <3.0.0\'',
+    'flutter' : flutter_sdk,
+    'android' : android_sdk,
   },
   // segmap keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
