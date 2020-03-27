@@ -57,7 +57,7 @@ void validateTemplateName(String t) {
 void printUsage(ArgParser argParser) async {
   // print('\n\t\tDartrix Templating System - "new" command\n');
   print('dartrix:new,  version ${await Config.dartrixVersion}\n');
-  print('usage:\tdartrix:new [options] LIBRARY -t TEMPLATE [template-options]');
+  print('usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
   // print('Usage:');
   // print('  Builtins: pub global run dartrix:new [ordpcfhvt]\n');
   // print(
@@ -129,12 +129,15 @@ void main(List<String> args) async {
   await Config.config('dartrix');
 
   Config.argParser = ArgParser(allowTrailingOptions: false);
-  Config.argParser.addFlag('dry-run', defaultsTo: false);
-  Config.argParser.addFlag('force', abbr: 'f', defaultsTo: false);
   Config.argParser
       .addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
+      Config.argParser.addOption('config-file',
+        help: 'Configuration file. JSON or yaml.',
+        defaultsTo: './dartrix.yaml');
+  Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
+  Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('version', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('debug', defaultsTo: false, negatable: false);
 

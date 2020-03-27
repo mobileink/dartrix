@@ -27,7 +27,7 @@ void processArgs(String pkg, String template, ArgResults _options,
       libArgs.contains('--help') ||
       tArgs.contains('-h') ||
       tArgs.contains('--help')) {
-    print('Library: $pkg');
+    print('\nLibrary \'$pkg\' options:');
     // printDartrixUsage();
   }
 
