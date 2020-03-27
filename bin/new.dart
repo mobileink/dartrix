@@ -125,7 +125,8 @@ Map getTemplate(List<String> subArgs) {
 }
 
 void main(List<String> args) async {
-  Config.config('dartrix');
+  if (args.contains('--debug')) Config.debug = true;
+  await Config.config('dartrix');
 
   Config.argParser = ArgParser(allowTrailingOptions: false);
   // Config.argParser.addOption(
@@ -273,26 +274,28 @@ void main(List<String> args) async {
   // Config.logger.d('cmd: $cmd');
 
   var template = getTemplate(optionsRest); //, dartrixArgs, tArgs);
-  // Config.logger.i('template: ${template["template"]}');
+  // Config.ppLogger.i('template: ${template["template"]}');
   // Config.logger.i('dartrixArgs: ${template["dartrixArgs"]}');
   // Config.logger.i('tArgs: ${template["tArgs"]}');
 
   // FIXME: initializing data to be done by each template
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
-    var pkgSpec = optionsRest[0];
+    var libName = optionsRest[0];
 
-    // if (Config.options['template'] == null) {
-    //   Config.logger.e('Missing template parameter; did you forget -t ?');
-    //   exit(0);
-    // }
+    Config.libPkgRoot = await resolvePkgRoot(libName);
 
-    switch (pkgSpec) {
+    if ( !verifyExists(Config.libPkgRoot + '/templates/' + template['template'])) {
+      Config.prodLogger.e('Template ${template["template"]} not found in library $libName');
+      exit(0);
+    }
+
+    switch (libName) {
       case 'dartrix':
         dispatchBuiltin(template['template'], Config.options,
             template['dartrixArgs'], template['tArgs']); // optionsRest);
         break;
       default:
-        await dispatchPlugin(pkgSpec, template['template'], Config.options,
+        await dispatchPlugin(libName, template['template'], Config.options,
             template['dartrixArgs'], template['tArgs']); // optionsRest);
       // Config.options, optionsRest);
       // Config.options['template'],
@@ -304,25 +307,25 @@ void main(List<String> args) async {
     }
   }
 }
-// if (pkgSpec.startsWith('pkg:')) {
+// if (libName.startsWith('pkg:')) {
 //   print('PKG');
 //   await dispatchPlugin(
-//       pkgSpec,
+//       libName,
 //       Config.options['template'],
 //       (Config.options.command == null)
 //           ? null
 //           : Config.options.command.arguments);
 //   exit(0);
 // } else {
-//   if (pkgSpec.startsWith('package:')) {
+//   if (libName.startsWith('package:')) {
 //     print('PACKAGE');
 //     exit(0);
 //   } else {
-//     if (pkgSpec.startsWith('path:')) {
+//     if (libName.startsWith('path:')) {
 //       print('PATH');
 //       exit(0);
 //     } else {
-//       Config.logger.e('Unrecognized param: $pkgSpec. Did you forget -t?');
+//       Config.logger.e('Unrecognized param: $libName. Did you forget -t?');
 //       exit(0);
 //     }
 //   }

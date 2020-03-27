@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:isolate';
-import 'package:path/path.dart' as path;
+// import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
-import 'package:dartrix/src/resolver.dart';
+// import 'package:dartrix/src/resolver.dart';
 
 typedef onData = void Function(dynamic msg);
 typedef onDone = void Function();
@@ -12,69 +12,54 @@ void spawnPluginFromPackage(
     // String main,
     onData dataCallback,
     onDone onDoneCallback,
-    String pkgName,
+    String libName, // pkg name without _dartrix
     List<String> args) async {
-  // Config.ppLogger.v('entry: spawnPluginFromPackage($pkgName, $args)');
+  // Config.ppLogger.v('entry: spawnPluginFromPackage($libName, $args)');
 
-  // map keys: name, uri, or path
-  //Map
-  // var pkg = resolvePkgRef(_pkg);
-  // print('resolved $_pkg to $pkg');
+  // var pkgRootPath = await resolvePkgRoot(libName);
 
-  // to spawn, we need:
-  // 1. the pkg uri in package:foo form, as first arg to spawnUri
-  // 2.  the packageConfig file uri, as name packageConfig: arg.
+  ////////////////////////////////////////////////////////////////
 
-  // If the pkg is listed as a dep in the local pubspec.yaml,
-  // then the pkg uri would suffice; the runtime would be able to
-  // look up the file location from ./.packages.  But since plugins
-  // may not be listed as local deps, we must always find the file
-  // uri ourselves, and supply it as the optional 'packageConfig' arg.
+  // var userPackageConfig2 = await getUserPackageConfig2();
+  // // Step 2. target pkg is listed as a dep in the packageConfig2; find it
+  // // Package
+  // var pkgName = libName + '_dartrix';
+  // var pkgRoot;
+  // var pkgPackageConfig2;
+  // try {
+  //   pkgPackageConfig2 = userPackageConfig2.packages
+  //   .firstWhere((_pkg) {
+  //       return _pkg.name == pkgName; // ['fullName'],
+  //   });
+  // } catch(e) {
+  //   Config.ppLogger.e('Dartrix lib pkg $pkgName not found');
+  //   Config.ppLogger.e(e);
+  //   pkgRoot = await fetchPackage(pkgName);
+  //   Config.ppLogger.v('found hosted: $pkgRoot');
+  // }
+  // //         'Package ${pkgName} is not configured. To install, add it as a package or path dependency in \$HOME/.dart.d/pubspec.yaml and run "pub get" from that directory.');
 
-  // So for package: uris, we have the pkgUri and need to follow the config
-  // files to get the path to the .packages file.
+  // Config.ppLogger.v('pkgPackageConfig2: $pkgPackageConfig2');
+  // Config.ppLogger.v('pkgRoot: $pkgRoot');
 
-  // For path: uris, we already have the file path to the pkg root dir,
-  // from which we can construct both the package: uri and the path
-  // to the .packages file.
+  // // Step 3.  Get the (file) root of the package. We need this to
+  // // a) read the templates, and b) spawn the package.
+  // var pkgRootUri = (pkgPackageConfig2 != null)
+  // ? pkgPackageConfig2.root
+  // : Uri.parse(pkgRoot + '/');
 
-  // If we have a package: uri:
-  // Step 1: get user's dart config (a packageConfig2)
-  // PackageConfig
-  var userPackageConfig2 = await getUserPackageConfig2();
-  // print('got userPackageConfig2');
-  // var packageUri = Uri.parse(pkg['uri'] + '/');
-  // // 'resolve' gives 'file:///.../lib'
-  // var packageUriFile = userPackageConfig2.resolve(packageUri);
-  // print('resolve(packageUri): ${packageUriFile}');
+  // if (Config.debug) {
+  //   Config.ppLogger
+  //       .v('pkg uri:  ${pkgPackageConfig2?.name}\npkg root: ${pkgRootUri}');
+  // }
 
-  // Step 2. target pkg is listed as a dep in the packageConfig2;
-  // find it
-  // Package
-  var _pkgName = pkgName + '_dartrix';
-  var pkgPackageConfig2 = userPackageConfig2.packages
-      .firstWhere((_pkg) => _pkg.name == _pkgName, // ['fullName'],
-          orElse: () {
-    print(
-        'Package ${_pkgName} is not configured. To install, add it as a package or path dependency in \$HOME/.dart.d/pubspec.yaml and run "pub get" from that directory.');
-    exit(0);
-    return null;
-  });
-  // print('pkgPackageConfig2: $pkgPackageConfig2');
-
-  // Step 3.  Get the (file) root of the package. We need this to
-  // a) read the templates, and b) spawn the package.
-  var pkgRootUri = pkgPackageConfig2.root;
-  if (Config.debug) {
-    Config.ppLogger
-        .v('pkg uri:  ${pkgPackageConfig2.name}\npkg root: ${pkgRootUri}');
-  }
+////////////////////////////////////////////////////////////////
 
   // Step 5. Construct the packageConfig Uri required by spawnUri.
   // WARNING: spawnUri evidently does not yet support version 2, so
   // construct a version 1 packageConfig (i.e. using a .packages file)
-  var pkgConfigUriPath = path.normalize(pkgRootUri.path); // + '/.packages');
-  var pkgPackageConfig1Uri = Uri.parse(pkgConfigUriPath);
+  // var pkgConfigUriPath = path.normalize(pkgRootUri.path); // + '/.packages');
+  // var pkgPackageConfig1Uri = Uri.parse(pkgConfigUriPath);
 
   // Version 2 will use /.dart_tools/package_config.json
 
@@ -89,9 +74,11 @@ void spawnPluginFromPackage(
   // var pkgUri = 'package:${pkgName}_dartrix';
   // var spawnUri = Uri.parse(pkgUri + '/' + pkgName + '_dartrix.dart');
   var spawnUri =
-      Uri.parse(pkgRootUri.path + 'lib/' + pkgName + '_dartrix.dart');
+      // Uri.parse(pkgRootUri.path + 'lib/' + pkgName + '_dartrix.dart');
+      // Uri.parse(pkgRootPath + 'lib/' + libName + '_dartrix.dart');
+      Uri.parse(Config.libPkgRoot + 'lib/' + libName + '_dartrix.dart');
   if (Config.debug) {
-    Config.ppLogger.v('spawnUri: $spawnUri\nconfigUri: $pkgPackageConfig1Uri');
+    Config.ppLogger.v('spawnUri: $spawnUri'); //\nconfigUri: $pkgPackageConfig1Uri');
   }
   try {
     // Isolate externIso =
@@ -108,6 +95,9 @@ void spawnPluginFromPackage(
       onExit: stopPort.sendPort,
       // debugName: template
     );
+    if (Config.debug) {
+      Config.ppLogger.v('spawned Uri: $spawnUri');
+    }
   } catch (e) {
     print(e);
     //FIXME: this assumes that e is IsolateSpawnException

@@ -13,25 +13,42 @@ AnsiPen warningPen = AnsiPen()..green(bold: true);
 AnsiPen infoPen = AnsiPen()..green(bold: false);
 AnsiPen configPen = AnsiPen()..green(bold: true);
 
+String getPubCache() {
+  if  (Platform.environment['PUB_CACHE'] != null) {
+    return Platform.environment['PUB_CACHE'];
+  } else {
+    if (Platform.isWindows) {
+      return '%APPDATA%\Pub\Cache';
+    } else {
+      return Platform.environment['HOME'] + '/.pub-cache';
+    }
+  }
+}
+
 // app config
 class Config {
   static bool verbose = false;
   static bool debug = false;
   static bool dryRun = false;
   static final logger = Logger(printer: SimplePrinter());
-  static final debugLogger = Logger(printer: PrettyPrinter(methodCount: 4));
+  static final debugLogger = Logger(printer: PrettyPrinter(methodCount: 6));
 
   static final prodLogger =
       Logger(filter: ProductionFilter(), printer: SimplePrinter());
   static final ppLogger = Logger(
-      filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
-  static String appName;
-  static String appSfx = '_dartrix';
-  static String appPkgRoot;
+    filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
+
+  static String pubCache = getPubCache();
+
   static final String home = Platform.isWindows
       ? Platform.environment['UserProfile']
       : Platform.environment['HOME'];
 
+  static String appName;
+  static String appSfx = '_dartrix';
+  static String appPkgRoot;
+
+  static String libPkgRoot;
   static String templateRoot;
 
   static ArgParser argParser;
@@ -45,9 +62,9 @@ class Config {
     return _version;
   }
 
-  static void config(String _appName) {
+  static void config(String _appName) async {
     appName = _appName;
-    getAppPkgRoot();
+    await getAppPkgRoot(appName);
     // version = getAppPkgVersion();
     //Map<String, String>
     // var envVars = Platform.environment;

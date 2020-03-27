@@ -217,9 +217,9 @@ void generateFromBuiltin() async {
       // _log.finer(newContents);
       if ((Config.verbose) || Config.dryRun) {
         if (debug.debug) {
-          Config.debugLogger.i('   ' + tfile.path);
+          Config.prodLogger.v('   ' + tfile.path);
         }
-        Config.logger.i('=> $outSubpath');
+        Config.prodLogger.v('=> $outSubpath');
       }
       if (!Config.dryRun) {
         File(outSubpath).writeAsStringSync(newContents);
@@ -228,9 +228,9 @@ void generateFromBuiltin() async {
     } else {
       if ((Config.verbose) || Config.dryRun) {
         if (debug.debug) {
-          Config.debugLogger.i('   ' + tfile.path);
+          Config.debugLogger.v('   ' + tfile.path);
         }
-        Config.prodLogger.i('=> $outSubpath');
+        Config.prodLogger.v('=> $outSubpath');
       }
       if (!Config.dryRun) {
         tfile.copySync(outSubpath);

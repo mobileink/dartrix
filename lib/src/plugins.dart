@@ -65,7 +65,7 @@ Map<String, String> _externalTemplates;
 //   };
 // }
 
-/// This routine is invoke when the external isolate returns data.
+/// This routine is invoked when the external isolate returns data.
 void spawnCallback(dynamic _xData) {
   // Config.logger.d('spawnCallback: $_xData');
   // Config.logger.d('_externalPkgPath path: $_externalPkgPath');

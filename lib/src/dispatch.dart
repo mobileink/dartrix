@@ -31,15 +31,15 @@ void processArgs(String pkg, String template, ArgResults _options,
     // printDartrixUsage();
   }
 
-  var pkgRoot = await resolvePkgRoot('package:' + pkg + '_dartrix');
-  if (Config.verbose) {
-    Config.ppLogger.v('resolved $pkg to package:${pkg}_dartrix to $pkgRoot');
-  }
+  // var pkgRoot = await resolvePkgRoot(pkg); // 'package:' + pkg + '_dartrix');
+  // if (Config.verbose) {
+  //   Config.ppLogger.v('resolved $pkg to package:${pkg}_dartrix to $pkgRoot');
+  // }
 
-  var templates = await getTemplatesMap(pkgRoot);
+  var templates = await getTemplatesMap(Config.libPkgRoot);
   // Config.debugLogger.v(templates);
 
-  Config.templateRoot = pkgRoot + 'templates/' + template;
+  Config.templateRoot = Config.libPkgRoot + 'templates/' + template;
   // Config.debugLogger.v('Config.templateRoot: ${Config.templateRoot}');
 
   await processTemplateArgs(Config.templateRoot, libArgs, tArgs); // args);
@@ -61,6 +61,7 @@ void processArgs(String pkg, String template, ArgResults _options,
 
 void processTemplateArgs(
     String dir, List<String> libArgs, List<String> tArgs) async {
+
   // Config.debugLogger.v('processTemplateArgs: $dir, $libArgs $tArgs');
 
   // 1. construct arg parser from yaml file
@@ -94,7 +95,7 @@ void processTemplateArgs(
   _argParser.addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
 
   if (Config.debug) {
-    Config.debugLogger
+    Config.ppLogger
         .i('Params for template $template: ${_argParser.options}');
   }
 

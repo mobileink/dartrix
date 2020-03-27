@@ -4,11 +4,12 @@ import 'dart:isolate';
 
 import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
-// import 'package:safe_config/safe_config.dart';
+import 'package:process_run/cmd_run.dart';
+// import 'package:process_run/process_run.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:dartrix/src/config.dart';
-import 'package:dartrix/src/debug.dart' as debug;
+// import 'package:dartrix/src/debug.dart' as debug;
 // import 'package:dartrix/src/utils.dart';
 
 // var _log = Logger('resolver');
@@ -42,14 +43,15 @@ bool verifyExists(String fsePath) {
 // Map<String, String> _externalTemplates;
 
 // Get root file uri for pkg of running script (app).
-Future<String> getAppPkgRoot() async {
+Future<String> getAppPkgRoot(String app) async {
+  // Config.ppLogger.v('getAppPkgRoot');
+
   // getting launch directory for script is not enough,
   // since the script may be run from some other place, as
   // in the case of pub global installed binaries launched
   // from ~/.pub-cache/global_packages.
   // So we need to find the pkg root directory, which is
-  // recorded in ./.packages, which is included in the global_packages
-  // launch subdir.
+  // recorded in ./.packages, which is in the launch dir.
 
   var currentIsoPkgConfigUri;
   try {
@@ -61,7 +63,7 @@ Future<String> getAppPkgRoot() async {
   }
   if (Config.debug) {
     // e.g. file:///Users/gar/mobileink/dartrix/.packages
-    Config.ppLogger.v('Isolate pkg cfg: $currentIsoPkgConfigUri');
+    Config.ppLogger.v('$app app pkg cfg: $currentIsoPkgConfigUri');
   }
   // Isolate.packageConfig finds the version 1 .packages file;
   // use that to get the PackageConfig and you get the contents
@@ -69,11 +71,11 @@ Future<String> getAppPkgRoot() async {
   // findPackageConfigUri is a fn in package:package_confg
   //PackageConfig
   var pkgConfig = await findPackageConfigUri(currentIsoPkgConfigUri);
-  if (Config.debug) {
-    // PackageConfig is an object containing list of deps
-    // Config.debugLogger.d('current iso PackageConfig: $pkgConfig');
-    debug.debugPackageConfig(pkgConfig);
-  }
+  // if (Config.debug) {
+  //   // PackageConfig is an object containing list of deps
+  //   // Config.debugLogger.d('current iso PackageConfig: $pkgConfig');
+  //   debug.debugPackageConfig(pkgConfig);
+  // }
   // Now we need to find the dep entry for the app.
   // 'Package': object with keys name, packageUriRoot, and root (=pkgRoot)
   // Package
@@ -191,26 +193,57 @@ Future<PackageConfig> getUserPackageConfig2() async {
   return userPackageConfig2;
 }
 
-/// pkg arg:  package:foo_dartrix or pkg:foo_dartrix
-/// returns pkg root (dir containing .packages file)
-Future<String> resolvePkgRoot(String pkg) async {
-  // Config.ppLogger.i('resolvePkgRoot: $pkg');
-
-  if (pkg == 'package:dartrix_dartrix') return await getAppPkgRoot();
-
-  // validate pkg string
-  if (pkg.startsWith('package:') || pkg.startsWith('pkg:')) {
-    // Config.logger.i('foo');
-  } else {
-    Config.ppLogger.e(
-        'Malformed package URI. Must begin with "package:" or "pkg:" URI: $pkg');
+Future<String> downloadPackage(String uri) async {
+  Config.ppLogger.i('downloadPackage $uri');
+  try {
+    await runCmd(PubCmd(['cache', 'add', uri]), verbose: false);
+  } catch(e) {
+    Config.debugLogger.e(e);
     exit(0);
   }
+  return uri;
+}
+
+// String fetchPackageSync(String uri) {
+//   return fetchPackage(uri);
+// }
+
+Future<String> fetchPackage(String uri) async {
+  // Config.ppLogger.v('fetchPackage $uri');
+  // 1. search syscache
+  var syscache = Directory(Config.home + '/.pub-cache/hosted/pub.dartlang.org')
+  .listSync();
+  // syscache.forEach((pkg) => Config.ppLogger.v(pkg.path));
+  syscache.retainWhere((pkg) => path.basename(pkg.path).startsWith(uri));
+  if (syscache.isEmpty) {
+    Config.ppLogger.v('$uri not found in syscache; trying pub.dev');
+    return await downloadPackage(uri);
+  } else {
+    // Config.ppLogger.v('count: ${syscache.length}');
+    return syscache.first.path;
+  }
+}
+
+/// pkg arg:  package:foo_dartrix or pkg:foo_dartrix
+/// returns pkg root (dir containing .packages file)
+Future<String> resolvePkgRoot(String libName) async {
+  // Config.ppLogger.i('resolvePkgRoot: $libName');
+
+  if (libName == 'dartrix') return await getAppPkgRoot(libName);
+
+  // validate libName string
+  // if (libName.startsWith('package:') || libName.startsWith('pkg:')) {
+  //   // Config.logger.i('foo');
+  // } else {
+  //   Config.ppLogger.e(
+  //       'Malformed package URI. Must begin with "package:" or "pkg:" URI: $libName');
+  //   exit(0);
+  // }
 
   // extract foo_bar from package:foo_bar | pkg:foo_bar
   // String
-  var pkgName = pkg.replaceFirst(RegExp('^package:'), '');
-  pkgName = pkgName.replaceFirst(RegExp('^pkg:'), '');
+  // var pkgName = libName.replaceFirst(RegExp('^package:'), '');
+  // pkgName = pkgName.replaceFirst(RegExp('^pkg:'), '');
   // _log.fine('pkgName: $pkgName');
 
   // now we follow the configPackages to get the file url for the pkg
@@ -218,20 +251,30 @@ Future<String> resolvePkgRoot(String pkg) async {
   // Step 1: get user's dart config (a packageConfig2)
   //PackageConfig
   var userPackageConfig2 = await getUserPackageConfig2();
-  // Config.logger.i('got userPackageConfig2: $userPackageConfig2');
-  // userPackageConfig2.packages.forEach(
-  //   (pkg) => print(pkg.name)
-  // );
-
   // Step 2. pkgName is listed as a dep in the packageConfig2
-  // Config.logger.i('searching for $pkgName');
-  Package pkgPackage;
+  // Package
+
+  var pkgName = libName + '_dartrix';
+  var pkgPackage;
   try {
     pkgPackage =
         userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
   } catch (e) {
-    Config.ppLogger.e('Dartrix library package:$pkgName not found.');
-    exit(0);
+    if ( !(e.message.startsWith('No element')) ) {
+      Config.prodLogger.e(e);
+      exit(0);
+    }
+
+    if (Config.debug) {
+      Config.ppLogger.i('dartrix library pkg \'$pkgName\' not in usercache; checking syscache.');
+    }
+
+    //FIXME: look in ~/.pub-cache/global_packages, and ~/.pub-cache/hosted
+    var p = await fetchPackage(pkgName);
+    if (Config.verbose) {
+      Config.ppLogger.i('found $pkgName in syscache: $p');
+    }
+    return p + '/'; //FIXME: remove this hack
   }
   // Config.logger.i('pkgPackage: $pkgPackage');
   // Step 3.  Get the (file) root of the package. We need this to
