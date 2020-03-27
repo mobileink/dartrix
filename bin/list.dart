@@ -105,7 +105,8 @@ void printPlugins(String libName, ArgResults options) async {
   //String
   Config.libPkgRoot = await resolvePkgRoot(libName);
   if (Config.verbose) {
-    Config.logger.i('resolved $libName to package:${libName}_dartrix to $Config.libPkgRoot');
+    Config.logger.i(
+        'resolved $libName to package:${libName}_dartrix to $Config.libPkgRoot');
   }
   //String
   var templatesRoot = Config.libPkgRoot + '/templates';
@@ -152,11 +153,11 @@ void printUsage(ArgParser argParser) async {
   Config.ppLogger.v('pkgs: $pkgs');
   var libName;
   pkgs.forEach((pkg) {
-      libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
-      var docString = getDocStringFromPkg(libName, pkg['rootUri']);
-      libName = sprintf('%-18s', [libName]);
-      var star = (pkg['syscache'] == 'true') ? '*' : ' ';
-      print('\t${star}${libName} ${docString}');
+    libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
+    var docString = getDocStringFromPkg(libName, pkg['rootUri']);
+    libName = sprintf('%-18s', [libName]);
+    var star = (pkg['syscache'] == 'true') ? '*' : ' ';
+    print('\t${star}${libName} ${docString}');
   });
   print('');
   // print('\nOther Dartrix commands:');

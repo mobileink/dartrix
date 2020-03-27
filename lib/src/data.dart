@@ -70,23 +70,18 @@ Map mergeExternalData(Map _data, Map xData) {
   return tData;
 }
 
-  // FIXME: find best way to get these values.
-  // They're for android/local.properties
-  // print("resolvedExecutable: ${Platform.resolvedExecutable}");
-  var androidExecutable = whichSync('android');
-  // print("android exe: $androidExecutable");
-  var android_sdk = path.joinAll(
-    path.split(androidExecutable)
-    ..removeLast()
-    ..removeLast());
+// FIXME: find best way to get these values.
+// They're for android/local.properties
+// print("resolvedExecutable: ${Platform.resolvedExecutable}");
+var androidExecutable = whichSync('android');
+// print("android exe: $androidExecutable");
+var android_sdk =
+    path.joinAll(path.split(androidExecutable)..removeLast()..removeLast());
 
-  var flutterExecutable = whichSync('flutter');
-  // print("flutter exe: $flutterExecutable");
-  var flutter_sdk = path.joinAll(
-    path.split(flutterExecutable)
-    ..removeLast()
-    ..removeLast());
-
+var flutterExecutable = whichSync('flutter');
+// print("flutter exe: $flutterExecutable");
+var flutter_sdk =
+    path.joinAll(path.split(flutterExecutable)..removeLast()..removeLast());
 
 Map tData = {
   'dartrix': {'force': false},
@@ -101,7 +96,7 @@ Map tData = {
       // androidx.test:runner:1.1.1
       // androidx.test.espresso:espresso-core:3.1.1'
     },
-    'app' : '0.1.0',
+    'app': '0.1.0',
     'args': '^1.6.0',
     'cupertino_icons': '\'^0.1.3\'',
     'e2e': '^0.2.0',
@@ -145,8 +140,8 @@ Map tData = {
   // 'plugin-class' : pluginClass,
   'sdk': {
     'dart': '\'>=2.1.0 <3.0.0\'',
-    'flutter' : flutter_sdk,
-    'android' : android_sdk,
+    'flutter': flutter_sdk,
+    'android': android_sdk,
   },
   // segmap keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.

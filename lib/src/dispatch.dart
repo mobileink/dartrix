@@ -61,7 +61,6 @@ void processArgs(String pkg, String template, ArgResults _options,
 
 void processTemplateArgs(
     String dir, List<String> libArgs, List<String> tArgs) async {
-
   // Config.debugLogger.v('processTemplateArgs: $dir, $libArgs $tArgs');
 
   // 1. construct arg parser from yaml file
@@ -95,8 +94,7 @@ void processTemplateArgs(
   _argParser.addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
 
   if (Config.debug) {
-    Config.ppLogger
-        .i('Params for template $template: ${_argParser.options}');
+    Config.ppLogger.i('Params for template $template: ${_argParser.options}');
   }
 
   // print(_argParser.usage);

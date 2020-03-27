@@ -199,7 +199,7 @@ Future<String> downloadPackage(String uri) async {
   Config.ppLogger.i('downloadPackage $uri');
   try {
     await runCmd(PubCmd(['cache', 'add', uri]), verbose: false);
-  } catch(e) {
+  } catch (e) {
     Config.debugLogger.e(e);
     exit(0);
   }
@@ -209,8 +209,8 @@ Future<String> downloadPackage(String uri) async {
 Future<String> fetchPackage(String uri) async {
   // Config.ppLogger.v('fetchPackage $uri');
   // 1. search syscache
-  var syscache = Directory(Config.home + '/.pub-cache/hosted/pub.dartlang.org')
-  .listSync();
+  var syscache =
+      Directory(Config.home + '/.pub-cache/hosted/pub.dartlang.org').listSync();
   // syscache.forEach((pkg) => Config.ppLogger.v(pkg.path));
   syscache.retainWhere((pkg) => path.basename(pkg.path).startsWith(uri));
   if (syscache.isEmpty) {
@@ -258,13 +258,14 @@ Future<String> resolvePkgRoot(String libName) async {
     pkgPackage =
         userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
   } catch (e) {
-    if ( !(e.message.startsWith('No element')) ) {
+    if (!(e.message.startsWith('No element'))) {
       Config.prodLogger.e(e);
       exit(0);
     }
 
     if (Config.debug) {
-      Config.ppLogger.i('dartrix library pkg \'$pkgName\' not in usercache; checking syscache.');
+      Config.ppLogger.i(
+          'dartrix library pkg \'$pkgName\' not in usercache; checking syscache.');
     }
 
     //FIXME: look in ~/.pub-cache/global_packages, and ~/.pub-cache/hosted
@@ -322,14 +323,14 @@ Map<String, String> resolvePkgRef(String pkgRef) {
 Future<List<FileSystemEntity>> searchSysCache() async {
   Config.ppLogger.v('searchSysCache');
   // 1. search syscache
-  var syscache = Directory(Config.home + '/.pub-cache/hosted/pub.dartlang.org')
-  .listSync();
+  var syscache =
+      Directory(Config.home + '/.pub-cache/hosted/pub.dartlang.org').listSync();
   // syscache.forEach((pkg) => Config.ppLogger.v(pkg.path));
   var base;
   syscache.retainWhere((pkg) {
-      base = path.basename(pkg.path).split('-')[0];
-      // Config.logger.v(base);
-      return base.endsWith(Config.appSfx);
+    base = path.basename(pkg.path).split('-')[0];
+    // Config.logger.v(base);
+    return base.endsWith(Config.appSfx);
   });
   if (syscache.isEmpty) {
     Config.ppLogger.v('no dartrix plugins found in syscache.');
@@ -352,7 +353,7 @@ dynamic getPubDevPlugins(String url) async {
   print('Response pkg count: ${pkgs.length}');
   // print('pkg 37: ${pkgs[37]}');
   pkgs.retainWhere((pkg) {
-      return pkg['name'].endsWith('_dartrix')? true : false;
+    return pkg['name'].endsWith('_dartrix') ? true : false;
   });
   print('dartrix pkgs: $pkgs');
   // if (body['next_url'] != null) {
@@ -378,7 +379,7 @@ Future<List<Map>> getPlugins(String suffix) async {
     Config.ppLogger.v('found user plugins');
     userPkgs = [
       for (var p in pkgs)
-      {'name' : p.name, 'rootUri' : path.dirname(p.packageUriRoot.path)}
+        {'name': p.name, 'rootUri': path.dirname(p.packageUriRoot.path)}
     ];
   }
 
@@ -390,9 +391,11 @@ Future<List<Map>> getPlugins(String suffix) async {
   var base;
   var sysPkgs = [
     for (var dir in pkgDirs)
-    {'name' : path.basename(dir.path).split('-')[0],
-      'rootUri' : dir.path,
-      'syscache' : 'true'}
+      {
+        'name': path.basename(dir.path).split('-')[0],
+        'rootUri': dir.path,
+        'syscache': 'true'
+      }
   ];
   userPkgs.addAll(sysPkgs);
 

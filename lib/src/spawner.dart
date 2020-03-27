@@ -78,7 +78,8 @@ void spawnPluginFromPackage(
       // Uri.parse(pkgRootPath + 'lib/' + libName + '_dartrix.dart');
       Uri.parse(Config.libPkgRoot + 'lib/' + libName + '_dartrix.dart');
   if (Config.debug) {
-    Config.ppLogger.v('spawnUri: $spawnUri'); //\nconfigUri: $pkgPackageConfig1Uri');
+    Config.ppLogger
+        .v('spawnUri: $spawnUri'); //\nconfigUri: $pkgPackageConfig1Uri');
   }
   try {
     // Isolate externIso =

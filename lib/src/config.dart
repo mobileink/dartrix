@@ -17,7 +17,7 @@ AnsiPen infoPen = AnsiPen()..green(bold: false);
 AnsiPen configPen = AnsiPen()..green(bold: true);
 
 String getPubCache() {
-  if  (Platform.environment['PUB_CACHE'] != null) {
+  if (Platform.environment['PUB_CACHE'] != null) {
     return Platform.environment['PUB_CACHE'];
   } else {
     if (Platform.isWindows) {
@@ -39,7 +39,7 @@ class Config {
   static final prodLogger =
       Logger(filter: ProductionFilter(), printer: SimplePrinter());
   static final ppLogger = Logger(
-    filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
+      filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
 
   static String pubCache = getPubCache();
 
@@ -159,7 +159,7 @@ Map loadYamlFileSync(String path) {
   return null;
 }
 
-Future<Map> loadYamlFile(String path) async{
+Future<Map> loadYamlFile(String path) async {
   File file = new File(path);
   if ((await file?.exists()) == true) {
     String content = await file.readAsString();
@@ -176,9 +176,10 @@ Future<String> verifyDartrixVersion(String libPkgRoot) async {
   var dartrixVersionStr;
   try {
     dartrixVersionStr = yaml['dartrix']['version'];
-  } catch(e) {
+  } catch (e) {
     //FIXME: exit?
-    Config.prodLogger.w('Invalid plugin ${libPkgRoot} - missing required dartrix version in pubspec.yaml. Continuing anyway...');
+    Config.prodLogger.w(
+        'Invalid plugin ${libPkgRoot} - missing required dartrix version in pubspec.yaml. Continuing anyway...');
     // exit(1);
     return null;
   }
