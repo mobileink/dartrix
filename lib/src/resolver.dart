@@ -8,7 +8,7 @@ import 'package:package_config/package_config.dart';
 import 'package:path/path.dart' as path;
 import 'package:process_run/cmd_run.dart';
 // import 'package:process_run/process_run.dart';
-import 'package:sprintf/sprintf.dart';
+// import 'package:sprintf/sprintf.dart';
 
 import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/debug.dart' as debug;
@@ -341,9 +341,7 @@ Future<List<FileSystemEntity>> searchSysCache() async {
 }
 
 dynamic getPubDevPlugins(String url) async {
-  if (url == null) {
-    url = 'https://pub.dartlang.org/api/packages?q=_dartrix';
-  }
+  url ??= 'https://pub.dartlang.org/api/packages?q=_dartrix';
   // response is map of two keys, next_url and packages
   var response = await http.get(url);
   print('Response status: ${response.statusCode}');
@@ -388,7 +386,7 @@ Future<List<Map>> getPlugins(String suffix) async {
   if (Config.verbose) {
     Config.ppLogger.i('found in syscache: $pkgDirs');
   }
-  var base;
+  // var base;
   var sysPkgs = [
     for (var dir in pkgDirs)
       {
@@ -401,7 +399,7 @@ Future<List<Map>> getPlugins(String suffix) async {
 
   var pubDevPlugins = await getPubDevPlugins(null);
 
-  return userPkgs;
+  return userPkgs.addAll(pubDevPlugins);
 }
 
 String getDocStringFromPkg(String libName, String uri) {

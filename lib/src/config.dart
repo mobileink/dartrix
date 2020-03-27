@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 import 'package:logger/logger.dart';
-import 'package:path/path.dart' as path;
+// import 'package:path/path.dart' as path;
 import 'package:pub_semver/pub_semver.dart';
 import 'package:safe_config/safe_config.dart';
 import 'package:yaml/yaml.dart';
@@ -152,7 +152,8 @@ Future<String> getDartrixVersion() async {
 }
 
 Map loadYamlFileSync(String path) {
-  File file = new File(path);
+  //File
+  var file = File(path);
   if (file?.existsSync() == true) {
     return loadYaml(file.readAsStringSync());
   }
@@ -160,10 +161,10 @@ Map loadYamlFileSync(String path) {
 }
 
 Future<Map> loadYamlFile(String path) async {
-  File file = new File(path);
+  //File
+  var file = File(path);
   if ((await file?.exists()) == true) {
-    String content = await file.readAsString();
-    return loadYaml(content);
+    return loadYaml(await file.readAsString());
   }
   return null;
 }

@@ -84,8 +84,8 @@ void printUsage(ArgParser argParser) async {
 
   print('Available template libraries:');
   //List<Package>
-  var pkgs = await getPlugins('_dartrix');
-  print('\tdartrix\t\tBuiltin templates');
+  // var pkgs = await getPlugins('_dartrix');
+  // print('\tdartrix\t\tBuiltin templates');
 //FIXME
   // pkgs.forEach((pkg) {
   //   var pkgName = pkg.name.replaceFirst(RegExp('_dartrix\$'), '');
