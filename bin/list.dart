@@ -162,11 +162,11 @@ void printUsage(ArgParser argParser) async {
     print('\nAvailable template libraries:\n');
 
     // print header
-    var header = sprintf(format, [' Library', 'Version', 'Description']);
+    var header = sprintf(format, ['  Library', 'Version', 'Description']);
     print('${infoPen(header)}');
 
     var builtins = sprintf(
-        format, [' dartrix', await Config.appVersion, 'builtin templates']);
+        format, ['  dartrix', await Config.appVersion, 'builtin templates']);
     print('$builtins');
   }
 
@@ -190,16 +190,15 @@ void printUsage(ArgParser argParser) async {
     }
     var docString = pkg['docstring'] ??
         getDocStringFromPkg(libName, pkg['rootUri'] ?? pkg['path']);
-    plugin = sprintf(format, [
-      star + libName,
-      pkg['version'],
-      docString
-      // (pkg['rootUri'] == null)
-      // ? ((pkg['path'] == null)
-      //   ? 'pub.dev'
-      //   : abbrevPath(pkg['path']))
-      // : 'syscache'
-    ]);
+    // var penName = infoPen(libName);
+    // print('libname ${libName} len: ${penName.length}');
+    if (pkg['path'] == null) {
+      libName = '${star}${libName}';
+    } else {
+      libName = '${star}${libName}';
+      // libName = sprintf('%-27s', ['${star}${infoPen(libName)}']);
+    }
+    plugin = sprintf(format, [libName, pkg['version'], docString]);
     // var star = (pkg['syscache'] == 'true') ? '*' : ' ';
     if (!Config.debug) {
       print('$plugin');
@@ -209,8 +208,13 @@ void printUsage(ArgParser argParser) async {
     }
   });
   if (!Config.debug) {
+    // print('\n${infoPen("path")}: active library');
     print('\n*  Installed in local syscache (~/.pub-cache)');
-    print('** Available on pub.dev\n');
+    if (Config.searchPubDev) {
+      print('** Available on pub.dev\n');
+    } else {
+      print('');
+    }
   }
 }
 
