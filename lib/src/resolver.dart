@@ -214,9 +214,9 @@ Future<String> fetchPackage(String uri) async {
 Future<Map> resolvePkg(String libName) async {
   // Config.ppLogger.d('resolvePkgRoot: $libName');
 
-  if (libName == 'dartrix') {
+  if (libName == Config.appName) {
     return {
-      'name': 'dartrix',
+      'name': Config.appName, //'dartrix',
       'version': Config.appVersion,
       'cache': null,
       'rootUri': Config.appPkgRoot // await getAppPkgRoot(libName);
@@ -246,12 +246,24 @@ Future<Map> resolvePkg(String libName) async {
   // Step 2. pkgName is listed as a dep in the packageConfig2
   // Package
 
-  var pkgName = libName + '_dartrix';
+  var pkgName = libName + Config.appSfx; // '_dartrix';
+  var pkg;
   //Package
   var pkgPackage;
   try {
     pkgPackage =
         userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
+    // Config.logger.i('pkgPackage: $pkgPackage');
+    // Step 3.  Get the (file) root of the package. We need this to
+    // a) read the templates, and b) spawn the package.
+    // var pkgRootUri = pkgPackage.root;
+    // Config.logger.i('pkgPackage.root: ${pkgRootUri}');
+    pkg = {
+      'name': pkgPackage.name,
+      'version': 'Y',
+      'cache': 'dartrix',
+      'rootUri': pkgPackage.root.path
+    };
   } catch (e) {
     if (!(e.message.startsWith('No element'))) {
       Config.prodLogger.e(e);
