@@ -480,7 +480,15 @@ Future<List<Map>> getPlugins(String suffix) async {
     // if (Config.debug) {
     //   pkgs.forEach((pkg) => Config.ppLogger.d('userPkg: ${pkg.name}'));
     // }
-    if (Config.debug) {}
+    if (Config.debug) {
+      pkgs.forEach((pkg) {
+          Config.logger.d('userPkg ${pkg.root}');
+      });
+    }
+    // remove pub-cached entries; they will be discovered by searchSysCache
+    pkgs.removeWhere((pkg) {
+        return pkg.root.path.contains('.pub-cache');
+    });
     userPkgs = [
       for (var p in pkgs)
         {
