@@ -214,8 +214,9 @@ Future<String> fetchPackage(String uri) async {
 Future<String> resolvePkgRoot(String libName) async {
   // Config.ppLogger.d('resolvePkgRoot: $libName');
 
-  if (libName == 'dartrix')
+  if (libName == 'dartrix') {
     return Config.appPkgRoot; // await getAppPkgRoot(libName);
+  }
 
   // validate libName string
   // if (libName.startsWith('package:') || libName.startsWith('pkg:')) {
