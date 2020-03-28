@@ -147,6 +147,9 @@ void processTemplateArgs(
       // print('yaml: ${param.name}');
       if (param.hook != null) {
         switch (param.hook) {
+          case 'dpkg-hook':
+            dartPkgHook(myoptions[option]);
+            break;
           case 'java-pkg':
             javaPkgHook(myoptions[option]);
             break;
@@ -171,7 +174,12 @@ void processTemplateArgs(
   });
 }
 
+void dartPkgHook(String pkg) {
+  tData['segmap']['DPKG'] = pkg.replaceAll('.', '/');
+  tData['package']['dart'] = pkg;
+}
+
 void javaPkgHook(String pkg) {
-  tData['segmap']['PKGPATH'] = pkg.replaceAll('.', '/');
-  tData['pkg'] = pkg;
+  tData['segmap']['JPKG_PATH'] = pkg.replaceAll('.', '/');
+  tData['package']['java'] = pkg;
 }
