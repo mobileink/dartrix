@@ -1,3 +1,7 @@
+## 0.1.23-alpha
+
+- fix bug in template root path
+
 ## 0.1.22-alpha
 
 - version checking fixes; temporarily disable config-file load
