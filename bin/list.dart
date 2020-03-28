@@ -163,10 +163,15 @@ void printUsage(ArgParser argParser) async {
   var libName;
   var plugin;
   pkgs.forEach((pkg) {
-      libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
-      var docString = pkg['docstring'] ?? getDocStringFromPkg(libName, pkg['rootUri']);
+    libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
+    var docString =
+        pkg['docstring'] ?? getDocStringFromPkg(libName, pkg['rootUri']);
     // libName = sprintf('%-18s', [libName]);
-    plugin = sprintf(format, [libName, (pkg['rootUri'] == null) ? 'pub.dev' : 'syscache' , docString]);
+    plugin = sprintf(format, [
+      libName,
+      (pkg['rootUri'] == null) ? 'pub.dev' : 'syscache',
+      docString
+    ]);
     // var star = (pkg['syscache'] == 'true') ? '*' : ' ';
     if (!Config.debug) {
       print('$plugin');
@@ -198,8 +203,8 @@ void main(List<String> args) async {
 
   var argParser = ArgParser(usageLineLength: 120);
   argParser.addCommand('list');
-  argParser.addFlag('local-only', defaultsTo: false,
-    help: '--no-local-only: also search pub.dev');
+  argParser.addFlag('local-only',
+      defaultsTo: false, help: '--no-local-only: also search pub.dev');
   argParser.addFlag('help',
       abbr: 'h', defaultsTo: false, help: 'Print this help message.');
   argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);

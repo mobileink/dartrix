@@ -214,7 +214,8 @@ Future<String> fetchPackage(String uri) async {
 Future<String> resolvePkgRoot(String libName) async {
   // Config.ppLogger.d('resolvePkgRoot: $libName');
 
-  if (libName == 'dartrix') return Config.appPkgRoot; // await getAppPkgRoot(libName);
+  if (libName == 'dartrix')
+    return Config.appPkgRoot; // await getAppPkgRoot(libName);
 
   // validate libName string
   // if (libName.startsWith('package:') || libName.startsWith('pkg:')) {
@@ -259,10 +260,10 @@ Future<String> resolvePkgRoot(String libName) async {
     if (p.isEmpty) {
       if (Config.debug) {
         Config.logger.d(
-          'dartrix library pkg \'$pkgName\' not in syscache; checking pub.dev.');
+            'dartrix library pkg \'$pkgName\' not in syscache; checking pub.dev.');
       }
       // download and install in syscache
-      var p = await fetchPackage(pkgName);
+      await fetchPackage(pkgName);
       // now we should find it
       var newp = await searchSysCache(pkgName);
       if (newp.isEmpty) {
@@ -329,12 +330,13 @@ Future<List<FileSystemEntity>> searchSysCache(String uri) async {
   if (uri == null) {
     var base;
     syscache.retainWhere((pkg) {
-        base = path.basename(pkg.path).split('-')[0];
-        // Config.logger.v(base);
-        return base.endsWith(Config.appSfx);
+      base = path.basename(pkg.path).split('-')[0];
+      // Config.logger.v(base);
+      return base.endsWith(Config.appSfx);
     });
     if (Config.debug) {
-      Config.logger.d('found ${syscache.length} plugins in syscache ($syscacheRoot).');
+      Config.logger
+          .d('found ${syscache.length} plugins in syscache ($syscacheRoot).');
     }
     return syscache;
   } else {
@@ -349,17 +351,19 @@ Future<List<FileSystemEntity>> searchSysCache(String uri) async {
   }
 }
 
-Future<List<Map<String,String>>> getPkgs(Set pset) async {
-  List<Map<String,String>> devPubPlugins = [];
+Future<List<Map<String, String>>> getPkgs(Set pset) async {
+  List<Map<String, String>> // omitting this type decl breaks the code
+      devPubPlugins = [];
   // var fn = () async {
   for (var pkg in pset) {
     var url = 'https://pub.dartlang.org/api/packages/' + pkg + '_dartrix';
     var response = await http.get(url);
     var body = json.decode(response.body);
     // Config.ppLogger.v('name: ${body["name"]}');
-    devPubPlugins.add(
-      {'name'      : body['name'],
-        'docstring' : body['latest']['pubspec']['description']});
+    devPubPlugins.add({
+      'name': body['name'],
+      'docstring': body['latest']['pubspec']['description']
+    });
   }
   ;
   // await fn();
@@ -367,7 +371,7 @@ Future<List<Map<String,String>>> getPkgs(Set pset) async {
   return devPubPlugins;
 }
 
-Future<List<Map<String,String>>> getPubDevPlugins(String url) async {
+Future<List<Map<String, String>>> getPubDevPlugins(String url) async {
   // url ??= 'https://pub.dartlang.org/api/packages?q=_dartrix';
   url ??= 'https://pub.dev/dart/packages?q=dartrix';
   // response is map of two keys, next_url and packages
@@ -375,8 +379,10 @@ Future<List<Map<String,String>>> getPubDevPlugins(String url) async {
   // print('Response status: ${response.statusCode}');
   // print('Response body: ${response.body}');
 
-  RegExp regexp = new RegExp(r'packages/(.*?)(?=_dartrix)');
-  Iterable<RegExpMatch> matches = regexp.allMatches(response.body);
+  //RegExp
+  var regexp = RegExp(r'packages/(.*?)(?=_dartrix)');
+  // Iterable<RegExpMatch>
+  var matches = regexp.allMatches(response.body);
   var pkgs = [
     for (var match in matches) match.group(1),
   ];
@@ -386,7 +392,8 @@ Future<List<Map<String,String>>> getPubDevPlugins(String url) async {
   }
 
   // Config.ppLogger.v('$pset');
-  List<Map<String,String>> result = await getPkgs(pset);
+  //List<Map<String,String>>
+  var result = await getPkgs(pset);
   return result;
   // var body = json.decode(response.body);
   // var pkgs = body['packages'];
@@ -422,15 +429,15 @@ Future<List<Map>> getPlugins(String suffix) async {
   // }
   var userPkgs;
   if (pkgs.isNotEmpty) {
-    if (Config.debug) {
-    }
+    if (Config.debug) {}
     userPkgs = [
       for (var p in pkgs)
         {'name': p.name, 'rootUri': path.dirname(p.packageUriRoot.path)}
     ];
   }
   if (Config.debug) {
-    Config.logger.d('found ${pkgs.length} plugins in usercache (${Config.userCache})');
+    Config.logger
+        .d('found ${pkgs.length} plugins in usercache (${Config.userCache})');
   }
 
   // Config.ppLogger.v('user: $userPkgs');
@@ -463,27 +470,18 @@ Future<List<Map>> getPlugins(String suffix) async {
   // print('allPlugins: $allPlugins');
 
   // now remove pub.dev plugins that are already installed
-  var allNames = allPlugins.map((p) => p['name']).toSet();
-  // print('allNames: $allNames');
-  // var uniqify = (String name) {
-  //   var x = allPlugins;
-  // }
-  // allPlugins = [
-  //   for (var name in allNames)
-  //     allPlugins
-  // ];
   allPlugins = allPlugins.fold([], (prev, elt) {
-      var i = prev.indexWhere((e) => e['name'] == elt['name']);
-      if (i < 0) {
+    var i = prev.indexWhere((e) => e['name'] == elt['name']);
+    if (i < 0) {
+      prev.add(elt);
+    } else {
+      if (prev[i]['rootUri'] == null) {
+        // print('removing ${prev[i]}');
+        prev.removeAt(i);
         prev.add(elt);
-      } else {
-        if (prev[i]['rootUri'] == null) {
-          // print('removing ${prev[i]}');
-          prev.removeAt(i);
-          prev.add(elt);
-        }
       }
-      return prev;
+    }
+    return prev;
   });
   // print('new allPlugins: $allPlugins');
 
@@ -549,7 +547,8 @@ String getDocString(String templatesRoot, Directory tdir) {
 Future<Map> getTemplatesMap(String pkgRoot) async {
   var templatesRoot;
   if (pkgRoot == null) {
-    templatesRoot = Config.builtinTemplatesRoot; //await setBuiltinTemplatesRoot();
+    templatesRoot =
+        Config.builtinTemplatesRoot; //await setBuiltinTemplatesRoot();
   } else {
     templatesRoot = pkgRoot + '/templates';
   }
