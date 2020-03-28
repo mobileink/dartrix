@@ -1,3 +1,7 @@
+## 0.1.22-alpha
+
+- version checking fixes; temporarily disable config-file load
+
 ## 0.1.21-alpha
 
 - README: fix link to hello_dartrix plugin
