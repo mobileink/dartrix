@@ -555,7 +555,7 @@ Future<List<Map>> getPlugins(String suffix) async {
   //   }
   //   return prev;
   // });
-  print('new allPlugins: $allPlugins');
+  // print('new allPlugins: $allPlugins');
 
   allPlugins.sort((a, b) {
     int order = a['name'].compareTo(b['name']);
