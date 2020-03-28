@@ -1,3 +1,7 @@
+## 0.1.21-alpha
+
+- README: fix link to hello_dartrix plugin
+
 ## 0.1.20-alpha
 
 - list cmd: print path for local plugins; print version; flag to control search of pubdev (default false)
