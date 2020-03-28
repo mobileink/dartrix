@@ -100,19 +100,19 @@ void initBuiltinArgs() async {
 // }
 
 void printPlugins(String libName, ArgResults options) async {
-  Config.ppLogger.v('printPlugins $libName, $options');
+  // Config.ppLogger.v('printPlugins $libName, $options');
   // var libName = options.rest[0];
   //String
   Config.libPkgRoot = await resolvePkgRoot(libName);
-  if (Config.verbose) {
-    Config.logger.i(
-        'resolved $libName to package:${libName}_dartrix to $Config.libPkgRoot');
+  if (Config.debug) {
+    Config.logger.d(
+        'resolved $libName to package:${libName}_dartrix to ${Config.libPkgRoot}');
   }
   //String
   var templatesRoot = Config.libPkgRoot + '/templates';
-  if (Config.verbose) {
-    Config.logger.i('templatesRoot: $templatesRoot');
-  }
+  // if (Config.verbose) {
+  //   Config.logger.i('templatesRoot: $templatesRoot');
+  // }
   //List
   var templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
@@ -138,28 +138,43 @@ void printPlugins(String libName, ArgResults options) async {
 }
 
 void printUsage(ArgParser argParser) async {
-  print('dartrix:list, version 0.1.0\n');
-  print('Usage: dartrix:list [-h] <library>\n');
-  // print('Options (for builtins and plugin libraries only):\n');
-  print(argParser.usage);
-
-  print('\nAvailable template libraries:');
-  //List<Package>
-  // Builtins lib:
-  print('\t${sprintf("%-18s", ["dartrix"])} Builtin templates');
-
+  if (!Config.debug) {
+    print('dartrix:list, version 0.1.0\n');
+    print('Usage: dartrix:list [-h] <library>\n');
+    // print('Options (for builtins and plugin libraries only):\n');
+    print(argParser.usage);
+  }
   // pkgs: map of pkgname: uri
   var pkgs = await getPlugins(Config.appSfx);
-  Config.ppLogger.v('pkgs: $pkgs');
+  // Config.ppLogger.v('pkgs: $pkgs');
+
+  final format = '  %-14s%-12s%-54s';
+  if (!Config.debug) {
+    print('\nAvailable template libraries:\n');
+
+    // print header
+    var header = sprintf(format, ['Library', 'Src', 'Description']);
+    print('${infoPen(header)}');
+
+    var builtins = sprintf(format, ['dartrix', '', 'builtin templates']);
+    print('$builtins');
+  }
+
   var libName;
+  var plugin;
   pkgs.forEach((pkg) {
-    libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
-    var docString = getDocStringFromPkg(libName, pkg['rootUri']);
-    libName = sprintf('%-18s', [libName]);
-    var star = (pkg['syscache'] == 'true') ? '*' : ' ';
-    print('\t${star}${libName} ${docString}');
+      libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
+      var docString = pkg['docstring'] ?? getDocStringFromPkg(libName, pkg['rootUri']);
+    // libName = sprintf('%-18s', [libName]);
+    plugin = sprintf(format, [libName, (pkg['rootUri'] == null) ? 'pub.dev' : 'syscache' , docString]);
+    // var star = (pkg['syscache'] == 'true') ? '*' : ' ';
+    if (!Config.debug) {
+      print('$plugin');
+    }
   });
-  print('');
+  if (!Config.debug) {
+    print('');
+  }
   // print('\nOther Dartrix commands:');
   // print('\tdartrix:list\t\t this command');
   // print('\tdartrix:new\t\t generate new files from template');
@@ -179,17 +194,12 @@ void main(List<String> args) async {
     Config.debug = true;
     debug.debug = true;
   }
-  Config.config('dartrix');
+  await Config.config('dartrix');
 
   var argParser = ArgParser(usageLineLength: 120);
   argParser.addCommand('list');
-  // argParser.addOption('template', abbr: 't',
-  //   valueHelp: '[a-z_][a-z0-9_]*',
-  //   help: 'Template name.',
-  //   // defaultsTo: 'plugin',
-  //   // callback: (t) => validateTemplateName(t)
-  // );
-
+  argParser.addFlag('local-only', defaultsTo: false,
+    help: '--no-local-only: also search pub.dev');
   argParser.addFlag('help',
       abbr: 'h', defaultsTo: false, help: 'Print this help message.');
   argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
@@ -218,12 +228,25 @@ void main(List<String> args) async {
 
   if (Config.options['help']) {
     await printUsage(argParser);
+    if (Config.debug) {
+      Config.debug = false;
+      await printUsage(argParser);
+    }
     exit(0);
   }
 
+  if (Config.debug) {
+    await debug.debugConfig();
+  }
+
   if (Config.options.rest.isEmpty) {
-    //printBuiltins(Config.options);
+    // if Config.debug is set, printUsage will only print debug msgs
     await printUsage(argParser);
+    // Now reset Config.debug and print usage
+    if (Config.debug) {
+      Config.debug = false;
+      await printUsage(argParser);
+    }
     // var bis = await listBuiltinTemplates();
     // print('bis: $bis');
   } else {

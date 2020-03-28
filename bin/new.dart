@@ -222,7 +222,9 @@ void main(List<String> args) async {
       exit(0);
     }
 
-    // loadConfigFile();
+    if (Config.debug) {
+      debug.debugConfig();
+    }
 
     switch (libName) {
       case 'dartrix':

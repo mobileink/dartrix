@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
 
 // import 'package:logger/logger.dart';
 import 'package:package_config/package_config.dart';
@@ -18,7 +19,25 @@ void debugData(Map xData) {
   var sorted = SplayTreeMap.from(tData);
   var encoder = JsonEncoder.withIndent('    ');
   var j = encoder.convert(sorted);
-  print(j);
+  Config.ppLogger.v(j);
+}
+
+void debugConfig() async {
+  Config.logger.d('Config:');
+  Config.logger.d('\tverbose: ${Config.verbose}');
+  Config.logger.d('\tdebug: ${Config.debug}');
+  Config.logger.d('\tdryRun: ${Config.dryRun}');
+  Config.logger.d('\tcwd: ${Directory.current.path}');
+  Config.logger.d('\thome: ${Config.home}');
+  Config.logger.d('\tisoHome: ${Config.isoHome}');
+  Config.logger.d('\tuserCache: ${Config.userCache}');
+  Config.logger.d('\tsysCache: ${Config.sysCache}');
+  Config.logger.d('\tappName: ${Config.appName}');
+  Config.logger.d('\tappSfx: ${Config.appSfx}');
+  Config.logger.d('\tappPkgRoot: ${Config.appPkgRoot}');
+  Config.logger.d('\tlibPkgRoot: ${Config.libPkgRoot}');
+  Config.logger.d('\ttemplateRoot: ${Config.templateRoot}');
+  Config.logger.d('\tdartrixVersion: ${await Config.dartrixVersion}');
 }
 
 void debugPathRewriting(Map xData) {

@@ -19,7 +19,7 @@ AnsiPen warningPen = AnsiPen()..green(bold: true);
 AnsiPen infoPen = AnsiPen()..green(bold: false);
 AnsiPen configPen = AnsiPen()..green(bold: true);
 
-String getPubCache() {
+String getSysCache() {
   if (Platform.environment['PUB_CACHE'] != null) {
     return Platform.environment['PUB_CACHE'];
   } else {
@@ -44,15 +44,21 @@ class Config {
   static final ppLogger = Logger(
       filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
 
-  static String pubCache = getPubCache();
+  //FIXME: rename dartrixHome?
+  static String userCache = home + '/.dart.d';
+
+  static String sysCache = getSysCache();
 
   static final String home = Platform.isWindows
       ? Platform.environment['UserProfile']
       : Platform.environment['HOME'];
 
   static String appName;
-  static String appSfx = '_dartrix';
+  static String appSfx = '_' + appName;
   static String appPkgRoot;
+  static String builtinTemplatesRoot;
+
+  static String isoHome;
 
   static String libPkgRoot;
   static String templateRoot;
@@ -70,7 +76,8 @@ class Config {
 
   static void config(String _appName) async {
     appName = _appName;
-    await getAppPkgRoot(appName);
+    await setAppPkgRoot(appName);
+    await setBuiltinTemplatesRoot();
     // version = getAppPkgVersion();
     //Map<String, String>
     // var envVars = Platform.environment;

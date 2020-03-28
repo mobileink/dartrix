@@ -48,33 +48,33 @@ void printBuiltins() async {
 ///
 /// Read the <root>/templates directory, retaining only directory entries. Each
 /// subdirectory represents one template.
-void initBuiltinTemplates() async {
-  // Config.logger.i('builtins.initBuiltinTemplates');
+// void initBuiltinTemplates() async {
+//   // Config.logger.i('builtins.initBuiltinTemplates');
 
-  //String
-  var templatesRoot = await resolveBuiltinTemplatesRoot();
+//   //String
+//   var templatesRoot = await resolveBuiltinTemplatesRoot();
 
-  //List
-  var builtins = Directory(templatesRoot).listSync();
-  builtins.retainWhere((f) => f is Directory);
-  // print('getBuiltinTemplates: $builtins');
-  //builtinTemplates =
-  // builtins.map<String,String>((d) {
-  builtins.forEach((builtin) {
-    // String
-    var basename = path.basename(builtin.path);
-    // String
-    var docstring;
-    try {
-      docstring = File(builtin.path + '.docstring').readAsStringSync();
-    } on FileSystemException {
-      // if (debug.debug)
-      // Config.logger.i('docstring not found for ${builtin.path}');
-    }
-    builtinTemplates[basename] = docstring ?? '';
-  });
-  if (debug.debug) debug.debugListBuiltins();
-}
+//   //List
+//   var builtins = Directory(templatesRoot).listSync();
+//   builtins.retainWhere((f) => f is Directory);
+//   // print('getBuiltinTemplates: $builtins');
+//   //builtinTemplates =
+//   // builtins.map<String,String>((d) {
+//   builtins.forEach((builtin) {
+//     // String
+//     var basename = path.basename(builtin.path);
+//     // String
+//     var docstring;
+//     try {
+//       docstring = File(builtin.path + '.docstring').readAsStringSync();
+//     } on FileSystemException {
+//       // if (debug.debug)
+//       // Config.logger.i('docstring not found for ${builtin.path}');
+//     }
+//     builtinTemplates[basename] = docstring ?? '';
+//   });
+//   if (debug.debug) debug.debugListBuiltins();
+// }
 
 /// Run builtin template. The template is stored in Config.templateRoot.
 void generateFromBuiltin() async {
