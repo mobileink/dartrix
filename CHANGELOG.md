@@ -1,3 +1,7 @@
+## 0.1.19-alpha
+
+- list cmd: support pub.dev search, improve ui
+
 ## 0.1.18-alpha
 
 - Fix other spawning bug - for pkgs in syscache
