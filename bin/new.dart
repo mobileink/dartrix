@@ -204,16 +204,18 @@ void main(List<String> args) async {
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
     var libName = optionsRest[0];
 
+    Config.libName = libName;
+
     var pkg = await resolvePkg(libName);
     Config.libPkgRoot = pkg['rootUri'];
 
     // Config.ppLogger.v('libname: $libName');
 
-    if (libName != 'dartrix') {
-      var requiredVersion = await verifyDartrixVersion(Config.libPkgRoot);
+    if (libName != Config.appName) {
+      var requiredVersion = await verifyAppVersion(Config.libPkgRoot);
       if (requiredVersion != null) {
         Config.prodLogger.e(
-            'Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.appVersion}.');
+            'Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${await Config.appVersion}.');
         exit(0);
       }
     }
