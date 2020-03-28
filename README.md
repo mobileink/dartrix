@@ -50,8 +50,44 @@ dartrix:list $@"` etc.
 
 For template development:
 
-* sanity - verifies that all the standard bits are in place, paths are legal, etc.
+* lint - verifies that all the standard bits are in place, paths are legal, etc.
 * update - generate missing docstring files, manpages, and template handlers.
+
+### Listings
+
+The `list` command lists available template libraries and templates.
+
+Sample output for `$ pub global run dartrix:list --pubdev`:
+
+```
+dartrix:list, version 0.1.0
+
+Usage: dartrix:list [-h] <library>
+
+-p, --[no-]pubdev     Search pub.dev. Default: false
+-h, --[no-]help       Print this help message.
+-v, --[no-]verbose
+
+Available template libraries:
+
+   Library      Version       Description
+   dartrix      0.1.19-alpha  builtin templates
+    flutter     0.1.0         Templates for Flutter programs, libraries, etc.
+                              path: /Users/joe/dartrixdev/flutter_dartrix
+    hello       0.3.0         Templates for Hello World programs in various languages.
+                              path: /Users/joe/dartrixdev/hello_dartrix
+   *hello       0.1.0         Templates for Hello World programs in various languages.
+  **hello       0.2.0         Dartrix template plugin package.  Contains templates for "Hello World" in various programming languages.
+
+*  Installed in local syscache (~/.pub-cache) * Available on pub.dev
+** Available on pub.dev
+```
+
+In this example, package `hello` is listed three times:
+
+* Version 0.1.0 was installed locally
+* Subsequently, version 0.2.0 was uploaded to pub.dev
+* You are developing version 0.3.0 on your local machine, in `$HOME/dartrixdev/hello_dartrix`.
 
 ## Plugins - Template Libraries <a name="plugins"></a>
 
