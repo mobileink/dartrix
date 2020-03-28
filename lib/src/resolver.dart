@@ -289,25 +289,17 @@ Future<Map> resolvePkg(String libName) async {
         Config.debugLogger.e('giving up');
       }
       // Config.ppLogger.d('fetchPackage: $newp');
-      return newp.first; //['uri']; //.path;
+      // return newp.first; //['uri']; //.path;
+      pkg = newp.first;
     } else {
       if (Config.debug) {
         Config.logger.d('found $pkgName in syscache: $p');
       }
-      return p.first; //['uri']; //.path + '/'; //FIXME: remove this hack
+      // return p.first; //['uri']; //.path + '/'; //FIXME: remove this hack
+      pkg = p.first;
     }
   }
-  // Config.logger.i('pkgPackage: $pkgPackage');
-  // Step 3.  Get the (file) root of the package. We need this to
-  // a) read the templates, and b) spawn the package.
-  // var pkgRootUri = pkgPackage.root;
-  // Config.logger.i('pkgPackage.root: ${pkgRootUri}');
-  var pkg = {
-    'name': pkgPackage.name,
-    'version': 'Y',
-    'cache': 'dartrix',
-    'rootUri': pkgPackage.root.path
-  };
+  Config.libPkgRoot = pkg['rootUri'];
   return pkg; // ['rootUri']; // pkgRootUri.path;
 }
 
