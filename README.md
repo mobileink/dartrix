@@ -4,7 +4,7 @@ An extensible template and tools command-line tool.  Dartrix comes
 with a set of builtin templates to generate scripts, apps, libraries,
 etc. in multiple languages. It also supports third-party template
 libraries as "plugins".  A sample plugin is available at
-(greetings_dartrix)[https://github.com].
+[hello_dartrix](https://pub.dev/packages/hello_dartrix).
 
 WARNING: This is an alpha version. A beta version will be available soon.
 
