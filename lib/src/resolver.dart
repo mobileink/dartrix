@@ -360,7 +360,7 @@ Future<List<Map>> searchSysCache(String uri) async {
           'name': path.basename(pkg.path).split('-')[0],
           'version': path.basename(pkg.path).split('-')[1],
           'rootUri': pkg.path,
-          'syscache': true
+          'src': 'syscache'
         }
     ];
     // Config.ppLogger.d('syscachePkgs: $syscachePkgs');
@@ -399,6 +399,7 @@ Future<List<Map<String, String>>> downloadPkgSpecs(Set pset) async {
     devPubPlugins.add({
       'name': body['name'],
       'version': body['latest']['pubspec']['version'],
+      'src': 'pubdev',
       'docstring': body['latest']['pubspec']['description']
     });
   }
@@ -482,19 +483,21 @@ Future<List<Map>> getPlugins(String suffix) async {
     // }
     if (Config.debug) {
       pkgs.forEach((pkg) {
-          Config.logger.d('userPkg ${pkg.root}');
+        Config.logger.d('userPkg ${pkg.root}');
       });
     }
-    // remove pub-cached entries; they will be discovered by searchSysCache
-    pkgs.removeWhere((pkg) {
-        return pkg.root.path.contains('.pub-cache');
-    });
+    // // remove pub-cached entries; they will be discovered by searchSysCache
+    // pkgs.removeWhere((pkg) {
+    //     return pkg.root.path.contains('.pub-cache');
+    // });
     userPkgs = [
       for (var p in pkgs)
         {
           'name': p.name,
           'version': getPluginVersion(path.dirname(p.packageUriRoot.path)),
-          'cache': 'userX',
+          'src': p.packageUriRoot.path.contains('.pub-cache')
+              ? 'syscache'
+              : 'path',
           ...(p.packageUriRoot.path.contains('.pub-cache')
               ? {'rootUri': path.dirname(p.packageUriRoot.path)}
               : {'path': path.dirname(p.packageUriRoot.path)}),
@@ -552,9 +555,16 @@ Future<List<Map>> getPlugins(String suffix) async {
   //   }
   //   return prev;
   // });
-  // print('new allPlugins: $allPlugins');
+  print('new allPlugins: $allPlugins');
 
-  allPlugins.sort((a, b) => a['name'].compareTo(b['name']));
+  allPlugins.sort((a, b) {
+    int order = a['name'].compareTo(b['name']);
+    if (order == 0) {
+      if (a['src'] == 'path') return -1;
+      if (a['src'] == 'pubdev') return 1;
+    }
+    return order;
+  });
 
   if (userPkgs != null) {
     if (allPlugins != null) {

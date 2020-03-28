@@ -175,10 +175,18 @@ void printUsage(ArgParser argParser) async {
   var star = ' ';
   pkgs.forEach((pkg) {
     libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
-    if ((pkg['rootUri'] == null) && (pkg['path'] == null)) {
-      star = '*';
-    } else {
-      star = ' ';
+    switch (pkg['src']) {
+      case 'path':
+        star = '  ';
+        break;
+      case 'syscache':
+        star = ' *';
+        break;
+      case 'pubdev':
+        star = '**';
+        break;
+      default:
+        star = '??';
     }
     var docString = pkg['docstring'] ??
         getDocStringFromPkg(libName, pkg['rootUri'] ?? pkg['path']);
@@ -201,7 +209,8 @@ void printUsage(ArgParser argParser) async {
     }
   });
   if (!Config.debug) {
-    print('\n* Available on pub.dev\n');
+    print('\n*  Installed in local syscache (~/.pub-cache)');
+    print('** Available on pub.dev\n');
   }
 }
 
