@@ -271,6 +271,8 @@ void main(List<String> args) async {
     await debug.debugConfig();
   }
 
+  // var pkg = await resolvePkg(libName);
+
   if (Config.options.rest.isEmpty) {
     // if Config.debug is set, printUsage will only print debug msgs
     await printUsage(argParser);
