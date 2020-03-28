@@ -62,7 +62,8 @@ void manBuiltins(ArgResults options) async {
 void manPlugins(ArgResults options) async {
   // print('manPlugins');
   var lib = options.rest[0];
-  var libDir = await resolvePkgRoot('package:' + lib + '_dartrix');
+  var pkg = await resolvePkg('package:' + lib + '_dartrix');
+  var libDir = pkg['uriRoot'];
   if (Config.verbose) {
     Config.logger.i('resolved $lib to package:${lib}_dartrix to $libDir');
   }

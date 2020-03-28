@@ -66,12 +66,12 @@ class Config {
   static ArgParser argParser;
   static ArgResults options;
 
-  static String _dartrixVersion;
+  static String _appVersion;
 
-  static Future<String> get dartrixVersion async {
-    if (_dartrixVersion != null) return _dartrixVersion;
-    _dartrixVersion = await getDartrixVersion();
-    return _dartrixVersion;
+  static Future<String> get appVersion async {
+    if (_appVersion != null) return _appVersion;
+    _appVersion = await getDartrixVersion();
+    return _appVersion;
   }
 
   static void config(String _appName) async {
@@ -184,9 +184,9 @@ Future<String> verifyDartrixVersion(String libPkgRoot) async {
   // Config.ppLogger.v('verifyDartrixVersion $libPkgRoot');
   var yaml = loadYamlFileSync(libPkgRoot + '/pubspec.yaml');
   // print('yaml: $yaml');
-  var dartrixVersionStr;
+  var appVersionStr;
   try {
-    dartrixVersionStr = yaml['dartrix']['version'];
+    appVersionStr = yaml['dartrix']['version'];
   } catch (e) {
     //FIXME: exit?
     Config.prodLogger.w(
@@ -194,18 +194,18 @@ Future<String> verifyDartrixVersion(String libPkgRoot) async {
     // exit(1);
     return null;
   }
-  print('required dartrix version: $dartrixVersionStr');
+  print('required dartrix version: $appVersionStr');
 
-  var dartrixVersion = Version.parse(dartrixVersionStr);
-  // print('parse version: $dartrixVersion');
-  // print('min: ${dartrixVersion.min}');
-  // print('min: ${dartrixVersion.max}');
+  var appVersion = Version.parse(appVersionStr);
+  // print('parse version: $appVersion');
+  // print('min: ${appVersion.min}');
+  // print('min: ${appVersion.max}');
 
-  // print('dartrix version: ${await Config.dartrixVersion}');
-  if (dartrixVersion <= Version.parse(await Config.dartrixVersion)) {
+  // print('dartrix version: ${await Config.appVersion}');
+  if (appVersion <= Version.parse(await Config.appVersion)) {
     return null;
   } else {
-    return dartrixVersionStr;
+    return appVersionStr;
   }
 }
 

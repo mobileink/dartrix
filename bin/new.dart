@@ -56,7 +56,7 @@ void validateTemplateName(String t) {
 
 void printUsage(ArgParser argParser) async {
   // print('\n\t\tDartrix Templating System - "new" command\n');
-  print('dartrix:new,  version ${await Config.dartrixVersion}\n');
+  print('dartrix:new,  version ${await Config.appVersion}\n');
   print(
       'usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
   ;
@@ -203,7 +203,8 @@ void main(List<String> args) async {
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
     var libName = optionsRest[0];
 
-    Config.libPkgRoot = await resolvePkgRoot(libName);
+    var pkg = await resolvePkg(libName);
+    Config.libPkgRoot = pkg['rootUri'];
 
     // Config.ppLogger.v('libname: $libName');
 
@@ -211,7 +212,7 @@ void main(List<String> args) async {
       var requiredVersion = await verifyDartrixVersion(Config.libPkgRoot);
       if (requiredVersion != null) {
         Config.prodLogger.e(
-            'Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.dartrixVersion}.');
+            'Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${Config.appVersion}.');
         exit(0);
       }
     }

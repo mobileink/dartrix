@@ -37,7 +37,7 @@ void debugConfig() async {
   Config.logger.d('\tappPkgRoot: ${Config.appPkgRoot}');
   Config.logger.d('\tlibPkgRoot: ${Config.libPkgRoot}');
   Config.logger.d('\ttemplateRoot: ${Config.templateRoot}');
-  Config.logger.d('\tdartrixVersion: ${await Config.dartrixVersion}');
+  Config.logger.d('\tappVersion: ${await Config.appVersion}');
 }
 
 void debugPathRewriting(Map xData) {

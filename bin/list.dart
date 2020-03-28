@@ -102,8 +102,10 @@ void initBuiltinArgs() async {
 void printPlugins(String libName, ArgResults options) async {
   // Config.ppLogger.v('printPlugins $libName, $options');
   // var libName = options.rest[0];
+  var pkg = await resolvePkg(libName);
+  // Config.ppLogger.d('pkg: $pkg');
   //String
-  Config.libPkgRoot = await resolvePkgRoot(libName);
+  Config.libPkgRoot = pkg['rootUri'];
   if (Config.debug) {
     Config.logger.d(
         'resolved $libName to package:${libName}_dartrix to ${Config.libPkgRoot}');
@@ -145,18 +147,19 @@ void printUsage(ArgParser argParser) async {
     print(argParser.usage);
   }
   // pkgs: map of pkgname: uri
-  var pkgs = await getPlugins(Config.appSfx);
+  List<Map> pkgs = await getPlugins(Config.appSfx);
   // Config.ppLogger.v('pkgs: $pkgs');
 
-  final format = '  %-14s%-12s%-54s';
+  final format = '  %-14s%-14s%-12s%-54s';
   if (!Config.debug) {
     print('\nAvailable template libraries:\n');
 
     // print header
-    var header = sprintf(format, ['Library', 'Src', 'Description']);
+    var header = sprintf(format, ['Library', 'Version', 'Locn', 'Description']);
     print('${infoPen(header)}');
 
-    var builtins = sprintf(format, ['dartrix', '', 'builtin templates']);
+    var builtins = sprintf(
+        format, ['dartrix', await Config.appVersion, '', 'builtin templates']);
     print('$builtins');
   }
 
@@ -166,9 +169,9 @@ void printUsage(ArgParser argParser) async {
     libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
     var docString =
         pkg['docstring'] ?? getDocStringFromPkg(libName, pkg['rootUri']);
-    // libName = sprintf('%-18s', [libName]);
     plugin = sprintf(format, [
       libName,
+      pkg['version'],
       (pkg['rootUri'] == null) ? 'pub.dev' : 'syscache',
       docString
     ]);
