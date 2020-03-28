@@ -189,7 +189,8 @@ void main(List<String> args) async {
     }
   }
 
-  await loadConfigFile(Config.options['config-file']);
+  // if (Config.options['config-file'] != null)
+  // await loadConfigFile(Config.options['config-file']);
 
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
