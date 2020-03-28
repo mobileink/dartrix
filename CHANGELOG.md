@@ -1,3 +1,7 @@
+## 0.1.20-alpha
+
+- list cmd: print path for local plugins; print version; flag to control search of pubdev (default false)
+
 ## 0.1.19-alpha
 
 - list cmd: support pub.dev search, improve ui
