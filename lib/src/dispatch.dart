@@ -39,7 +39,7 @@ void processArgs(String pkg, String template, ArgResults _options,
   var templates = await getTemplatesMap(Config.libPkgRoot);
   // Config.debugLogger.v(templates);
 
-  Config.templateRoot = Config.libPkgRoot + 'templates/' + template;
+  Config.templateRoot = Config.libPkgRoot + '/templates/' + template;
   // Config.debugLogger.v('Config.templateRoot: ${Config.templateRoot}');
 
   await processTemplateArgs(Config.templateRoot, libArgs, tArgs); // args);
