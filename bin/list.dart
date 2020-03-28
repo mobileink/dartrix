@@ -139,6 +139,12 @@ void printPlugins(String libName, ArgResults options) async {
   });
 }
 
+String abbrevPath(String path) {
+  return path.startsWith(Config.home)
+      ? '~' + path.replaceFirst(Config.home, '')
+      : path;
+}
+
 void printUsage(ArgParser argParser) async {
   if (!Config.debug) {
     print('dartrix:list, version 0.1.0\n');
@@ -147,54 +153,56 @@ void printUsage(ArgParser argParser) async {
     print(argParser.usage);
   }
   // pkgs: map of pkgname: uri
-  List<Map> pkgs = await getPlugins(Config.appSfx);
+  //List<Map>
+  var pkgs = await getPlugins(Config.appSfx);
   // Config.ppLogger.v('pkgs: $pkgs');
 
-  final format = '  %-14s%-14s%-12s%-54s';
+  final format = '  %-14s%-14s%-70s';
   if (!Config.debug) {
     print('\nAvailable template libraries:\n');
 
     // print header
-    var header = sprintf(format, ['Library', 'Version', 'Locn', 'Description']);
+    var header = sprintf(format, [' Library', 'Version', 'Description']);
     print('${infoPen(header)}');
 
     var builtins = sprintf(
-        format, ['dartrix', await Config.appVersion, '', 'builtin templates']);
+        format, [' dartrix', await Config.appVersion, 'builtin templates']);
     print('$builtins');
   }
 
   var libName;
   var plugin;
+  var star = ' ';
   pkgs.forEach((pkg) {
     libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
-    var docString =
-        pkg['docstring'] ?? getDocStringFromPkg(libName, pkg['rootUri']);
+    if ((pkg['rootUri'] == null) && (pkg['path'] == null)) {
+      star = '*';
+    } else {
+      star = ' ';
+    }
+    var docString = pkg['docstring'] ??
+        getDocStringFromPkg(libName, pkg['rootUri'] ?? pkg['path']);
     plugin = sprintf(format, [
-      libName,
+      star + libName,
       pkg['version'],
-      (pkg['rootUri'] == null) ? 'pub.dev' : 'syscache',
       docString
+      // (pkg['rootUri'] == null)
+      // ? ((pkg['path'] == null)
+      //   ? 'pub.dev'
+      //   : abbrevPath(pkg['path']))
+      // : 'syscache'
     ]);
     // var star = (pkg['syscache'] == 'true') ? '*' : ' ';
     if (!Config.debug) {
       print('$plugin');
+      if (pkg['path'] != null) {
+        print(sprintf(format, ['', '', '${infoPen("path")}: ${pkg["path"]}']));
+      }
     }
   });
   if (!Config.debug) {
-    print('');
+    print('\n* Available on pub.dev\n');
   }
-  // print('\nOther Dartrix commands:');
-  // print('\tdartrix:list\t\t this command');
-  // print('\tdartrix:new\t\t generate new files from template');
-  // print('\tdartrix:man\t\t print dartrix manpages');
-  // print('\tdartrix:sanity\t\t sanity check (for template developers)');
-  // print('\tdartrix:update\t\t update template lib (for template developers)');
-
-  // print('\tdartrix\t\tBuiltin templates. Optional; if no <libname> specified,');
-  // print('\t\t\tthe -t option refers to a builtin template.');
-  // print('\t<libname>\tDocumentation for template library plugin.\n');
-  // print('where <libname> is the name part of a Dartrix plugin package; for');
-  // print('example, the libname for package:greetings_dartrix is 'greetings.'\n');
 }
 
 void main(List<String> args) async {
@@ -205,9 +213,9 @@ void main(List<String> args) async {
   await Config.config('dartrix');
 
   var argParser = ArgParser(usageLineLength: 120);
-  argParser.addCommand('list');
-  argParser.addFlag('local-only',
-      defaultsTo: false, help: '--no-local-only: also search pub.dev');
+  // argParser.addCommand('list');
+  argParser.addFlag('pubdev',
+      abbr: 'p', defaultsTo: false, help: 'Search pub.dev. Default: false');
   argParser.addFlag('help',
       abbr: 'h', defaultsTo: false, help: 'Print this help message.');
   argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
@@ -242,6 +250,9 @@ void main(List<String> args) async {
     }
     exit(0);
   }
+
+  Config.searchPubDev = Config.options['pubdev'];
+  // print('searchPubDev: ${Config.searchPubDev}');
 
   if (Config.debug) {
     await debug.debugConfig();

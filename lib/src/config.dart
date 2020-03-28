@@ -66,6 +66,8 @@ class Config {
   static ArgParser argParser;
   static ArgResults options;
 
+  static bool searchPubDev = false; // for list cmd
+
   static String _appVersion;
 
   static Future<String> get appVersion async {

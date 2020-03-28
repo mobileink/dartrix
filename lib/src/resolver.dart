@@ -386,17 +386,19 @@ Future<List<Map>> searchSysCache(String uri) async {
   }
 }
 
-Future<List<Map<String, String>>> getPkgs(Set pset) async {
+Future<List<Map<String, String>>> downloadPkgSpecs(Set pset) async {
   List<Map<String, String>> // omitting this type decl breaks the code
       devPubPlugins = [];
   // var fn = () async {
   for (var pkg in pset) {
     var url = 'https://pub.dartlang.org/api/packages/' + pkg + '_dartrix';
     var response = await http.get(url);
+    // print(response.body);
     var body = json.decode(response.body);
     // Config.ppLogger.v('name: ${body["name"]}');
     devPubPlugins.add({
       'name': body['name'],
+      'version': body['latest']['pubspec']['version'],
       'docstring': body['latest']['pubspec']['description']
     });
   }
@@ -428,7 +430,11 @@ Future<List<Map<String, String>>> getPubDevPlugins(String url) async {
 
   // Config.ppLogger.v('$pset');
   //List<Map<String,String>>
-  var result = await getPkgs(pset);
+  var result = await downloadPkgSpecs(pset);
+  if (Config.debug) {
+    Config.ppLogger.d('downloaded: $result');
+  }
+
   return result;
   // var body = json.decode(response.body);
   // var pkgs = body['packages'];
@@ -449,7 +455,7 @@ Future<List<Map<String, String>>> getPubDevPlugins(String url) async {
 }
 
 String getPluginVersion(String rootPath) {
-  print('getPluginVersion $rootPath');
+  // print('getPluginVersion $rootPath');
   var f = path.normalize(rootPath + '/pubspec.yaml');
   var yaml = loadYamlFileSync(f);
   return yaml['version'];
@@ -471,6 +477,9 @@ Future<List<Map>> getPlugins(String suffix) async {
   // }
   List<Map> userPkgs;
   if (pkgs.isNotEmpty) {
+    // if (Config.debug) {
+    //   pkgs.forEach((pkg) => Config.ppLogger.d('userPkg: ${pkg.name}'));
+    // }
     if (Config.debug) {}
     userPkgs = [
       for (var p in pkgs)
@@ -478,7 +487,9 @@ Future<List<Map>> getPlugins(String suffix) async {
           'name': p.name,
           'version': getPluginVersion(path.dirname(p.packageUriRoot.path)),
           'cache': 'userX',
-          'rootUri': path.dirname(p.packageUriRoot.path)
+          ...(p.packageUriRoot.path.contains('.pub-cache')
+              ? {'rootUri': path.dirname(p.packageUriRoot.path)}
+              : {'path': path.dirname(p.packageUriRoot.path)}),
         }
     ];
   }
@@ -508,7 +519,10 @@ Future<List<Map>> getPlugins(String suffix) async {
     userPkgs.addAll(sysPkgs);
   }
 
-  var pubDevPlugins = await getPubDevPlugins(null);
+  var pubDevPlugins = [];
+  if (Config.searchPubDev) {
+    pubDevPlugins = await getPubDevPlugins(null);
+  }
 
   // Config.ppLogger.v('userPkgs: $userPkgs');
   // Config.ppLogger.v('pubDevPlugins: $pubDevPlugins');
@@ -517,20 +531,22 @@ Future<List<Map>> getPlugins(String suffix) async {
   // print('allPlugins: $allPlugins');
 
   // now remove pub.dev plugins that are already installed
-  allPlugins = allPlugins.fold([], (prev, elt) {
-    var i = prev.indexWhere((e) => e['name'] == elt['name']);
-    if (i < 0) {
-      prev.add(elt);
-    } else {
-      if (prev[i]['rootUri'] == null) {
-        // print('removing ${prev[i]}');
-        prev.removeAt(i);
-        prev.add(elt);
-      }
-    }
-    return prev;
-  });
+  // allPlugins = allPlugins.fold([], (prev, elt) {
+  //   var i = prev.indexWhere((e) => e['name'] == elt['name']);
+  //   if (i < 0) {
+  //     prev.add(elt);
+  //   } else {
+  //     if (prev[i]['rootUri'] == null) {
+  //       // print('removing ${prev[i]}');
+  //       prev.removeAt(i);
+  //       prev.add(elt);
+  //     }
+  //   }
+  //   return prev;
+  // });
   // print('new allPlugins: $allPlugins');
+
+  allPlugins.sort((a, b) => a['name'].compareTo(b['name']));
 
   if (userPkgs != null) {
     if (allPlugins != null) {
