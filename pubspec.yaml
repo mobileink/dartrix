@@ -30,9 +30,9 @@ environment:
   sdk: '>=2.6.0 <3.0.0'
 
 executables:
+  dxlint: lint
   dxlist: list
   dxman: man
   dxnew: new
-  dxsanity: sanity
   dxupdate: update
 
