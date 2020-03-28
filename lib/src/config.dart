@@ -19,18 +19,6 @@ AnsiPen warningPen = AnsiPen()..green(bold: true);
 AnsiPen infoPen = AnsiPen()..green(bold: false);
 AnsiPen configPen = AnsiPen()..green(bold: true);
 
-String getSysCache() {
-  if (Platform.environment['PUB_CACHE'] != null) {
-    return Platform.environment['PUB_CACHE'];
-  } else {
-    if (Platform.isWindows) {
-      return '%APPDATA%\Pub\Cache';
-    } else {
-      return Platform.environment['HOME'] + '/.pub-cache';
-    }
-  }
-}
-
 // app config
 class Config {
   static bool verbose = false;
@@ -60,6 +48,7 @@ class Config {
 
   static String isoHome;
 
+  static String libName;
   static String libPkgRoot;
   static String templateRoot;
 
@@ -72,7 +61,7 @@ class Config {
 
   static Future<String> get appVersion async {
     if (_appVersion != null) return _appVersion;
-    _appVersion = await getDartrixVersion();
+    _appVersion = await getAppVersion();
     return _appVersion;
   }
 
@@ -156,11 +145,22 @@ TemplateConfig getTemplateConfig(String template) {
   return config;
 }
 
+String getSysCache() {
+  if (Platform.environment['PUB_CACHE'] != null) {
+    return Platform.environment['PUB_CACHE'];
+  } else {
+    if (Platform.isWindows) {
+      return '%APPDATA%\Pub\Cache';
+    } else {
+      return Platform.environment['HOME'] + '/.pub-cache';
+    }
+  }
+}
+
 //FIXME: implement
-Future<String> getDartrixVersion() async {
-  // var pkgRoot = await getAppPkgRoot();
-  // print('pkgRoot: ${Config.appPkgRoot}');
-  return '0.1.19-alpha';
+Future<String> getAppVersion() async {
+  var yaml = getAppYaml();
+  return yaml['version'];
 }
 
 Map loadYamlFileSync(String path) {
@@ -181,8 +181,13 @@ Future<Map> loadYamlFile(String path) async {
   return null;
 }
 
+Map getAppYaml() {
+  var yaml = loadYamlFileSync(Config.appPkgRoot + '/pubspec.yaml');
+  return yaml;
+}
+
 //FIXME: support constraints and ranges
-Future<String> verifyDartrixVersion(String libPkgRoot) async {
+Future<String> verifyAppVersion(String libPkgRoot) async {
   // Config.ppLogger.v('verifyDartrixVersion $libPkgRoot');
   var yaml = loadYamlFileSync(libPkgRoot + '/pubspec.yaml');
   // print('yaml: $yaml');
@@ -196,7 +201,9 @@ Future<String> verifyDartrixVersion(String libPkgRoot) async {
     // exit(1);
     return null;
   }
-  print('required dartrix version: $appVersionStr');
+  if (Config.verbose) {
+    Config.prodLogger.v('Required dartrix version: $appVersionStr');
+  }
 
   var appVersion = Version.parse(appVersionStr);
   // print('parse version: $appVersion');
