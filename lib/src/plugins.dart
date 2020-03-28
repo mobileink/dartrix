@@ -345,8 +345,13 @@ void dispatchPlugin(String pkg, String template, ArgResults _options,
 //   Config.templateRoot = path.normalize(templates[template]['root']);
 //   // Config.prodLogger.v('saving Config.templateRoot = ${Config.templateRoot}');
 
-  await spawnPluginFromPackage(
-      spawnCallback, externalOnDone, pkg, [template, ...?tArgs]);
+  if (findLibMain(pkg)) {
+    await spawnPluginFromPackage(
+        spawnCallback, externalOnDone, pkg, [template, ...?tArgs]);
+  } else {
+    spawnCallback({});
+  }
+
   // template, args);
 
 //   // if (pkg.startsWith('path:')) {
@@ -367,3 +372,13 @@ void dispatchPlugin(String pkg, String template, ArgResults _options,
 // void generateFromExternal(String template, Map data) {
 //   Config.logger.i('generateFromExternal: $template, $data');
 // }
+
+bool findLibMain(String pkg) {
+  // print('findLibMain $pkg');
+  // print('libPkgRoot: ${Config.libPkgRoot}');
+  var mainPath =
+      Config.libPkgRoot + '/' + Config.libName + Config.appSfx + '.dart';
+  // print('mainPath $mainPath');
+  FileSystemEntityType libScript = FileSystemEntity.typeSync(mainPath);
+  return !(libScript == FileSystemEntityType.notFound);
+}
