@@ -150,21 +150,10 @@ void setBuiltinTemplatesRoot() async {
   // Config.logger.i('templatesRoot: $templatesRoot');
 }
 
-// TODO: also check /etc/.dart.d/
+/// get PackageConfig for ~/.dart.d/
+//FIXME: rename to getHomePkgConfig
 Future<PackageConfig> getUserPackageConfig2() async {
   // Config.logger.i('getUserPackageConfig2');
-  // get platform-independent $HOME
-  //Map<String, String>
-  // var envVars = Platform.environment;
-  // var home;
-  // if (Platform.isMacOS) {
-  //   home = envVars['HOME'];
-  // } else if (Platform.isLinux) {
-  //   home = envVars['HOME'];
-  // } else if (Platform.isWindows) {
-  //   home = envVars['UserProfile'];
-  // }
-  // Config.logger.i('\$HOME: $home');
 
   var dartConfigDirPath = Config.home + '/.dart.d';
   if (!verifyExists(dartConfigDirPath)) {
@@ -183,6 +172,8 @@ Future<PackageConfig> getUserPackageConfig2() async {
   // fn from package_config.package_config_discovery Package class
 
   try {
+   // findPackageConfig loads `.dart_tool/package_config.json` (version 2) or a
+   // `.packages` (version 1) file.
     userPackageConfig2 = await findPackageConfig(dartConfigDir);
     // onError: (e) => Config.logger.e(e));
   } catch (e) {
@@ -209,18 +200,22 @@ Future<String> fetchPackage(String uri) async {
   return uri;
 }
 
-/// pkg arg:  package:foo_dartrix or pkg:foo_dartrix
-/// returns pkg root (dir containing .packages file)
-Future<List<Map>> resolvePkg(String libName) async {
-  // Config.ppLogger.d('resolvePkgRoot: $libName');
+//FIXME: rename to resolveTemplateLib
+/// Resolves a [templateLibName] to a list of pkg specs.
+///
+/// Searches user config, syscache, and pub.dev.
+Future<List<Map>> resolvePkg(String templateLibName) async {
+  // Config.ppLogger.d('resolvePkgRoot: $templateLibName');
 
-  if (libName == Config.appName) {
-    return [{
-      'name': Config.appName, //'dartrix',
-      'version': Config.appVersion,
-      'cache': null,
-      'rootUri': Config.appPkgRoot // await getAppPkgRoot(libName);
-  }];
+  if (templateLibName == Config.appName) {
+    return [
+      {
+        'name': Config.appName, //'dartrix',
+        'version': Config.appVersion,
+        'cache': null,
+        'rootUri': Config.appPkgRoot
+      }
+    ];
   }
 
   // Step 1: get user's dart config (a packageConfig2)
@@ -229,20 +224,23 @@ Future<List<Map>> resolvePkg(String libName) async {
   // Step 2. pkgName is listed as a dep in the packageConfig2
   // Package
 
-  var pkgName = libName + Config.appSfx; // '_dartrix';
+  var pkgName = templateLibName + Config.appSfx; // '_dartrix';
   var _pkgList;
   //Package
   var pkgPackage;
   try {
     pkgPackage =
-    userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
+        userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
     // this is ok - pkg config can only contain one copy of a dep
-    _pkgList = [{
-      'name': pkgPackage.name,
-      'version': 'Y',
-      'cache': 'dartrix',
-      'rootUri': pkgPackage.root.path
-  }];
+    _pkgList = [
+      {
+        'name': pkgPackage.name,
+        'version': 'Y',
+        'cache': 'dartrix',
+        'rootUri': pkgPackage.root.path
+      }
+    ];
+    Config.ppLogger.i('found in user pkgconfig: $_pkgList');
   } catch (e) {
     if (!(e.message.startsWith('No element'))) {
       Config.prodLogger.e(e);
@@ -260,6 +258,7 @@ Future<List<Map>> resolvePkg(String libName) async {
         Config.logger.d(
             'dartrix library pkg \'$pkgName\' not in syscache; checking pub.dev.');
       }
+      //FIXME: only if Config.searchPubDev
       // download and install in syscache
       await fetchPackage(pkgName);
       // now we should find it
@@ -273,7 +272,8 @@ Future<List<Map>> resolvePkg(String libName) async {
       _pkgList = sysPkgList;
     } else {
       if (Config.debug) {
-        Config.logger.d('found ${_pkgList.length} occurrences of $pkgName in syscache: $_pkgList');
+        Config.logger.d(
+            'found ${_pkgList.length} occurrences of $pkgName in syscache: $_pkgList');
       }
       // return p.first; //['uri']; //.path + '/'; //FIXME: remove this hack
       // pkg = p.first;
@@ -281,7 +281,7 @@ Future<List<Map>> resolvePkg(String libName) async {
     }
   }
   // Config.libPkgRoot = pkg['rootUri'];
-  Config.ppLogger.d('resolved pkgList: $_pkgList');
+  // Config.ppLogger.d('resolved pkgList: $_pkgList');
   return _pkgList; // ['rootUri']; // pkgRootUri.path;
 }
 
@@ -326,7 +326,8 @@ Future<List<Map>> searchSysCache(String uri) async {
   // Config.ppLogger.d('searchSysCache $uri');
   var syscacheRoot = Config.home + '/.pub-cache/hosted/pub.dartlang.org';
   var syscache = Directory(syscacheRoot).listSync();
-  if (uri == null) { // null uri means get all
+  if (uri == null) {
+    // null uri means get all
     var base;
     var parts;
     // var version;
