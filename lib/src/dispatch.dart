@@ -10,7 +10,7 @@ import 'package:dartrix/dartrix.dart';
 
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
-// import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/debug.dart' as debug;
 // import 'package:dartrix/src/paths.dart';
 // import 'package:dartrix/src/utils.dart';
 
@@ -21,14 +21,14 @@ import 'package:dartrix/src/data.dart';
 void processArgs(String pkg, String template, ArgResults _options,
     List<String> libArgs, List<String> tArgs) async {
   // Config.ppLogger.v('processArgs $pkg, $template, $_options, $libArgs, $tArgs');
-
+  // debug.debugArgResults(_options);
   if (_options.wasParsed('help') ||
       libArgs.contains('-h') ||
       libArgs.contains('--help') ||
       tArgs.contains('-h') ||
       tArgs.contains('--help')) {
     print('\nLibrary \'$pkg\' options:');
-    // printDartrixUsage();
+    if (template == null) exit(0);
   }
 
   // var pkgRoot = await resolvePkgRoot(pkg); // 'package:' + pkg + '_dartrix');
