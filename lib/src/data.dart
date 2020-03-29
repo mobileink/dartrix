@@ -103,22 +103,23 @@ void dartPkgHook(String pkg) {
 }
 
 void javaPkgHook(String pkg) {
-  tData['rdomain'] = pkg.replaceAll('.', '/');
-  tData['segmap']['RDOMAIN'] = tData['rdomain'];
+  tData['rdomain'] = pkg;
+  tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
   tData['package']['java'] = pkg;
 }
 
 void setTemplateArgs(
-    String dir, List<String> libArgs, List<String> tArgs) async {
-  // Config.debugLogger.v('processTemplateArgs: $dir, $libArgs $tArgs');
+    String templateRoot, List<String> libArgs, List<String> tArgs) async {
+  // Config.debugLogger.v('processTemplateArgs: $templateRoot, $libArgs $tArgs');
 
   // 1. construct arg parser from yaml file
   // next: construct arg parser from yaml file
 
-  var template = path.basename(dir);
+  var template = path.basename(templateRoot);
   // Config.logger.v('processArgs template: $template');
 
-  var yaml = getTemplateConfig(dir); // templates['dart_cmdsuite']['root']);
+ // ~/.dart.d/.dart_tool/package_config.json
+  var yaml = getTemplateConfig(templateRoot);
   // + '/templates/' + template);
   // Config.logger.i('yaml: ${yaml.params}');
 
@@ -175,16 +176,19 @@ void setTemplateArgs(
   // now merge user passed args with default data map
   // print('MERGE user options');
 
+  // Set defaults
   tData['segmap'].forEach((seg, v) {
     tData[seg.toLowerCase()] = v;
   });
 
-  tData['domain'] = tData['segmap']['DOMAIN'];
-  tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-  // tData['pkgpath'] = tData['rdomain'].replaceAll('.', '/');
-  // tData['segmap']['PKGPATH'] = tData['pkgpath'];
+  // tData['domain'] = tData['segmap']['DOMAIN'];
+  // tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
+  tData['segmap']['JPKG'] = tData['rdomain'].replaceAll('.', '/');
+  tData['segmap']['RDOMAIN'] = tData['segmap']['JPKG'];
+  tData['segmap']['SUBDOMAIN'] = tData['subdomain'];
   tData['segmap']['ORG'] = tData['ORG'];
 
+  // Override with user args
   myoptions.options.forEach((option) {
     // print('option: ${option} = ${myoptions[option]}');
     // print('params rtt: ${yaml.params.runtimeType}');
@@ -193,33 +197,51 @@ void setTemplateArgs(
       param = yaml.params.firstWhere((param) {
         return param.name == option;
       });
-      // print('yaml: ${param.name}');
-      if (param.hook != null) {
-        switch (param.hook) {
-          case 'dpkg-hook':
-            dartPkgHook(myoptions[option]);
+    } catch (e) {
+      // this will happen for e.g. the help option that was not specified in
+      // the yaml file.
+      if (option == 'help') return;
+      Config.ppLogger.e('option: $option');
+      Config.ppLogger.e(e);
+      return;
+    }
+    // print('yaml: ${param.name}');
+    if (param.hook != null) {
+      switch (param.hook) {
+        case 'dpkg-hook':
+          dartPkgHook(myoptions[option]);
+          break;
+        case 'jpkg':
+        case 'java-pkg':
+          javaPkgHook(myoptions[option]);
+          tData[option] = myoptions[option];
+          break;
+        default:
+          Config.prodLogger.w('Unknown param hook: ${param.hook}');
+      }
+    } else {
+      if (param.seg == null) {
+        tData[option] = myoptions[option];
+        switch (option) {
+          case 'domain':
+            tData['domain'] = myoptions[option];
+            tData['segmap']['DOMAIN'] = myoptions[option].replaceAll('.', '/');
+            tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
+            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
             break;
-          case 'java-pkg':
-            javaPkgHook(myoptions[option]);
+          case 'subdomain':
+            tData['subdomain'] = myoptions[option];
+            tData['segmap']['SUBDOMAIN'] = myoptions[option].replaceAll('.', '/');
             break;
           default:
         }
       } else {
-        if (param.seg != null) {
-          tData['segmap'][param.seg] = myoptions[option];
-          tData[option] = myoptions[option];
-        } else {
-          tData[option] = myoptions[option];
-        }
+        tData[param.seg.toLowerCase()] = myoptions[option];
+        tData['segmap'][param.seg] = myoptions[option];
+        tData[option] = myoptions[option];
       }
-      // if (params['segment'] == null) {
-      // } else {
-      // }
-    } catch (e) {
-      // this will happen for e.g. the help option that was not specified in
-      // the yaml file.
-      // print(e);
     }
+    // print('looping');
   });
 }
 
@@ -272,7 +294,7 @@ Map tData = {
   'platform': null,
   'domain': 'example.org',
   'rdomain': 'org.example',
-  'subdomain' : 'hello',
+  'subdomain': 'hello',
   // 'pkg': 'org.example',
   'jpkg': 'org.example',
   'package': {
@@ -296,7 +318,11 @@ Map tData = {
     'SYSTEMP': Directory.systemTemp.path,
     'DOTFILE': '', // rewrite DOTFILE.foo as .foo
     'DOTDIR_D': '',
-    'DOMAIN': 'example.org',
+    'DOMAIN': 'example/org',
+    'RDOMAIN': 'org/example',
+    'SUBDOMAIN': 'hello',
+    'CLASS': 'Hello',
+    'JPKG': 'org/example',
     // 'ORG' : 'org/example',  // reverse-domain notation
     'DEPT': 'hello' // forms part of package url, org.example.hello
   }
