@@ -131,10 +131,10 @@ class TemplateConfig extends Configuration {
 //   return null;
 // }
 
-TemplateConfig getTemplateConfig(String template) {
+TemplateConfig getTemplateConfig(String templateRoot) {
   var config;
   try {
-    config = TemplateConfig(template + '.yaml');
+    config = TemplateConfig(templateRoot + '/dartrix.yaml');
   } catch (e) {
     if (Config.debug) {
       Config.debugLogger.e(e);

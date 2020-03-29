@@ -99,6 +99,7 @@ void generateFromBuiltin() async {
   List tFileList = Directory(Config.templateRoot).listSync(recursive: true);
 
   tFileList.removeWhere((f) => f.path.endsWith('~'));
+  tFileList.removeWhere((f) => f.path.endsWith('dartrix.yaml'));
   tFileList.retainWhere((f) => f is File);
 
   if (Config.verbose) {
