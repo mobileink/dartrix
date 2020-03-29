@@ -271,7 +271,8 @@ Map tData = {
   'platform': null,
   'domain': 'example.org',
   'rdomain': 'org.example',
-  'pkg': 'org.example',
+  'subdomain' : 'hello',
+  // 'pkg': 'org.example',
   'jpkg': 'org.example',
   'package': {
     // 'dart' : Config.options['package'],
