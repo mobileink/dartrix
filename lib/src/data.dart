@@ -103,7 +103,8 @@ void dartPkgHook(String pkg) {
 }
 
 void javaPkgHook(String pkg) {
-  tData['segmap']['JPKG_PATH'] = pkg.replaceAll('.', '/');
+  tData['rdomain'] = pkg.replaceAll('.', '/');
+  tData['segmap']['RDOMAIN'] = tData['rdomain'];
   tData['package']['java'] = pkg;
 }
 
