@@ -66,19 +66,23 @@ void printUsage(ArgParser argParser) async {
 
 Map getTemplate(List<String> subArgs) {
   // print('getTemplate: $subArgs');
-  List<String> dartrixArgs;
-  List<String> tArgs;
+  List<String> libArgs = [];
+  List<String> tArgs = [];
 
   var ft;
   var template;
   ft = subArgs.indexOf('--template');
   if (ft < 0) {
-    // not found
+    // --template not found
     ft = subArgs.indexOf('-t');
-    if (ft < 0) {
-      // not found
-      Config.prodLogger.e('Missing required template option: -t | --template');
-      exit(0);
+    if (ft < 0) { // -t not found
+      Config.prodLogger.w('Missing required template option: -t | --template');
+      if ((subArgs.contains('-h') || subArgs.contains('--help'))) {
+        libArgs = subArgs.sublist(1);
+        tArgs.add('-h');
+      } else {
+        exit(0);
+      }
     } else {
       if (ft != subArgs.lastIndexOf('-t')) {
         Config.prodLogger.e('Multiple --template options not allowed.');
@@ -89,8 +93,8 @@ Map getTemplate(List<String> subArgs) {
         exit(0);
       }
       template = subArgs[ft + 1];
-      dartrixArgs = subArgs.sublist(0, ft);
-      // print('dartrixArgs: $dartrixArgs');
+      libArgs = subArgs.sublist(0, ft);
+      // print('libArgs: $libArgs');
       tArgs = subArgs.sublist(ft + 2);
       // print('tArgs: $tArgs');
     }
@@ -105,13 +109,13 @@ Map getTemplate(List<String> subArgs) {
       exit(0);
     }
     template = subArgs[ft + 1];
-    dartrixArgs = subArgs.sublist(0, ft);
+    libArgs = subArgs.sublist(0, ft);
     tArgs = subArgs.sublist(ft + 2);
   }
   // print('template: $template');
-  // print('dartrixArgs: $dartrixArgs');
+  // print('libArgs: $libArgs');
   // print('tArgs: $tArgs');
-  return {'template': template, 'dartrixArgs': dartrixArgs, 'tArgs': tArgs};
+  return {'template': template, 'libArgs': libArgs, 'tArgs': tArgs};
 }
 
 void main(List<String> args) async {
@@ -195,10 +199,10 @@ void main(List<String> args) async {
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
 
-  var template = getTemplate(optionsRest); //, dartrixArgs, tArgs);
-  // Config.ppLogger.i('template: ${template["template"]}');
-  // Config.logger.i('dartrixArgs: ${template["dartrixArgs"]}');
-  // Config.logger.i('tArgs: ${template["tArgs"]}');
+  var templateArgs = getTemplate(optionsRest); //, libArgs, tArgs);
+  // Config.ppLogger.i('templateArgs: ${templateArgs["template"]}');
+  // Config.logger.i('libArgs: ${templateArgs["libArgs"]}');
+  // Config.logger.i('tArgs: ${templateArgs["tArgs"]}');
 
   // FIXME: initializing data to be done by each template
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
@@ -220,25 +224,28 @@ void main(List<String> args) async {
         exit(0);
       }
     }
-    if (!verifyExists(
-        Config.libPkgRoot + '/templates/' + template['template'])) {
-      Config.prodLogger
-          .e('Template ${template["template"]} not found in library $libName');
-      exit(0);
+    if (!(optionsRest.contains('-h') || optionsRest.contains('--help'))) {
+      if (!verifyExists(
+          Config.libPkgRoot + '/templates/' + templateArgs['template'])) {
+        Config.prodLogger
+        .e('Template ${templateArgs["template"]} not found in library $libName');
+        exit(0);
+      }
     }
 
     if (Config.debug) {
+      print('Config.options: ${Config.options}');
       debug.debugConfig();
     }
 
     switch (libName) {
       case 'dartrix':
-        dispatchBuiltin(template['template'], Config.options,
-            template['dartrixArgs'], template['tArgs']); // optionsRest);
+        dispatchBuiltin(templateArgs['template'], Config.options,
+            templateArgs['libArgs'], templateArgs['tArgs']); // optionsRest);
         break;
       default:
-        await dispatchPlugin(libName, template['template'], Config.options,
-            template['dartrixArgs'], template['tArgs']); // optionsRest);
+        await dispatchPlugin(libName, templateArgs['template'], Config.options,
+            templateArgs['libArgs'], templateArgs['tArgs']); // optionsRest);
     }
   }
 }
