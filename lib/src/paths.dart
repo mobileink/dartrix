@@ -14,19 +14,6 @@ import 'package:dartrix/src/data.dart';
 // HOME : $HOME
 // CWD  : Current Working Directory = Directory.current
 
-// this should be called at startup
-void initSegmap(ArgResults options) {
-  tData['segmap']['PLATFORM'] = Platform.operatingSystem;
-  tData['segmap']['PKG'] = Config.options['package'];
-  tData['segmap']['CLASS'] = Config.options['class'];
-  tData['segmap']['RDOMAINPATH'] = tData['rdomain'].replaceAll('.', '/');
-  if (Config.options['relative-root'] == null) {
-    tData['segmap']['ROOT'] = './';
-  } else {
-    tData['segmap']['ROOT'] = Config.options['ROOT'];
-  }
-}
-
 String rewritePath(String _path) {
   // Config.ppLogger.i('rewritePath: $_path');
   // tData['segmap'].forEach((k,v) {
