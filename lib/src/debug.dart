@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-// import 'package:logger/logger.dart';
+import 'package:args/args.dart';
 import 'package:package_config/package_config.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -65,6 +65,18 @@ void debugOptions() {
   });
   Config.logger.d('\trest: ${Config.options.rest}');
   // Config.logger.d('\tname: ${Config.options.name}');
+}
+
+void debugArgResults(ArgResults results) {
+  Config.logger.d('ArgResults:');
+  Config.logger.d('\tresults: ${results.options}');
+  results.options.forEach((o) {
+    if (results.wasParsed(o)) {
+      Config.logger.d('\t$o: ${results[o]}');
+    }
+  });
+  Config.logger.d('\trest: ${results.rest}');
+  // Config.logger.d('\tname: ${results.name}');
 }
 
 void debugListBuiltins() {
