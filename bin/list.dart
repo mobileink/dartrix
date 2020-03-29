@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 // import 'package:args/command_runner.dart';
 import 'package:path/path.dart' as path;
+import 'package:pub_semver/pub_semver.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:dartrix/dartrix.dart';
@@ -102,14 +103,29 @@ void initBuiltinArgs() async {
 void printPlugins(String libName, ArgResults options) async {
   // Config.ppLogger.v('printPlugins $libName, $options');
   // var libName = options.rest[0];
-  var pkg = await resolvePkg(libName);
-  // Config.ppLogger.d('pkg: $pkg');
+
+  //List<Map>
+  var pkgList = await resolvePkg(libName);
+  Config.ppLogger.d('pkgList: $pkgList');
+
+  // pkgList may contain many versions.  find the most recent.
+  // i.e. sort by version in descending order
+  pkgList.sort((a,b) {
+      int order = a['name'].compareTo(b['name']);
+      if (order != 0) {
+        return order;
+      } else {
+        return (Version.parse(a['version']) > Version.parse(b['version']))
+        ? -1 : 1;
+    }
+  });
+  Config.ppLogger.d('sorted: $pkgList');
   //String
-  Config.libPkgRoot = pkg['rootUri'];
-  if (Config.debug) {
-    Config.logger.d(
-        'resolved $libName to package:${libName}_dartrix to ${Config.libPkgRoot}');
-  }
+  Config.libPkgRoot = pkgList[0]['rootUri']; // Highest version
+  // if (Config.debug) {
+  //   Config.logger.d(
+  //       'resolved $libName to package:${libName}_dartrix to ${Config.libPkgRoot}');
+  // }
   //String
   var templatesRoot = Config.libPkgRoot + '/templates';
   // if (Config.verbose) {
@@ -127,13 +143,12 @@ void printPlugins(String libName, ArgResults options) async {
       docString =
           File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
     } on FileSystemException {
-      // if (debug.debug)
-      // Config.logger.i('docstring not found for ${builtin.path}');
-      if (debug.debug) {
+      if (Config.debug) {
         docString = warningPen('${tName}.docstring not found');
-        // tName = warningPen(sprintf('%-18s', [tName]));
       }
     }
+    var version = getPluginVersion(Config.libPkgRoot);
+    // Config.ppLogger.d('version: $version');
     tName = sprintf('%-18s', [tName]);
     print('\t${tName} ${docString}');
   });
@@ -159,8 +174,8 @@ void printUsage(ArgParser argParser) async {
 
   final format = '  %-14s%-14s%-70s';
   if (!Config.debug) {
-    print('\nAvailable template libraries:\n');
-
+    // print('\nAvailable template libraries:\n');
+    print('');
     // print header
     var header = sprintf(format, ['  Library', 'Version', 'Description']);
     print('${infoPen(header)}');

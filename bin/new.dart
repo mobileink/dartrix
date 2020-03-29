@@ -206,8 +206,9 @@ void main(List<String> args) async {
 
     Config.libName = libName;
 
-    var pkg = await resolvePkg(libName);
-    Config.libPkgRoot = pkg['rootUri'];
+    var pkgList = await resolvePkg(libName);
+
+    Config.libPkgRoot = pkgList[0]['rootUri'];
 
     // Config.ppLogger.v('libname: $libName');
 

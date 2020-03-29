@@ -211,16 +211,16 @@ Future<String> fetchPackage(String uri) async {
 
 /// pkg arg:  package:foo_dartrix or pkg:foo_dartrix
 /// returns pkg root (dir containing .packages file)
-Future<Map> resolvePkg(String libName) async {
+Future<List<Map>> resolvePkg(String libName) async {
   // Config.ppLogger.d('resolvePkgRoot: $libName');
 
   if (libName == Config.appName) {
-    return {
+    return [{
       'name': Config.appName, //'dartrix',
       'version': Config.appVersion,
       'cache': null,
       'rootUri': Config.appPkgRoot // await getAppPkgRoot(libName);
-    };
+  }];
   }
 
   // validate libName string
@@ -247,23 +247,19 @@ Future<Map> resolvePkg(String libName) async {
   // Package
 
   var pkgName = libName + Config.appSfx; // '_dartrix';
-  var pkg;
+  var _pkgList;
   //Package
   var pkgPackage;
   try {
     pkgPackage =
-        userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
-    // Config.logger.i('pkgPackage: $pkgPackage');
-    // Step 3.  Get the (file) root of the package. We need this to
-    // a) read the templates, and b) spawn the package.
-    // var pkgRootUri = pkgPackage.root;
-    // Config.logger.i('pkgPackage.root: ${pkgRootUri}');
-    pkg = {
+    userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
+    // this is ok - pkg config can only contain one copy of a dep
+    _pkgList = [{
       'name': pkgPackage.name,
       'version': 'Y',
       'cache': 'dartrix',
       'rootUri': pkgPackage.root.path
-    };
+  }];
   } catch (e) {
     if (!(e.message.startsWith('No element'))) {
       Config.prodLogger.e(e);
@@ -275,8 +271,8 @@ Future<Map> resolvePkg(String libName) async {
           'dartrix library pkg \'$pkgName\' not in usercache; checking syscache.');
     }
 
-    var p = await searchSysCache(pkgName);
-    if (p.isEmpty) {
+    _pkgList = await searchSysCache(pkgName);
+    if (_pkgList.isEmpty) {
       if (Config.debug) {
         Config.logger.d(
             'dartrix library pkg \'$pkgName\' not in syscache; checking pub.dev.');
@@ -284,23 +280,26 @@ Future<Map> resolvePkg(String libName) async {
       // download and install in syscache
       await fetchPackage(pkgName);
       // now we should find it
-      var newp = await searchSysCache(pkgName);
-      if (newp.isEmpty) {
+      var sysPkgList = await searchSysCache(pkgName);
+      if (sysPkgList.isEmpty) {
         Config.debugLogger.e('giving up');
       }
-      // Config.ppLogger.d('fetchPackage: $newp');
-      // return newp.first; //['uri']; //.path;
-      pkg = newp.first;
+      // Config.ppLogger.d('fetchPackage: $sysPkgList');
+      // return sysPkgList.first; //['uri']; //.path;
+      // pkg = sysPkgList.first;
+      _pkgList = sysPkgList;
     } else {
       if (Config.debug) {
-        Config.logger.d('found $pkgName in syscache: $p');
+        Config.logger.d('found ${_pkgList.length} occurrences of $pkgName in syscache: $_pkgList');
       }
       // return p.first; //['uri']; //.path + '/'; //FIXME: remove this hack
-      pkg = p.first;
+      // pkg = p.first;
+      return _pkgList;
     }
   }
-  Config.libPkgRoot = pkg['rootUri'];
-  return pkg; // ['rootUri']; // pkgRootUri.path;
+  // Config.libPkgRoot = pkg['rootUri'];
+  Config.ppLogger.d('resolved pkgList: $_pkgList');
+  return _pkgList; // ['rootUri']; // pkgRootUri.path;
 }
 
 /// Decompose package ref into name (with _dartrix) and uri
@@ -344,7 +343,7 @@ Future<List<Map>> searchSysCache(String uri) async {
   // Config.ppLogger.d('searchSysCache $uri');
   var syscacheRoot = Config.home + '/.pub-cache/hosted/pub.dartlang.org';
   var syscache = Directory(syscacheRoot).listSync();
-  if (uri == null) {
+  if (uri == null) { // null uri means get all
     var base;
     var parts;
     // var version;
