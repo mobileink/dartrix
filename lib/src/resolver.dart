@@ -223,23 +223,6 @@ Future<List<Map>> resolvePkg(String libName) async {
   }];
   }
 
-  // validate libName string
-  // if (libName.startsWith('package:') || libName.startsWith('pkg:')) {
-  //   // Config.logger.i('foo');
-  // } else {
-  //   Config.ppLogger.e(
-  //       'Malformed package URI. Must begin with "package:" or "pkg:" URI: $libName');
-  //   exit(0);
-  // }
-
-  // extract foo_bar from package:foo_bar | pkg:foo_bar
-  // String
-  // var pkgName = libName.replaceFirst(RegExp('^package:'), '');
-  // pkgName = pkgName.replaceFirst(RegExp('^pkg:'), '');
-  // _log.fine('pkgName: $pkgName');
-
-  // now we follow the configPackages to get the file url for the pkg
-
   // Step 1: get user's dart config (a packageConfig2)
   //PackageConfig
   var userPackageConfig2 = await getUserPackageConfig2();
