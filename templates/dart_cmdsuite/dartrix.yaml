@@ -17,7 +17,7 @@ params:
   help: 'Dart package name.'
   typeHelp: '[_a-z][a-zA-Z0-9_]*'
   defaultsTo: 'myapp'
-  seg: 'myapp'
+  seg: 'PKG'
 
 - name: 'dartrix-config-home'
   abbr: 'd'
