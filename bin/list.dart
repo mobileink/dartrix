@@ -44,62 +44,6 @@ void initBuiltinArgs() async {
   //   allowed: opts);
 }
 
-// void printBuiltins() async { // ArgResults options)
-//   // print('printBuiltins ${options.arguments}');
-//   //Uri
-//   // var packageConfigUri = await Isolate.packageConfig;
-//   // // e.g. file:///Users/gar/mobileink/dartrix/.packages
-//   // if (Config.debug) {
-//   //   Config.logger.i('packageConfigUri $packageConfigUri');
-//   // }
-
-//   // WARNING: for pub global activateds, the current dir of the script contains
-//   // .packages, which is the value of Isolate.packageConfig, but it does NOT
-//   // contain all of the subdirs of the original pkg root. It only the bin dir,
-//   // plus the pub stuff (.dart_tool, .packages, pubspec.lock).
-
-//   // e.g.
-//   // $ l ~/.pub-cache/global_packages/stagehand/
-//   // total 8.0K
-//   // drwxr-xr-x 3 gar staff  102 Mar 10 18:40 .dart_tool/
-//   // -rw-r--r-- 1 gar staff 2.9K Mar 10 18:40 .dart_tool/package_config.json
-//   // -rw-r--r-- 1 gar staff 1.3K Mar 10 18:40 .packages
-//   // drwxr-xr-x 3 gar staff  102 Mar 10 18:40 bin/
-//   // -rw-r--r-- 1 gar staff 1.3M Mar 10 18:40 bin/stagehand.dart.snapshot.dart2
-//   // -rw-r--r-- 1 gar staff 2.4K Mar 10 18:40 pubspec.lock
-
-//   // So to find the templates/ dir, we have to look it up in the .packages file
-//   // using findPackageConfigUri.  this is a v1 pkg config, i.e. a .packages
-//   // file, so back up one segment: String libDir =
-//   // path.dirname(packageConfigUri.path); var templatesRoot =
-//   // path.dirname(packageConfigUri.path) + '/templates'; List
-
-//   var templatesRoot = await resolveBuiltinTemplatesRoot();
-//   var templates = Directory(templatesRoot)
-//   .listSync()
-//   ..retainWhere((f) => f is Directory);
-
-//   print('Dartrix Template Library:');
-//   templates.forEach((t) {
-//     var tName = path.basename(t.path);
-//     //String
-//     var docString;
-//     try {
-//       docString =
-//           File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
-//     } on FileSystemException {
-//       // if (debug.debug)
-//       // Config.logger.i('docstring not found for ${builtin.path}');
-//       if (debug.debug) {
-//         docString = warningPen('${tName}.docstring not found');
-//         // tName = warningPen(sprintf('%-18s', [tName]));
-//       }
-//     }
-//     tName = sprintf('%-18s', [tName]);
-//     print('\t${tName} ${docString}');
-//   });
-// }
-
 void printPlugins(String libName, ArgResults options) async {
   // Config.ppLogger.v('printPlugins $libName, $options');
   // var libName = options.rest[0];
