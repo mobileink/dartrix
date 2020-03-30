@@ -10,7 +10,7 @@ import 'package:sprintf/sprintf.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/dispatch.dart';
+import 'package:dartrix/src/dispatcher.dart';
 import 'package:dartrix/src/handlers/dart_cmdsuite.dart';
 import 'package:dartrix/src/handlers/bashrc.dart';
 import 'package:dartrix/src/paths.dart';

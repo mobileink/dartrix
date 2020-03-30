@@ -58,3 +58,8 @@ void processArgs(String pkg, String template, ArgResults _options,
   // await spawnPluginFromPackage(
   //     spawnCallback, externalOnDone, pkg, [template, ...?tArgs]);
 }
+
+void dispatchUser(String template, ArgResults _options,
+    List<String> pluginArgs, List<String> tArgs) async {
+  Config.ppLogger.v('dispatchUser $template, $_options, $pluginArgs, $tArgs');
+}

@@ -11,6 +11,7 @@ import 'package:dartrix/src/builtins.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/dispatcher.dart';
 // import 'package:dartrix/src/paths.dart';
 import 'package:dartrix/src/plugins.dart';
 // import 'package:dartrix/src/utils.dart';
