@@ -2,6 +2,7 @@ import 'dart:core';
 import 'dart:io';
 // import 'dart:isolate';
 
+import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 // import 'package:args/command_runner.dart';
 import 'package:path/path.dart' as path;
@@ -13,19 +14,21 @@ import 'package:dartrix/dartrix.dart';
 import 'package:dartrix/src/builtins.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/lister.dart';
 import 'package:dartrix/src/resolver.dart';
-// import 'package:dartrix/src/utils.dart';
+import 'package:dartrix/src/utils.dart';
+import 'package:dartrix/src/yaml.dart';
 
 // void initBuiltinArgs(Dartrix cmd) async { //CommandRunner runner) async {
 void initBuiltinArgs() async {
   //CommandRunner runner) async {
   // {template : docstring }
   // Map
-  var biTemplates = await getTemplatesMap(null); // listBuiltinTemplates();
+  var biTemplates = await listTemplatesAsMap(null); // listBuiltinTemplates();
   // for each template, read yaml and construct arg parser
 
   // for (var t in biTemplates.keys) {
-  //   var tConfig = getTemplateConfig(t);
+  //   var tConfig = getTemplateYaml(t);
   //   // print('$t config: ${tConfig.name}');
   //   var subCmd = Dartrix.cmd(tConfig.name, tConfig.docstring);
   //   tConfig.params.forEach((p) {
@@ -44,54 +47,121 @@ void initBuiltinArgs() async {
   //   allowed: opts);
 }
 
-void printPlugins(String libName, ArgResults options) async {
-  // Config.ppLogger.v('printPlugins $libName, $options');
-  // var libName = options.rest[0];
+void printLocalTemplates() async {
+  // Config.ppLogger.v('printLocalTemplates entry'); //, ${options');
+  List<Map> localTemplates = listLocalTemplates();
+  print('Local templates (${Config.local}/templates):');
+  String tName;
+  localTemplates.forEach((t) {
+    tName = sprintf('%-18s', [t['name']]);
+    print('\t${tName} ${t["docstring"]}');
+  });
+}
+
+void printUserTemplates() async {
+  // Config.ppLogger.v('printUserTemplates entry'); //, ${options');
+  List<Map> userTemplates = listUserTemplates();
+  if (userTemplates.isNotEmpty) {
+    print(
+        'User templates (~/.dartrix.d/templates):'); //FIME: add  (${userDartrixHome})
+  }
+  String tName;
+  userTemplates.forEach((t) {
+    tName = sprintf('%-18s', [t['name']]);
+    print('\t${tName} ${t["docstring"]}');
+  });
+}
+
+void printBuiltins() async {
+  // var templatesRoot = await resolveBuiltinTemplatesRoot();
+  // var templates = Directory(templatesRoot).listSync()
+  //   ..retainWhere((f) => f is Directory);
+
+  print('Builtin templates:');
+
+  // var templates = await listTemplatesAsMap(null);
+  var templates = await listBuiltinTemplates();
+  var tName;
+  templates.forEach((t) {
+      tName = sprintf('%-18s', [t['name']]);
+      print('\t${tName} ${t["docstring"]}');
+  });
+}
+
+void printPluginTemplates(String libName, ArgResults options) async {
+  // Config.ppLogger.v('printPluginTemplates $libName'); //, ${options');
+
+  // normalize libName
+  // switch (libName) {
+  //   case ':.': libName = ':here'; break;
+  //   case ':u': libName = ':home'; break;
+  //   case ':user': libName = ':home'; break;
+  //   default: // nop
+  // }
 
   //List<Map>
-  var pkgList = await resolvePkg(libName);
-  Config.ppLogger.d('pkgList: $pkgList');
+  var userLibs = await resolvePkg(libName);
+  // Config.ppLogger.d('userLibs: $userLibs');
 
-  // pkgList may contain many versions.  find the most recent.
+  if (userLibs.isEmpty) return;
+
+  // userLibs may contain many versions.  find the most recent.
   // i.e. sort by version in descending order
-  pkgList.sort((a,b) {
-      int order = a['name'].compareTo(b['name']);
-      if (order != 0) {
-        return order;
-      } else {
-        return (Version.parse(a['version']) > Version.parse(b['version']))
-        ? -1 : 1;
+  userLibs.sort((a, b) {
+    int order = a['name'].compareTo(b['name']);
+    if (order != 0) {
+      return order;
+    } else {
+      return (Version.parse(a['version']) > Version.parse(b['version']))
+          ? -1
+          : 1;
     }
   });
-  Config.ppLogger.d('sorted: $pkgList');
+  // Config.ppLogger.d('sorted: $userLibs');
   //String
-  Config.libPkgRoot = pkgList[0]['rootUri']; // Highest version
+  Config.libPkgRoot = userLibs[0]['rootUri']; // Highest version
   // if (Config.debug) {
   //   Config.logger.d(
   //       'resolved $libName to package:${libName}_dartrix to ${Config.libPkgRoot}');
   // }
   //String
-  var templatesRoot = Config.libPkgRoot + '/templates';
+  var templatesRoot =
+      Config.libPkgRoot + '/' + ((libName == ':here') ? '.' : '') + 'templates';
   // if (Config.verbose) {
   //   Config.logger.i('templatesRoot: $templatesRoot');
   // }
   //List
   var templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
-  print('package:${libName}_dartrix templates:');
+  // print(libName);
+  switch (libName) {
+    case ':here':
+      print(':here (:.) templates:');
+      break;
+    case ':h':
+    case ':home':
+      print(':home templates:');
+      break;
+    case ':l':
+    case ':local':
+      print(':local templates:');
+      break;
+    default:
+      print('package:${libName}_dartrix templates:');
+  }
   templates.forEach((t) {
+    TemplateYaml tConfig = getTemplateYaml(t.path);
     var tName = path.basename(t.path);
-    //String
-    var docString;
-    try {
-      docString =
-          File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
-    } on FileSystemException {
-      if (Config.debug) {
-        docString = warningPen('${tName}.docstring not found');
-      }
-    }
-    var version = getPluginVersion(Config.libPkgRoot);
+    var docString = tConfig.docstring;
+    // try {
+    //   docString =
+    //       File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
+    // } on FileSystemException {
+    //   if (Config.debug) {
+    //     docString = warningPen('${tName}.docstring not found');
+    //   }
+    // }
+    // var version = getPluginVersion(Config.libPkgRoot);
     // Config.ppLogger.d('version: $version');
     tName = sprintf('%-18s', [tName]);
     print('\t${tName} ${docString}');
@@ -105,75 +175,129 @@ String abbrevPath(String path) {
 }
 
 void printUsage(ArgParser argParser) async {
+  // Config.ppLogger.d('printUsage entry');
   if (!Config.debug) {
     print('dartrix:list, version 0.1.0\n');
-    print('Usage: dartrix:list [-h] <library>\n');
+    print('Usage: dartrix:list [plhv] [<library>]\n');
     // print('Options (for builtins and plugin libraries only):\n');
     print(argParser.usage);
   }
-  // pkgs: map of pkgname: uri
-  //List<Map>
-  var pkgs = await getPlugins(Config.appSfx);
-  // Config.ppLogger.v('pkgs: $pkgs');
-
   final format = '  %-14s%-14s%-70s';
   if (!Config.debug) {
     // print('\nAvailable template libraries:\n');
     print('');
     // print header
-    var header = sprintf(format, ['  Library', 'Version', 'Description']);
+    var header = sprintf(format, ['Library', 'Version', 'Description']);
     print('${infoPen(header)}');
 
-    var builtins = sprintf(
-        format, ['  dartrix', await Config.appVersion, 'builtin templates']);
-    print('$builtins');
+    var line = sprintf(
+        format, [':dartrix', await Config.appVersion, 'builtin templates']);
+    print('$line');
+
+    String v;
+    AnsiPen stdPen = AnsiPen();
+    AnsiPen thePen = stdPen;
+    if (stdTLibExists(':here')) {
+      v = '';
+    } else {
+      v = '[not used]';
+      thePen = configPen;
+      if (Config.verbose) {
+        Config.prodLogger.i(infoPen(':here template library not found (./.templates)'));
+      }
+    }
+    line = sprintf(
+      format, [':here', '$v', 'Here templates (./.templates)']);
+    print(thePen('$line'));
+
+    if (stdTLibExists(':user')) {
+      v = '';
+      thePen = stdPen;
+    } else {
+      thePen = configPen;
+      v = '[not used]';
+      if (Config.verbose) {
+        Config.prodLogger.i(infoPen(':user template library not found (${Config.dartrixHome}/templates)'));
+      }
+    }
+    line = sprintf(format,
+      [':user', '$v', 'User (private) templates (~/.dartrix.d/templates)']);
+    print(thePen('$line'));
+
+    if (Config.searchLocal) {
+      if (stdTLibExists(':local')) {
+        v = '';
+        thePen = stdPen;
+      } else {
+        thePen = configPen;
+        v = '[not used]';
+        if (Config.verbose) {
+          Config.prodLogger.i(infoPen(':local template library not found (${Config.local}/templates)'));
+        }
+      }
+      var l = sprintf(format,
+        [':local', v, 'Local templates (${Config.local}/templates)']);
+      print(thePen('$l'));
+    }
   }
+  print('\nImports:');
+  // pkgs: map of pkgname: uri
+  //List<Map>
+  var plugins = await listTLibs(Config.appSfx);
+  // Config.ppLogger.v('plugins: $plugins');
 
   var libName;
   var plugin;
   var star = ' ';
-  pkgs.forEach((pkg) {
-    libName = pkg['name'].replaceFirst(RegExp('_dartrix\$'), '');
-    switch (pkg['src']) {
-      case 'path':
-        star = '  ';
+  plugins.forEach((plugin) {
+      // print('PLUGIN: $plugin');
+    libName = plugin['name'].replaceFirst(RegExp('_dartrix\$'), '');
+    switch (plugin['scope']) {
+      //FIXME
+      case 'user':
+        star = '*';
         break;
-      case 'syscache':
-        star = ' *';
+      case 'local':
+        star = '+';
+        break;
+      case 'sys':
+        star = '>';
         break;
       case 'pubdev':
-        star = '**';
+        star = '^';
         break;
       default:
-        star = '??';
+        star = '?';
     }
-    var docString = pkg['docstring'] ??
-        getDocStringFromPkg(libName, pkg['rootUri'] ?? pkg['path']);
+    // var docString = plugin['docstring'] ??
+    //     getDocStringFromPkg(libName, plugin['rootUri'] ?? plugin['path']);
     // var penName = infoPen(libName);
     // print('libname ${libName} len: ${penName.length}');
-    if (pkg['path'] == null) {
-      libName = '${star}${libName}';
-    } else {
+    // if (plugin['path'] == null) {
+    //   libName = '${star}${libName}';
+    // } else {
       libName = '${star}${libName}';
       // libName = sprintf('%-27s', ['${star}${infoPen(libName)}']);
-    }
-    plugin = sprintf(format, [libName, pkg['version'], docString]);
-    // var star = (pkg['syscache'] == 'true') ? '*' : ' ';
+    // }
+    var pluginStr =
+        sprintf(format, [libName, plugin['version'], plugin['docstring']]);
+    // var star = (plugin['syscache'] == 'true') ? '*' : ' ';
     if (!Config.debug) {
-      print('$plugin');
-      if (pkg['path'] != null) {
-        print(sprintf(format, ['', '', '${infoPen("path")}: ${pkg["path"]}']));
+      print('$pluginStr');
+      if ((plugin['scope'] == 'user') || (plugin['scope'] == 'local')) {
+        print(sprintf(
+            format, ['', '', '${infoPen("path")}: ${plugin["rootUri"]}']));
       }
     }
   });
   if (!Config.debug) {
     // print('\n${infoPen("path")}: active library');
-    print('\n*  Installed in local syscache (~/.pub-cache)');
-    if (Config.searchPubDev) {
-      print('** Available on pub.dev\n');
-    } else {
-      print('');
-    }
+    // print('\n* User (~/.dartrix.d/user.yaml)   + Local (${Config.local})');
+    // print('> System (~/.pub-cache)');
+    print('\n*User  '
+      + ((Config.searchLocal) ? '+Local' : '')
+      + '  >System'
+      + ((Config.searchPubDev) ? '  ^pub.dev' : ''));
   }
 }
 
@@ -187,7 +311,9 @@ void main(List<String> args) async {
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addCommand('list');
   argParser.addFlag('pubdev',
-      abbr: 'p', defaultsTo: false, help: 'Search pub.dev. Default: false');
+      abbr: 'p', defaultsTo: false, help: 'List pub.dev. Default: no');
+  argParser.addFlag('local',
+      abbr: 'l', defaultsTo: false, help: 'List local (/usr/local/share/dartrix) Default: no');
   argParser.addFlag('help',
       abbr: 'h', defaultsTo: false, help: 'Print this help message.');
   argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
@@ -196,7 +322,7 @@ void main(List<String> args) async {
   try {
     Config.options = argParser.parse(args);
   } catch (e) {
-    Config.logger.e(e);
+    Config.logger.e('$e');
     exit(0);
   }
 
@@ -214,6 +340,10 @@ void main(List<String> args) async {
   // // var root = path.dirname(Platform.script.toString());
   // // print('proj root: $root');
 
+  Config.searchPubDev = Config.options['pubdev'];
+  Config.searchLocal = Config.options['local'];
+  // print('searchPubDev: ${Config.searchPubDev}');
+
   if (Config.options['help']) {
     await printUsage(argParser);
     if (Config.debug) {
@@ -222,9 +352,6 @@ void main(List<String> args) async {
     }
     exit(0);
   }
-
-  Config.searchPubDev = Config.options['pubdev'];
-  // print('searchPubDev: ${Config.searchPubDev}');
 
   if (Config.debug) {
     await debug.debugConfig();
@@ -243,9 +370,20 @@ void main(List<String> args) async {
     // var bis = await listBuiltinTemplates();
     // print('bis: $bis');
   } else {
-    switch (Config.options.rest[0]) {
-      case 'dartrix':
+    Config.libName = normalizeLibName(Config.options.rest[0]);
+    //{Config.libName);
+    switch (Config.libName) { // Config.options.rest[0]) {
+      case ':d':
+      case ':dartrix':
         await printBuiltins(); // Config.options);
+        break;
+      case ':h':
+      case ':home':
+        await printUserTemplates(); // Config.options);
+        break;
+      case ':l':
+      case ':local':
+        await printLocalTemplates(); // Config.options);
         break;
       case 'help':
       case '-h':
@@ -254,7 +392,8 @@ void main(List<String> args) async {
         exit(0);
         break;
       default:
-        printPlugins(Config.options.rest[0], Config.options);
+        // printPluginTemplates(Config.options.rest[0], Config.options);
+        printPluginTemplates(Config.libName, Config.options);
     }
   }
 }

@@ -23,52 +23,56 @@ String rewritePath(String _path) {
   //List<String>
   var segs = _path.split(path.separator);
   var sm = segs.map((seg) {
-    // _log.fine('seg: $seg');
-    if (tData['segmap'][seg] == null) {
-      // no rewrite for full seg, check for partial
-      var base = path.basenameWithoutExtension(seg);
-      if (tData['segmap'][base] == null) {
-        // no rewrite for FOO of FOO.bar, check for BAR of foo.BAR
-        var ext = path.extension(seg);
-        if (tData['segmap'][ext] == null) {
-          return seg;
+      // _log.fine('seg: $seg');
+      if (tData['segmap'][seg] == null) {
+        if (seg.endsWith('MUSTACHE')) {
+          return seg.replaceAll('MUSTACHE', 'mustache');
         } else {
-          var rw = base + tData['segmap'][ext];
-          return rw;
+          // no rewrite for full seg, check for partial
+          var base = path.basenameWithoutExtension(seg);
+          if (tData['segmap'][base] == null) {
+            // no rewrite for FOO of FOO.bar, check for BAR of foo.BAR
+            var ext = path.extension(seg);
+            if (tData['segmap'][ext] == null) {
+              return seg;
+            } else {
+              var rw = base + tData['segmap'][ext];
+              return rw;
+            }
+          } else {
+            // e.g. FOO.bar matched FOO
+            var rw;
+            if (base == 'DOTDIR_D') {
+              rw = tData['segmap'][base]; //  + path.extension(seg) + '.d';
+            } else {
+              rw = tData['segmap'][base] + path.extension(seg);
+            }
+            return rw;
+          }
         }
       } else {
-        // e.g. FOO.bar matched FOO
-        var rw;
-        if (base == 'DOTDIR_D') {
-          rw = tData['segmap'][base]; //  + path.extension(seg) + '.d';
-        } else {
-          rw = tData['segmap'][base] + path.extension(seg);
-        }
-        return rw;
-      }
-    } else {
-      switch (seg) {
-        // case 'FILE':
-        // break;
-        case 'HOME':
+        switch (seg) {
+          // case 'FILE':
+          // break;
+          case 'HOME':
           // Config.ppLogger.v('segmap HOME: ${tData["segmap"]["HOME"]}');
           // Config.ppLogger.v('HOME: ${Config.home}');
 
           if (tData['segmap']['HOME'] != Config.home) {
             if (path.isRelative(tData['segmap']['HOME'])) {
               tData['segmap']['HOME'] =
-                  path.normalize(Config.home + '/' + tData['segmap']['HOME']);
+              path.normalize(Config.home + '/' + tData['segmap']['HOME']);
             }
           }
           // Config.ppLogger.v('rewritten segmap HOME: ${tData["segmap"]["HOME"]}');
           return tData['segmap'][seg];
           break;
-        // case 'CWD':
-        // break;
-        default:
+          // case 'CWD':
+          // break;
+          default:
           return tData['segmap'][seg];
+        }
       }
-    }
   });
   var result = sm.join('/');
   return result;

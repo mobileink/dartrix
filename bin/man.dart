@@ -9,6 +9,7 @@ import 'package:process_run/shell.dart';
 
 import 'package:dartrix/dartrix.dart';
 
+import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/utils.dart';
 
@@ -62,8 +63,10 @@ void manBuiltins(ArgResults options) async {
 void manPlugins(ArgResults options) async {
   // print('manPlugins');
   var lib = options.rest[0];
-  var pkgList = await resolvePkg('package:' + lib + '_dartrix');
-  var libDir = pkgList[0]['uriRoot'];
+  // print('lib: $lib');
+  // var pkgList = await resolvePkg('package:' + lib + '_dartrix');
+  var pkgList = await resolvePkg(lib);
+  var libDir = pkgList[0]['rootUri'];
   if (Config.verbose) {
     Config.logger.i('resolved $lib to package:${lib}_dartrix to $libDir');
   }
@@ -103,6 +106,12 @@ void printUsage(ArgParser argParser) async {
 }
 
 void main(List<String> args) async {
+  if (args.contains('--debug')) {
+    Config.debug = true;
+    debug.debug = true;
+  }
+  await Config.config('dartrix');
+
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addOption('library', abbr: 'l',
   //   valueHelp: 'name',

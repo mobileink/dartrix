@@ -12,15 +12,11 @@ import 'package:process_run/cmd_run.dart';
 
 import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/debug.dart' as debug;
-// import 'package:dartrix/src/utils.dart';
+import 'package:dartrix/src/lister.dart';
+import 'package:dartrix/src/utils.dart';
+import 'package:dartrix/src/yaml.dart';
 
 // var _log = Logger('resolver');
-
-bool verifyExists(String fsePath) {
-  // FileSystemEntityType
-  var fse = FileSystemEntity.typeSync(fsePath);
-  return (fse != FileSystemEntityType.notFound);
-}
 
 // Terminology:
 // userDartConfigDir :  $HOME/.dart.d
@@ -153,15 +149,15 @@ void setBuiltinTemplatesRoot() async {
 /// get PackageConfig for ~/.dart.d/
 //FIXME: rename to getHomePkgConfig
 Future<PackageConfig> getUserPackageConfig2() async {
-  // Config.logger.i('getUserPackageConfig2');
+  Config.ppLogger.i('getUserPackageConfig2');
 
-  var dartConfigDirPath = Config.home + '/.dart.d';
+  var dartConfigDirPath = Config.home + '/.dartrix.d';
   if (!verifyExists(dartConfigDirPath)) {
-    dartConfigDirPath = Config.home + '/.dart';
-    if (!verifyExists(dartConfigDirPath)) {
-      Config.ppLogger.e('dartConfigDirPath (~/.dart.d or ~/.dart) not found)');
-      exit(0);
-    }
+    // dartConfigDirPath = Config.home + '/.dart';
+    // if (!verifyExists(dartConfigDirPath)) {
+    Config.ppLogger.e('dartConfigDirPath (~/.dart.d or ~/.dart) not found)');
+    exit(0);
+    // }
   }
   // if (Config.debug) {
   //   Config.ppLogger.v('found dartConfigDirPath: $dartConfigDirPath');
@@ -172,8 +168,8 @@ Future<PackageConfig> getUserPackageConfig2() async {
   // fn from package_config.package_config_discovery Package class
 
   try {
-   // findPackageConfig loads `.dart_tool/package_config.json` (version 2) or a
-   // `.packages` (version 1) file.
+    // findPackageConfig loads `.dart_tool/package_config.json` (version 2) or a
+    // `.packages` (version 1) file.
     userPackageConfig2 = await findPackageConfig(dartConfigDir);
     // onError: (e) => Config.logger.e(e));
   } catch (e) {
@@ -188,9 +184,9 @@ Future<PackageConfig> getUserPackageConfig2() async {
 
 Future<String> fetchPackage(String uri) async {
   // Config.ppLogger.v('fetchPackage $uri');
-  // if (Config.debug) {
-  Config.logger.i('fetching $uri from pub.dev...');
-  // }
+  if (Config.verbose) {
+    Config.logger.i('fetching $uri from pub.dev...');
+  }
   try {
     await runCmd(PubCmd(['cache', 'add', uri]), verbose: false);
   } catch (e) {
@@ -200,86 +196,147 @@ Future<String> fetchPackage(String uri) async {
   return uri;
 }
 
-//FIXME: rename to resolveTemplateLib
-/// Resolves a [templateLibName] to a list of pkg specs.
-///
-/// Searches user config, syscache, and pub.dev.
-Future<List<Map>> resolvePkg(String templateLibName) async {
-  // Config.ppLogger.d('resolvePkgRoot: $templateLibName');
+// Future<List<Map>> getUserTemplates(String templateLibName) async {}
 
-  if (templateLibName == Config.appName) {
-    return [
-      {
-        'name': Config.appName, //'dartrix',
-        'version': Config.appVersion,
-        'cache': null,
-        'rootUri': Config.appPkgRoot
-      }
-    ];
+/// Resolves a [templateLibName] to a package spec.
+///
+/// Searches user, local, syscache, and pub.dev. Returns
+/// the highest version. Result is map with keys name, version,
+/// cache, and rootUri.
+Future<List<Map>> resolvePkg(String templateLibName) async {
+  // Config.debugLogger.d('resolvePkg: $templateLibName');
+
+  switch (templateLibName) {
+    case ':.':
+    case ':here':
+      return listHereLib();
+      break;
+    case ':d':
+    case ':dartrix': // Config.appName :
+      return [
+        {
+          'name': Config.appName,
+          'version': Config.appVersion,
+          'docstring' : 'Builtin templates',
+          'scope': 'builtin',
+          'rootUri': Config.appPkgRoot
+        }
+      ];
+      break;
+    case ':h':
+    case ':home':
+    case ':u':
+    case ':user':
+      return listUserLib();
+      break;
+    case ':l':
+    case ':local': // return listLocalLib();
+      //FIXME: verify it exists
+      return [
+        {
+          'name': ':local', //'dartrix',
+          'version': null,
+          'docstring' : 'Local template library',
+          'scope': 'local',
+          'rootUri': '/usr/local/share/dartrix'
+        }
+      ];
+    default:
+      return await resolvePluginPkg(templateLibName);
+  }
+}
+
+Future<List<Map>> resolvePluginPkg(String templateLibName) async {
+  // Config.debugLogger.d('resolvePluginPkg $templateLibName');
+  // 1. look in ~/.dartrix.d/.yaml, libraries: entry
+  // Rule: if listed as user lib with path it wins
+
+  var userYaml = getUserYaml();
+  if (userYaml != null) {
+    var lib;
+    try {
+      lib = userYaml.libraries.singleWhere((lib) {
+        return (lib.name == templateLibName + Config.appSfx);
+      }, orElse: () => null);
+    } catch (e) {
+      Config.ppLogger.e(e);
+      // muliple matches, should not happen
+      Config.ppLogger.e(
+          'User config file (${Config.home}/.dartrix.d/.yaml}) contains duplicate library entries for \'${templateLibName}_dartrix\'. Disallowed.');
+      exit(1);
+    }
+    if (lib != null) {
+      var r = {'name': lib.name, 'rootUri': lib.path};
+      return [r];
+    }
   }
 
-  // Step 1: get user's dart config (a packageConfig2)
-  //PackageConfig
-  var userPackageConfig2 = await getUserPackageConfig2();
-  // Step 2. pkgName is listed as a dep in the packageConfig2
-  // Package
+  // // Step 1: get user's dart config (a packageConfig2)
+  // //PackageConfig
+  // var userPackageConfig2 = await getUserPackageConfig2();
+  // // Step 2. pkgName is listed as a dep in the packageConfig2
+  // // Package
 
-  var pkgName = templateLibName + Config.appSfx; // '_dartrix';
-  var _pkgList;
-  //Package
-  var pkgPackage;
-  try {
-    pkgPackage =
-        userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
-    // this is ok - pkg config can only contain one copy of a dep
-    _pkgList = [
-      {
-        'name': pkgPackage.name,
-        'version': 'Y',
-        'cache': 'dartrix',
-        'rootUri': pkgPackage.root.path
-      }
-    ];
-    Config.ppLogger.i('found in user pkgconfig: $_pkgList');
-  } catch (e) {
-    if (!(e.message.startsWith('No element'))) {
-      Config.prodLogger.e(e);
-      exit(0);
-    }
+  var templatePkgName = templateLibName + Config.appSfx; // '_dartrix';
+  // var pkgName = templateLibName + Config.appSfx; // '_dartrix';
+  // var _pkgList;
+  // //Package
+  // var pkgPackage;
+  // try {
+  //   pkgPackage =
+  //       userPackageConfig2.packages.singleWhere((pkg) => pkg.name == pkgName);
+  //   // this is ok - pkg config can only contain one copy of a dep
+  //   _pkgList = [
+  //     {
+  //       'name': pkgPackage.name,
+  //       'version': 'Y',
+  //       'cache': 'dartrix',
+  //       'rootUri': pkgPackage.root.path
+  //     }
+  //   ];
+  // Config.ppLogger.i('found in user pkgconfig: $_pkgList');
+  // } catch (e) {
+  //   if (!(e.message.startsWith('No element'))) {
+  //     Config.prodLogger.e(e);
+  //     exit(0);
+  //   }
 
+  //   if (Config.debug) {
+  //     Config.logger.d(
+  //         'dartrix library pkg \'$pkgName\' not in usercache; checking syscache.');
+  //   }
+
+  var _pkgList = await searchSysCache(templatePkgName);
+  if (_pkgList.isEmpty) {
     if (Config.debug) {
       Config.logger.d(
-          'dartrix library pkg \'$pkgName\' not in usercache; checking syscache.');
+          'dartrix library pkg \'$templatePkgName\' not in syscache; checking pub.dev.');
     }
-
-    _pkgList = await searchSysCache(pkgName);
-    if (_pkgList.isEmpty) {
-      if (Config.debug) {
-        Config.logger.d(
-            'dartrix library pkg \'$pkgName\' not in syscache; checking pub.dev.');
-      }
-      //FIXME: only if Config.searchPubDev
-      // download and install in syscache
-      await fetchPackage(pkgName);
-      // now we should find it
-      var sysPkgList = await searchSysCache(pkgName);
-      if (sysPkgList.isEmpty) {
-        Config.debugLogger.e('giving up');
-      }
-      // Config.ppLogger.d('fetchPackage: $sysPkgList');
-      // return sysPkgList.first; //['uri']; //.path;
-      // pkg = sysPkgList.first;
-      _pkgList = sysPkgList;
-    } else {
-      if (Config.debug) {
-        Config.logger.d(
-            'found ${_pkgList.length} occurrences of $pkgName in syscache: $_pkgList');
-      }
-      // return p.first; //['uri']; //.path + '/'; //FIXME: remove this hack
-      // pkg = p.first;
-      return _pkgList;
+    //FIXME: only if Config.searchPubDev
+    // download and install in syscache
+    await fetchPackage(templatePkgName);
+    // now we should find it
+    var sysPkgList = await searchSysCache(templatePkgName);
+    if (sysPkgList.isEmpty) {
+      Config.prodLogger.i('Plugin package \'$templatePkgName\' not found.');
+      if (templatePkgName.startsWith('dartrix')) {
+        Config.prodLogger.i('Did you forget a semi-colon? Try \':dartrix\' (or just \':d\').');
     }
+    }
+    // Config.ppLogger.d('fetchPackage: $sysPkgList');
+    // return sysPkgList.first; //['uri']; //.path;
+    // pkg = sysPkgList.first;
+    _pkgList = sysPkgList;
+  } else {
+    if (Config.debug) {
+      Config.logger.d(
+          'found ${_pkgList.length} occurrences of $templatePkgName in syscache: $_pkgList');
+    }
+    // return p.first; //['uri']; //.path + '/'; //FIXME: remove this hack
+    // pkg = p.first;
+    return _pkgList;
   }
+  // }
   // Config.libPkgRoot = pkg['rootUri'];
   // Config.ppLogger.d('resolved pkgList: $_pkgList');
   return _pkgList; // ['rootUri']; // pkgRootUri.path;
@@ -326,51 +383,69 @@ Future<List<Map>> searchSysCache(String uri) async {
   // Config.ppLogger.d('searchSysCache $uri');
   var syscacheRoot = Config.home + '/.pub-cache/hosted/pub.dartlang.org';
   var syscache = Directory(syscacheRoot).listSync();
+  List<Map> syscachePkgs = [];
   if (uri == null) {
     // null uri means get all
     var base;
     var parts;
     // var version;
     syscache.retainWhere((pkg) {
-      parts = path.basename(pkg.path).split('-');
-      base = parts[0];
-      // Config.logger.v(base);
-      return base.endsWith(Config.appSfx);
+        parts = path.basename(pkg.path).split('-');
+        base = parts[0];
+        // Config.logger.v(base);
+        return base.endsWith(Config.appSfx);
     });
     if (Config.debug) {
       Config.logger
-          .d('found ${syscache.length} plugins in syscache ($syscacheRoot).');
+      .d('found ${syscache.length} plugins in syscache ($syscacheRoot).');
     }
-    var syscachePkgs = [
-      for (var pkg in syscache)
-        {
-          'name': path.basename(pkg.path).split('-')[0],
-          'version': path.basename(pkg.path).split('-')[1],
-          'rootUri': pkg.path,
-          'src': 'syscache'
-        }
-    ];
-    // Config.ppLogger.d('syscachePkgs: $syscachePkgs');
-    return syscachePkgs.toList();
   } else {
     syscache.retainWhere((pkg) => path.basename(pkg.path).startsWith(uri));
-    var syscachePkgs = [
-      for (var pkg in syscache)
-        {
-          'name': path.basename(pkg.path).split('-')[0],
-          'version': path.basename(pkg.path).split('-')[1],
-          'rootUri': pkg.path,
-          'cache': 'sys'
-        }
-    ];
-    return syscachePkgs.toList();
-    // if (syscache.isEmpty) {
-    //   return null;
-    // } else {
-    //   // Config.ppLogger.v('count: ${syscache.length}');
-    //   return syscache.first.path;
-    // }
   }
+  var ty;
+  syscache.forEach((pkg) async {
+      // print('plugin path: ${pkg.path}');
+      ty = loadYamlFileSync(pkg.path + '/pubspec.yaml');
+      var pspec = {
+        'name': path.basename(pkg.path).split('-')[0],
+        'version': path.basename(pkg.path).split('-')[1],
+        'docstring': ty['description'], //FIXME
+        'rootUri': pkg.path,
+        'scope': 'sys'
+      };
+      syscachePkgs.add(pspec);
+  });
+    // Config.ppLogger.d('syscachePkgs: $syscachePkgs');
+    // return syscachePkgs.toList();
+
+    // var ty;
+    // syscache.forEach((pkg) async {
+    //   // print('plugin path: ${pkg.path}');
+    //   ty = loadYamlFileSync(pkg.path + '/pubspec.yaml');
+    //   var pspec = {
+    //     'name': path.basename(pkg.path).split('-')[0],
+    //     'version': path.basename(pkg.path).split('-')[1],
+    //     'docstring': ty['description'], //FIXME
+    //     'rootUri': pkg.path,
+    //     'scope': 'sys'
+    //   };
+    //   syscachePkgs.add(pspec);
+    // });
+    // syscachePkgs = [
+    //   for (var pkg in syscache)
+
+    //     {
+    //       'name': path.basename(pkg.path).split('-')[0],
+    //       'version': path.basename(pkg.path).split('-')[1],
+    //       // 'docstring' : '
+
+    //       'rootUri': pkg.path,
+    //       'scope': 'sys'
+    //     }
+    // ];
+  // }
+  // Config.debugLogger.d('SYSCACHE: $syscachePkgs');
+  return syscachePkgs; //.toList();
 }
 
 Future<List<Map<String, String>>> downloadPkgSpecs(Set pset) async {
@@ -386,7 +461,8 @@ Future<List<Map<String, String>>> downloadPkgSpecs(Set pset) async {
     devPubPlugins.add({
       'name': body['name'],
       'version': body['latest']['pubspec']['version'],
-      'src': 'pubdev',
+      'docstring' : body['latest']['pubspec']['docstring'],
+      'scope': 'pubdev',
       'docstring': body['latest']['pubspec']['description']
     });
   }
@@ -397,6 +473,7 @@ Future<List<Map<String, String>>> downloadPkgSpecs(Set pset) async {
 }
 
 Future<List<Map<String, String>>> getPubDevPlugins(String url) async {
+  // Config.ppLogger.v('getPubDevPlugins $url');
   // url ??= 'https://pub.dartlang.org/api/packages?q=_dartrix';
   url ??= 'https://pub.dev/dart/packages?q=dartrix';
   // response is map of two keys, next_url and packages
@@ -443,153 +520,52 @@ Future<List<Map<String, String>>> getPubDevPlugins(String url) async {
 }
 
 String getPluginVersion(String rootPath) {
-  // print('getPluginVersion $rootPath');
+  print('getPluginVersion $rootPath');
   var f = path.normalize(rootPath + '/pubspec.yaml');
   var yaml = loadYamlFileSync(f);
   return yaml['version'];
 }
 
-Future<List<Map>> getPlugins(String suffix) async {
-  // Config.debugLogger.d('getPlugins $suffix');
-  // 1. usercache
-  //PackageConfig
-  var userPkgConfig2 = await getUserPackageConfig2();
-  var pkgs = userPkgConfig2.packages.toList();
-  // if (verbose) Config.logger.i('found ${pkgs.length} user packages');
-  pkgs.retainWhere((pkg) => pkg.name.endsWith(suffix));
-  // if (verbose) {
-  //   Config.logger.i('found ${pkgs.length} $suffix packages:');
-  //   pkgs.forEach((pkg) {
-  //       Config.logger.i('${pkg.name} => ${pkg.root}');
-  //   });
-  // }
-  List<Map> userPkgs;
-  if (pkgs.isNotEmpty) {
-    // if (Config.debug) {
-    //   pkgs.forEach((pkg) => Config.ppLogger.d('userPkg: ${pkg.name}'));
-    // }
-    if (Config.debug) {
-      pkgs.forEach((pkg) {
-        Config.logger.d('userPkg ${pkg.root}');
-      });
-    }
-    // // remove pub-cached entries; they will be discovered by searchSysCache
-    // pkgs.removeWhere((pkg) {
-    //     return pkg.root.path.contains('.pub-cache');
-    // });
-    userPkgs = [
-      for (var p in pkgs)
-        {
-          'name': p.name,
-          'version': getPluginVersion(path.dirname(p.packageUriRoot.path)),
-          'src': p.packageUriRoot.path.contains('.pub-cache')
-              ? 'syscache'
-              : 'path',
-          ...(p.packageUriRoot.path.contains('.pub-cache')
-              ? {'rootUri': path.dirname(p.packageUriRoot.path)}
-              : {'path': path.dirname(p.packageUriRoot.path)}),
-        }
-    ];
+// String getDocStringFromPkg(String libName, String uri) {
+//   Config.ppLogger.v('getDocStringFromPkg $libName, $uri');
+//   // var rootDir = pkgName.root.path;
+//   // var libName = pkg.name.replaceFirst(RegExp('_dartrix'), '');
+//   var docstringName = libName + '.docstring';
+//   var docstring = File(uri + '/' + docstringName).readAsStringSync();
+//   //TODO: break long lines
+//   return docstring;
+// }
+
+// String getTLibDocString(String templatesRoot, Directory tdir) {
+//   Config.ppLogger.d('getDocString $templatesRoot, $tdir');
+//   if (Config.tLibDocString != null) {
+//     return Config.tLibDocString;
+//   }
+//   var template = path.basename(tdir.path);
+//   var docString;
+//   try {
+//     docString =
+//         File(templatesRoot + '/' + template + '.docstring').readAsStringSync();
+//     // } on FileSystemException {
+//   } catch (e) {
+//     // docString = warningPen('${template}.docstring not found');
+//     if (Config.debug) {
+//       Config.debugLogger.w(e);
+//       // } else {
+//       //   Config.logger.w(e);
+//     }
+//   }
+//   return docString;
+// }
+
+String getTemplateDocString(Directory tdir) {
+  // Config.debugLogger.d('getTemplateDocString, $tdir');
+  if (Config.tLibDocString != null) {
+    return Config.tLibDocString;
   }
-  if (Config.debug) {
-    Config.logger
-        .d('found ${pkgs.length} plugins in usercache (${Config.userCache})');
-  }
-
-  // Config.ppLogger.v('userpkg: $userPkgs');
-
-  // 2. syscache
-  var sysPkgs = await searchSysCache(null); // find all
-  // if (Config.verbose) {
-  //   Config.ppLogger.i('Found in syscache: $pkgDirs');
-  // }
-
-  // var base;
-  // var sysPkgs = [
-  //   for (var dir in pkgDirs)
-  //     {
-  //       'name': path.basename(dir.path).split('-')[0],
-  //       'rootUri': dir.path,
-  //       'syscache': 'true'
-  //     }
-  // ];
-  if (sysPkgs != null) {
-    userPkgs.addAll(sysPkgs);
-  }
-
-  var pubDevPlugins = [];
-  if (Config.searchPubDev) {
-    pubDevPlugins = await getPubDevPlugins(null);
-  }
-
-  // Config.ppLogger.v('userPkgs: $userPkgs');
-  // Config.ppLogger.v('pubDevPlugins: $pubDevPlugins');
-  List<Map> allPlugins = List.from(pubDevPlugins);
-  allPlugins.addAll(userPkgs);
-  // print('allPlugins: $allPlugins');
-
-  // now remove pub.dev plugins that are already installed
-  // allPlugins = allPlugins.fold([], (prev, elt) {
-  //   var i = prev.indexWhere((e) => e['name'] == elt['name']);
-  //   if (i < 0) {
-  //     prev.add(elt);
-  //   } else {
-  //     if (prev[i]['rootUri'] == null) {
-  //       // print('removing ${prev[i]}');
-  //       prev.removeAt(i);
-  //       prev.add(elt);
-  //     }
-  //   }
-  //   return prev;
-  // });
-  // print('new allPlugins: $allPlugins');
-
-  allPlugins.sort((a, b) {
-    int order = a['name'].compareTo(b['name']);
-    if (order == 0) {
-      if (a['src'] == 'path') return -1;
-      if (a['src'] == 'pubdev') return 1;
-    }
-    return order;
-  });
-
-  if (userPkgs != null) {
-    if (allPlugins != null) {
-      return allPlugins;
-    } else {
-      return userPkgs;
-    }
-  } else {
-    return allPlugins;
-  }
-}
-
-String getDocStringFromPkg(String libName, String uri) {
-  // Config.ppLogger.v('getDocStringFromPkg $libName, $uri');
-  // var rootDir = pkgName.root.path;
-  // var libName = pkg.name.replaceFirst(RegExp('_dartrix'), '');
-  var docstringName = libName + '.docstring';
-  var docstring = File(uri + '/' + docstringName).readAsStringSync();
-  //TODO: break long lines
-  return docstring;
-}
-
-String getDocString(String templatesRoot, Directory tdir) {
-  var template = path.basename(tdir.path);
-  var docString;
-  try {
-    docString =
-        File(templatesRoot + '/' + template + '.docstring').readAsStringSync();
-    // } on FileSystemException {
-  } catch (e) {
-    // docString = warningPen('${template}.docstring not found');
-    if (Config.debug) {
-      Config.debugLogger.w(e);
-      // } else {
-      //   Config.logger.w(e);
-    }
-  }
-  return docString;
+  var templateYaml = getTemplateYaml(tdir.path);
+  // Config.ppLogger.d('t docstring: ${templateYaml.docstring}');
+  return templateYaml.docstring;
 }
 
 //FIXME: which file does this belong in?
@@ -609,26 +585,3 @@ String getDocString(String templatesRoot, Directory tdir) {
 //   });
 //   print('');
 // }
-
-/// return map of templates for pkgRoot
-/// map keys:  name, root, docstring
-Future<Map> getTemplatesMap(String pkgRoot) async {
-  var templatesRoot;
-  if (pkgRoot == null) {
-    templatesRoot =
-        Config.builtinTemplatesRoot; //await setBuiltinTemplatesRoot();
-  } else {
-    templatesRoot = pkgRoot + '/templates';
-  }
-  var templates = Directory(templatesRoot).listSync()
-    ..retainWhere((f) => f is Directory);
-
-  var tmap = {
-    for (var tdir in templates)
-      path.basename(tdir.path): {
-        'root': tdir.path,
-        'docstring': getDocString(templatesRoot, tdir)
-      },
-  };
-  return tmap;
-}

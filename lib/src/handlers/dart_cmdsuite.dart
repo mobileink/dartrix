@@ -7,6 +7,7 @@ import 'package:args/args.dart';
 // import 'package:dartrix/src/data.dart';
 
 import 'package:dartrix/src/builtins.dart';
+import 'package:dartrix/src/generator.dart';
 
 void printUsage(ArgParser argParser) async {
   print('\nTemplate \'dart_cmdsuite\' options:');
@@ -21,7 +22,7 @@ void handleDartCmdSuite(String dir, List<String> tArgs) async {
 
   // // 1. construct arg parser from yaml file
   // // next: construct arg parser from yaml file
-  // var yaml = getTemplateConfig(dir); // templates['dart_cmdsuite']['root']);
+  // var yaml = getTemplateYaml(dir); // templates['dart_cmdsuite']['root']);
   // // + '/templates/' + template);
   // // Config.logger.i('yaml: ${yaml.params}');
 

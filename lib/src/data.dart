@@ -8,9 +8,14 @@ import 'package:process_run/which.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
-// import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/yaml.dart';
 
 // var _log = Logger('data');
+
+// tlib spec: map with properties:
+// name, version, docstring, rootUri (= pkg root, not :package root)
+// scope: builtin, here, home (user?), local, sys, pub.dev
+
 
 /// Builtin templates.
 Map<String, String> builtinTemplates = {};
@@ -110,7 +115,7 @@ void javaPkgHook(String pkg) {
 
 void setTemplateArgs(
     String templateRoot, List<String> libArgs, List<String> tArgs) async {
-  // Config.debugLogger.v('processTemplateArgs: $templateRoot, $libArgs $tArgs');
+  // Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
 
   // 1. construct arg parser from yaml file
   // next: construct arg parser from yaml file
@@ -118,8 +123,8 @@ void setTemplateArgs(
   var template = path.basename(templateRoot);
   // Config.logger.v('processArgs template: $template');
 
- // ~/.dart.d/.dart_tool/package_config.json
-  var yaml = getTemplateConfig(templateRoot);
+  // ~/.dart.d/.dart_tool/package_config.json
+  var yaml = getTemplateYaml(templateRoot);
   // + '/templates/' + template);
   // Config.logger.i('yaml: ${yaml.params}');
 
@@ -231,7 +236,8 @@ void setTemplateArgs(
             break;
           case 'subdomain':
             tData['subdomain'] = myoptions[option];
-            tData['segmap']['SUBDOMAIN'] = myoptions[option].replaceAll('.', '/');
+            tData['segmap']['SUBDOMAIN'] =
+                myoptions[option].replaceAll('.', '/');
             break;
           default:
         }

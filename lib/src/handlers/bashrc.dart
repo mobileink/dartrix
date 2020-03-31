@@ -3,8 +3,9 @@
 import 'package:args/args.dart';
 // import 'package:logger/logger.dart';
 // import 'package:path/path.dart' as path;
+
 import 'package:dartrix/src/config.dart';
-// import 'package:dartrix/src/data.dart';
+import 'package:dartrix/src/generator.dart';
 
 import 'package:dartrix/src/builtins.dart';
 
@@ -21,7 +22,7 @@ void handleBashrc(String dir, List<String> tArgs) async {
   // 1. construct arg parser from yaml file
 
   // // next: construct arg parser from yaml file
-  // var yaml = getTemplateConfig(dir); // templates['bashrc']['root']);
+  // var yaml = getTemplateYaml(dir); // templates['bashrc']['root']);
   // // + '/templates/' + template);
   // // Config.logger.i('yaml: ${yaml.params}');
 

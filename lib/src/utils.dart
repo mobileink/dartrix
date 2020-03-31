@@ -51,3 +51,43 @@ void sanityCheck() {
 
   if (Config.verbose) Config.logger.i('Sanity check passed.');
 }
+
+String normalizeLibName(String libName) {
+  switch (libName) {
+    case ':.': return ':here'; break;
+    case ':h': return ':home'; break;
+    case ':u': return ':home'; break;
+    case ':user': return ':home'; break;
+    case ':l': return ':local'; break;
+    default: return libName;
+  }
+}
+
+bool verifyExists(String fsePath) {
+  var fse = FileSystemEntity.typeSync(fsePath);
+  return (fse != FileSystemEntityType.notFound);
+}
+
+bool stdTLibExists(String scope) {
+  var path;
+  var fse;
+  switch (scope) {
+    case ':here':
+    path = './.templates';
+    fse = FileSystemEntity.typeSync(path);
+    return (fse != FileSystemEntityType.notFound);
+    break;
+    case ':user':
+    path = Config.dartrixHome + '/templates';
+    fse = FileSystemEntity.typeSync(path);
+    return (fse != FileSystemEntityType.notFound);
+    break;
+    case ':local':
+    path = Config.local + '/templates';
+    fse = FileSystemEntity.typeSync(path);
+    return (fse != FileSystemEntityType.notFound);
+    break;
+    default:
+    Config.debugLogger.e('stdLibExists unknown scope: $scope');
+  }
+}

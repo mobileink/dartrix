@@ -14,7 +14,7 @@ import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/dispatcher.dart';
 // import 'package:dartrix/src/paths.dart';
 import 'package:dartrix/src/plugins.dart';
-// import 'package:dartrix/src/utils.dart';
+import 'package:dartrix/src/utils.dart';
 
 String http_parser_pkg = 'package:http_parser';
 String hello_pkg = 'package:hello_template';
@@ -65,7 +65,7 @@ void printUsage(ArgParser argParser) async {
   print(argParser.usage);
 }
 
-Map getTemplate(List<String> subArgs) {
+Map getTemplateArgs(List<String> subArgs) {
   // print('getTemplate: $subArgs');
   List<String> libArgs = [];
   List<String> tArgs = [];
@@ -76,7 +76,8 @@ Map getTemplate(List<String> subArgs) {
   if (ft < 0) {
     // --template not found
     ft = subArgs.indexOf('-t');
-    if (ft < 0) { // -t not found
+    if (ft < 0) {
+      // -t not found
       Config.prodLogger.w('Missing required template option: -t | --template');
       if ((subArgs.contains('-h') || subArgs.contains('--help'))) {
         libArgs = subArgs.sublist(1);
@@ -200,53 +201,106 @@ void main(List<String> args) async {
   // var cmd = Config.options.command;
   // Config.logger.d('cmd: $cmd');
 
-  var templateArgs = getTemplate(optionsRest); //, libArgs, tArgs);
+  var templateArgs = getTemplateArgs(optionsRest); //, libArgs, tArgs);
   // Config.ppLogger.i('templateArgs: ${templateArgs["template"]}');
   // Config.logger.i('libArgs: ${templateArgs["libArgs"]}');
   // Config.logger.i('tArgs: ${templateArgs["tArgs"]}');
 
   // FIXME: initializing data to be done by each template
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
-    var libName = optionsRest[0];
+    Config.libName = optionsRest[0];
 
-    Config.libName = libName;
+    Config.libName = normalizeLibName(Config.libName);
 
-    var pkgList = await resolvePkg(libName);
+    var pkgList = await resolvePkg(Config.libName);
+    // print('pkgList: $pkgList');
+    if (pkgList == null) {
+      print('Template library ${Config.libName} not found.');
+      exit(0);
+    }
 
+    if (pkgList.isEmpty) {
+      print('No templates found in template library ${Config.libName}');
+      exit(0);
+    }
+
+    // Config.ppLogger.i('pkgList: $pkgList');
+
+    // resolvePkg returns list, first item is preferred
     Config.libPkgRoot = pkgList[0]['rootUri'];
 
-    // Config.ppLogger.v('libname: $libName');
+    // Config.ppLogger.v('libPkgRoot: ${Config.libPkgRoot}');
 
-    if (libName != Config.appName) {
-      var requiredVersion = await verifyAppVersion(Config.libPkgRoot);
-      if (requiredVersion != null) {
-        Config.prodLogger.e(
-            'Plugin \'$libName\' requires Dartrix version $requiredVersion; current version is ${await Config.appVersion}.');
-        exit(0);
-      }
+    switch (Config.libName) {
+      // no need to verify app version for builtins, home, here, local
+      case ':d':
+      case ':dartrix': // Config.appName:
+      break;
+      case ':.':
+      case ':here':
+      case ':h':
+      case ':home':
+      break;
+      case ':l':
+      case ':local':
+      break;
+      default: // nop
+        var requiredVersion = await verifyAppVersion(Config.libPkgRoot);
+        if (requiredVersion != null) {
+          Config.prodLogger.e(
+              'Plugin \'${Config.libName}\' requires Dartrix version $requiredVersion; current version is ${await Config.appVersion}.');
+          exit(0);
+        }
     }
+    // print('libpkgroot: ${Config.libPkgRoot}');
     if (!(optionsRest.contains('-h') || optionsRest.contains('--help'))) {
-      if (!verifyExists(
-          Config.libPkgRoot + '/templates/' + templateArgs['template'])) {
-        Config.prodLogger
-        .e('Template ${templateArgs["template"]} not found in library $libName');
+      var t = Config.libPkgRoot +
+          '/' +
+          ((Config.libPkgRoot == '.') ? '.' : '') +
+          'templates/' +
+          templateArgs['template'];
+      // print('t: $t');
+      if (!verifyExists(t)) {
+        Config.prodLogger.e(
+            'Template ${templateArgs["template"]} not found in library ${Config.libName}');
         exit(0);
       }
     }
 
     if (Config.debug) {
-      print('Config.options: ${Config.options}');
+      print('Config.options:');
       debug.debugConfig();
     }
 
-    switch (libName) {
-      case 'dartrix':
+    switch (Config.libName) {
+      case ':.':
+      case ':here':
+        dispatchHere(templateArgs['template'], Config.options,
+            templateArgs['libArgs'], templateArgs['tArgs']); // optionsRest);
+        break;
+      case ':d':
+      case ':dartrix':
         dispatchBuiltin(templateArgs['template'], Config.options,
             templateArgs['libArgs'], templateArgs['tArgs']); // optionsRest);
         break;
-      default:
-        await dispatchPlugin(libName, templateArgs['template'], Config.options,
+      case ':h':
+      case ':home':
+        dispatchUser(templateArgs['template'], Config.options,
+            templateArgs['libArgs'], templateArgs['tArgs']);
+        break;
+      case ':l':
+      case ':local':
+        dispatchLocal(templateArgs['template'], Config.options,
             templateArgs['libArgs'], templateArgs['tArgs']); // optionsRest);
+        break;
+        break;
+      default:
+        await dispatchPlugin(
+            Config.libName,
+            templateArgs['template'],
+            Config.options,
+            templateArgs['libArgs'],
+            templateArgs['tArgs']); // optionsRest);
     }
   }
 }

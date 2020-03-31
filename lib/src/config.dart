@@ -6,18 +6,17 @@ import 'package:logger/logger.dart';
 import 'package:merge_map/merge_map.dart';
 import 'package:path/path.dart' as path;
 import 'package:pub_semver/pub_semver.dart';
-import 'package:safe_config/safe_config.dart';
-import 'package:yaml/yaml.dart';
 
 import 'package:dartrix/src/data.dart';
 // import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/resolver.dart';
+import 'package:dartrix/src/yaml.dart';
 
 AnsiPen shoutPen = AnsiPen()..red(bold: true);
 AnsiPen severePen = AnsiPen()..red(bold: true);
 AnsiPen warningPen = AnsiPen()..green(bold: true);
 AnsiPen infoPen = AnsiPen()..green(bold: false);
-AnsiPen configPen = AnsiPen()..green(bold: true);
+AnsiPen configPen = AnsiPen()..xterm(240);
 
 // app config
 class Config {
@@ -40,6 +39,9 @@ class Config {
   static final String home = Platform.isWindows
       ? Platform.environment['UserProfile']
       : Platform.environment['HOME'];
+  static String dartrixHome = home + '/.dartrix.d';
+
+  static final String local = '/usr/local/share/dartrix';
 
   static String appName;
   static String appSfx = '_' + appName;
@@ -51,10 +53,12 @@ class Config {
   static String libName;
   static String libPkgRoot;
   static String templateRoot;
+  static String tLibDocString;
 
   static ArgParser argParser;
   static ArgResults options;
 
+  static bool searchLocal = false; // for list cmd
   static bool searchPubDev = false; // for list cmd
 
   static String _appVersion;
@@ -82,69 +86,6 @@ class Config {
   }
 }
 
-// safe_config yaml classes
-class ParamConfig extends Configuration {
-  ParamConfig() : super();
-  ParamConfig.fromFile(String fileName) : super.fromFile(File(fileName));
-  ParamConfig.fromMap(Map m) : super.fromMap(m);
-
-  String name;
-  @optionalConfiguration
-  String abbr;
-  String docstring;
-  @optionalConfiguration
-  String help;
-  String typeHelp; // parser 'valueHelp'
-  String defaultsTo;
-  @optionalConfiguration
-  String seg;
-  @optionalConfiguration
-  String hook;
-}
-
-class TemplateConfig extends Configuration {
-  TemplateConfig(String fileName) : super.fromFile(File(fileName));
-
-  String name;
-  String description;
-  String docstring;
-  String version;
-  List<ParamConfig> params;
-  @optionalConfiguration
-  String note;
-}
-
-// String loadTemplateFileSync(String path) {
-//   File file = new File(path);
-//   if (file?.existsSync() == true) {
-//     return file.readAsStringSync();
-//   }
-//   return null;
-// }
-
-// Future<String> loadTemplateFile(String path) async{
-//   File file = new File(path);
-//   if ((await file?.exists()) == true) {
-//     String content = await file.readAsString();
-//     return content;
-//   }
-//   return null;
-// }
-
-TemplateConfig getTemplateConfig(String templateRoot) {
-  var config;
-  try {
-    config = TemplateConfig(templateRoot + '/dartrix.yaml');
-  } catch (e) {
-    if (Config.debug) {
-      Config.debugLogger.e(e);
-    } else {
-      Config.logger.e(e);
-    }
-  }
-  return config;
-}
-
 String getSysCache() {
   if (Platform.environment['PUB_CACHE'] != null) {
     return Platform.environment['PUB_CACHE'];
@@ -163,32 +104,9 @@ Future<String> getAppVersion() async {
   return yaml['version'];
 }
 
-Map loadYamlFileSync(String path) {
-  //File
-  var file = File(path);
-  if (file?.existsSync() == true) {
-    return loadYaml(file.readAsStringSync());
-  }
-  return null;
-}
-
-Future<Map> loadYamlFile(String path) async {
-  //File
-  var file = File(path);
-  if ((await file?.exists()) == true) {
-    return loadYaml(await file.readAsString());
-  }
-  return null;
-}
-
-Map getAppYaml() {
-  var yaml = loadYamlFileSync(Config.appPkgRoot + '/pubspec.yaml');
-  return yaml;
-}
-
 //FIXME: support constraints and ranges
 Future<String> verifyAppVersion(String libPkgRoot) async {
-  // Config.ppLogger.v('verifyDartrixVersion $libPkgRoot');
+  Config.debugLogger.v('verifyDartrixVersion $libPkgRoot');
   var yaml = loadYamlFileSync(libPkgRoot + '/pubspec.yaml');
   // print('yaml: $yaml');
   var appVersionStr;
