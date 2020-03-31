@@ -1,3 +1,0 @@
-## {{version.package}}
-
-- Initial version
