@@ -1,7 +1,7 @@
 name: bashrc
 version: 0.1.0
-docstring: A sample bashrc template. Short description.
-description: Longer description. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse ut dictum nibh, eget placerat nulla. Donec eu elementum tortor. Duis sodales tincidunt enim, eu euismod massa facilisis vitae. Duis quis maximus magna. Pellentesque non dolor at purus rhoncus consequat. Aenean sapien nunc, dapibus sit amet est luctus, malesuada aliquam est. In justo mi, facilisis vitae suscipit ac, congue sit amet dui. Morbi congue odio vel orci suscipit vestibulum vitae non nisl. Quisque a iaculis ligula. Aenean mollis vel ex quis posuere. Praesent eget nisi congue, mattis nibh at, ultrices lectus.
+docstring: Generates file of bash aliases for Dartrix commands
+description: Writes 'bashrc' containing bash alias directives suitable for `source` command from command line or `.bashrc`.
 
 dartrix: 0.1.24-alpha
 
