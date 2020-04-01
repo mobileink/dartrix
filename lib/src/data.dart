@@ -251,13 +251,13 @@ void setTemplateArgs(
           case 'domain':
             tData['domain'] = myoptions[option];
             tData['segmap']['DOMAIN'] = myoptions[option].replaceAll(Config.hereDir, '/');
-            tData['rdomain'] = tData['domain'].split('.').reversed.join(Config.hereDir);
-            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
+            tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
+            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
             break;
           case 'subdomain':
             tData['subdomain'] = myoptions[option];
             tData['segmap']['SUBDOMAIN'] =
-                myoptions[option].replaceAll(Config.hereDir, '/');
+                myoptions[option].replaceAll('.', '/');
             break;
             case 'here':
             if (myoptions[option]) {
@@ -272,9 +272,9 @@ void setTemplateArgs(
         // seg params
         if (param.seg == 'DOMAIN') {
           tData['domain'] = myoptions[option];
-          tData['rdomain'] = tData['domain'].split('.').reversed.join(Config.hereDir);
-          tData['segmap']['DOMAIN'] = tData['domain'].replaceAll(Config.hereDir, '/');
-          tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
+          tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
+          tData['segmap']['DOMAIN'] = tData['domain'].replaceAll('.', '/');
+          tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
         } else {
           tData[param.seg.toLowerCase()] = myoptions[option];
           tData['segmap'][param.seg] = myoptions[option];
