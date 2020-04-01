@@ -55,10 +55,10 @@ void sanityCheck() {
 String canonicalizeLibName(String libName) {
   switch (libName) {
     case ':.': return ':here'; break;
-    case ':h': return ':home'; break;
-    case ':u': return ':home'; break;
-    case ':user': return ':home'; break;
+    case ':h': return ':here'; break;
+    case ':u': return ':user'; break;
     case ':l': return ':local'; break;
+    case ':d': return ':dartrix'; break;
     default: return libName;
   }
 }

@@ -47,6 +47,20 @@ void initBuiltinArgs() async {
   //   allowed: opts);
 }
 
+void printHereTemplates() async {
+  // Config.ppLogger.v('printHereTemplates entry');
+  List<Map> hereTemplates = listHereTemplates();
+  if (hereTemplates.isNotEmpty) {
+    print(
+        ':here templates (~/.dartrix.d/templates):'); //FIME: add  (${hereDartrixHome})
+  }
+  String tName;
+  hereTemplates.forEach((t) {
+    tName = sprintf('%-18s', [t['name']]);
+    print('\t${tName} ${t["docstring"]}');
+  });
+}
+
 void printLocalTemplates() async {
   // Config.ppLogger.v('printLocalTemplates entry'); //, ${options');
   List<Map> localTemplates = listLocalTemplates();
@@ -136,16 +150,9 @@ void printPluginTemplates(String libName, ArgResults options) async {
   templates.retainWhere((f) => f is Directory);
   // print(libName);
   switch (libName) {
+    case ':.':
     case ':here':
       print(':here templates (${Config.hereDir}):');
-      break;
-    case ':h':
-    case ':home':
-      print(':home templates:');
-      break;
-    case ':l':
-    case ':local':
-      print(':local templates:');
       break;
     default:
       print('package:${libName}_dartrix templates:');
@@ -374,12 +381,16 @@ void main(List<String> args) async {
     Config.libName = canonicalizeLibName(Config.options.rest[0]);
     //{Config.libName);
     switch (Config.libName) { // Config.options.rest[0]) {
+      case ':.':
+      case ':here':
+        await printHereTemplates();
+        break;
       case ':d':
       case ':dartrix':
         await printBuiltins(); // Config.options);
         break;
-      case ':h':
-      case ':home':
+      case ':u':
+      case ':user':
         await printUserTemplates(); // Config.options);
         break;
       case ':l':
