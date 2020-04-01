@@ -110,7 +110,7 @@ TemplateYaml getTemplateYaml(String templateRoot) {
   if (Config.templateYaml != null) return Config.templateYaml;
   TemplateYaml config;
   var yamlFile = path.canonicalize(templateRoot + '/.yaml');
-  print('yamlFile $yamlFile');
+  // print('yamlFile $yamlFile');
   try {
     config = TemplateYaml(yamlFile);
   } catch (e) {
