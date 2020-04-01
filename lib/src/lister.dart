@@ -440,17 +440,24 @@ List<Map> listBuiltinTemplates() {
   var builtinsTemplates = Directory(builtinsTemplatesRoot).listSync();
   builtinsTemplates.retainWhere((f) => f is Directory);
 
-  TemplateYaml ty;
+  TemplateYaml yaml;
   List<Map> builtinsTemplateSpecs = [];
   builtinsTemplates.forEach((t) {
-    ty = getTemplateYaml(t.path);
-    builtinsTemplateSpecs.add({
-      'name': path.basename(t.path),
-      'version': ty.version,
-      'docstring': ty.docstring,
-      'scope': 'dartrix',
-      'rootUri': Uri.parse(t.path)
-    });
+      // print(t);
+      yaml = getTemplateYaml(t.path);
+      if (yaml != null) {
+        builtinsTemplateSpecs.add({
+            'name': path.basename(t.path),
+            'version': yaml.version,
+            'docstring': yaml.docstring,
+            'scope': 'dartrix',
+            'rootUri': Uri.parse(t.path)
+        });
+      } else {
+        if (Config.debug) {
+        Config.ppLogger.w(':dartrix template ${path.basename(t.path)} lacks .yaml file; ignoring.');
+      }
+      }
   });
 
   return builtinsTemplateSpecs;
