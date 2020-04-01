@@ -117,7 +117,7 @@ void javaPkgHook(String pkg) {
 //FIXME: put this in template.dart?
 void setTemplateArgs(
     String templateRoot, List<String> libArgs, List<String> tArgs) async {
-  Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
+  // Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
 
   // debug.debugData({});
   // 1. construct arg parser from yaml file
@@ -182,10 +182,10 @@ void setTemplateArgs(
     exit(0);
   }
 
-  if (myoptions.wasParsed('domain')) {
-    print('uuuuuuuuuuuuuuuu');
-    print(myoptions['domain']);
-  }
+  // if (myoptions.wasParsed('domain')) {
+  //   print('uuuuuuuuuuuuuuuu');
+  //   print(myoptions['domain']);
+  // }
   // now merge user passed args with default data map
   // print('MERGE user options');
 

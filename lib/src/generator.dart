@@ -131,7 +131,7 @@ void spawnCallback(dynamic _xData) {
 
 /// Run builtin template. The template is stored in Config.templateRoot.
 void generateFromBuiltin() async {
-  Config.prodLogger.v('generateFromBuiltin entry');
+  // Config.prodLogger.v('generateFromBuiltin entry');
 
   if (Config.debug) {
     debug.debugData({});
@@ -169,7 +169,7 @@ void generateFromBuiltin() async {
   if (!tData['dartrix']['force']) {
     tFileList.forEach((tfile) {
       // Config.logger.v('cwd: ${Directory.current.path}');
-      Config.logger.v('tfile: $tfile');
+      // Config.logger.v('tfile: $tfile');
       // Config.logger.v('tData[\'out\']: ${tData['out']}');
       var templateOutPath = tfile.path.replaceFirst(
         Config.templateRoot + '/', '');
@@ -179,11 +179,11 @@ void generateFromBuiltin() async {
       // Config.logger.v('templateOutPath: $templateOutPath');
       // var outSubpath = path.canonicalize(tData['out'] + templateOutPath);
       var outSubpath = templateOutPath.replaceFirst(RegExp('\.mustache\$'), '');
-      Config.logger.v('outSubpath: $outSubpath');
+      // Config.logger.v('outSubpath: $outSubpath');
 
       // debug.debugData({});
       outSubpath = path.canonicalize(rewritePath(outSubpath));
-      Config.logger.v('rewritten outSubpath: $outSubpath');
+      // Config.logger.v('rewritten outSubpath: $outSubpath');
 
       // if (path.isRelative(outSubpath)) {
       //   outSubpath = Directory.current.path + '/' + outSubpath;
