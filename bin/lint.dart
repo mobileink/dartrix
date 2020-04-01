@@ -1,6 +1,13 @@
 /// sanity checker for template development. Checks that each template has a
 /// docstring, manpage, handler, etc. Checks for bad chars (e.g. '-') in
 /// paths. Etc.
+
+// checks:
+// man files exist
+// .yaml files exist
+// template dir name matches name: in .yaml
+// shadowing - duplicates across scopes (like which -a)
+
 import 'dart:core';
 import 'dart:io';
 

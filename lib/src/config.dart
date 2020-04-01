@@ -20,6 +20,7 @@ AnsiPen configPen = AnsiPen()..xterm(240);
 
 // app config
 class Config {
+  static bool version = false;
   static bool verbose = false;
   static bool debug = false;
   static bool dryRun = false;
@@ -31,15 +32,16 @@ class Config {
   static final ppLogger = Logger(
       filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
 
-  //FIXME: rename dartrixHome?
-  static String userCache = home + '/.dart.d';
+  static String hereDir = '.dartrix/';
+  static String userCache = home + '/.dart.d'; //FIXME: rename dartrixHome?
+  static String dartrixDir = '.dartrix.d';
+  static String dartrixHome = home + '/' + dartrixDir;
 
   static String sysCache = getSysCache();
 
   static final String home = Platform.isWindows
       ? Platform.environment['UserProfile']
       : Platform.environment['HOME'];
-  static String dartrixHome = home + '/.dartrix.d';
 
   static final String local = '/usr/local/share/dartrix';
 
@@ -55,17 +57,20 @@ class Config {
   static String templateRoot;
   static String tLibDocString;
 
+  static TemplateYaml templateYaml; // for memoization
+
   static ArgParser argParser;
   static ArgResults options;
 
   static bool searchLocal = false; // for list cmd
   static bool searchPubDev = false; // for list cmd
+  static bool meta = false;  // for meta-templates
 
   static String _appVersion;
 
-  static Future<String> get appVersion async {
+  static String get appVersion {
     if (_appVersion != null) return _appVersion;
-    _appVersion = await getAppVersion();
+    _appVersion = getAppVersion();
     return _appVersion;
   }
 
@@ -99,14 +104,14 @@ String getSysCache() {
 }
 
 //FIXME: implement
-Future<String> getAppVersion() async {
+String getAppVersion() {
   var yaml = getAppYaml();
   return yaml['version'];
 }
 
 //FIXME: support constraints and ranges
 Future<String> verifyAppVersion(String libPkgRoot) async {
-  Config.debugLogger.v('verifyDartrixVersion $libPkgRoot');
+  // Config.debugLogger.v('verifyAppVersion $libPkgRoot');
   var yaml = loadYamlFileSync(libPkgRoot + '/pubspec.yaml');
   // print('yaml: $yaml');
   var appVersionStr;
@@ -119,8 +124,8 @@ Future<String> verifyAppVersion(String libPkgRoot) async {
     // exit(1);
     return null;
   }
-  if (Config.verbose) {
-    Config.prodLogger.v('Required dartrix version: $appVersionStr');
+  if (Config.version) {
+    Config.prodLogger.v('Plugin ${path.basename(libPkgRoot)} built for dartrix version: $appVersionStr');
   }
 
   var appVersion = Version.parse(appVersionStr);
@@ -148,7 +153,7 @@ Future<String> verifyAppVersion(String libPkgRoot) async {
 // }
 
 void loadConfigFile(String configFile) async {
-  var f = path.normalize(Directory.current.path + '/' + configFile);
+  var f = path.canonicalize(Directory.current.path + '/' + configFile);
   var yaml = loadYamlFileSync(f);
   tData = mergeMap([tData, yaml['data']]);
 }

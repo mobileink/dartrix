@@ -91,7 +91,7 @@ void printBuiltins() async {
 void printPluginTemplates(String libName, ArgResults options) async {
   // Config.ppLogger.v('printPluginTemplates $libName'); //, ${options');
 
-  // normalize libName
+  // canonicalize libName
   // switch (libName) {
   //   case ':.': libName = ':here'; break;
   //   case ':u': libName = ':home'; break;
@@ -101,7 +101,7 @@ void printPluginTemplates(String libName, ArgResults options) async {
 
   //List<Map>
   var userLibs = await resolvePkg(libName);
-  // Config.ppLogger.d('userLibs: $userLibs');
+  Config.ppLogger.d('userLibs: $userLibs');
 
   if (userLibs.isEmpty) return;
 
@@ -126,7 +126,8 @@ void printPluginTemplates(String libName, ArgResults options) async {
   // }
   //String
   var templatesRoot =
-      Config.libPkgRoot + '/' + ((libName == ':here') ? '.' : '') + 'templates';
+      // Config.libPkgRoot + '/' + ((libName == ':here') ?  : '') + 'templates';
+      Config.libPkgRoot + '/templates';
   // if (Config.verbose) {
   //   Config.logger.i('templatesRoot: $templatesRoot');
   // }
@@ -370,7 +371,7 @@ void main(List<String> args) async {
     // var bis = await listBuiltinTemplates();
     // print('bis: $bis');
   } else {
-    Config.libName = normalizeLibName(Config.options.rest[0]);
+    Config.libName = canonicalizeLibName(Config.options.rest[0]);
     //{Config.libName);
     switch (Config.libName) { // Config.options.rest[0]) {
       case ':d':

@@ -23,6 +23,23 @@ import 'package:dartrix/src/handlers/bashrc.dart';
 // void dispatchPlugin(String pkg, String template, List<String> args) async {
 //   // Config.debugLogger.v('dispatchPlugin: $pkg, $template, $args');
 
+//FIXME: this should go in the command
+void printLibOptions(String tlib) {
+  switch (tlib) {
+    case ':dartrix':
+    print('Options for library :dartrix:');
+    print('--here\tPut output in ./.templates');
+    break;
+    case ':here':
+    break;
+    case ':user':
+    break;
+    case ':lib':
+    break;
+    default:
+  }
+}
+
 // FIXME: _options == Config.options
 void processArgs(String pkg, String template, ArgResults _options,
     List<String> libArgs, List<String> tArgs) async {
@@ -33,75 +50,85 @@ void processArgs(String pkg, String template, ArgResults _options,
       libArgs.contains('--help') ||
       tArgs.contains('-h') ||
       tArgs.contains('--help')) {
-    print('\nLibrary \'$pkg\' options:');
+    // printLibOptions(pkg);
     if (template == null) exit(0);
   }
 
-  var templates = await listTemplatesAsMap(Config.libPkgRoot);
-  // Config.ppLogger.v('processArgs tps: $templates');
+  // var templates = await listTemplatesAsMap(Config.libPkgRoot);
+  var templateSpec = await listTemplate(pkg, Config.libPkgRoot, template);
+  // Config.ppLogger.v('processArgs result: $templateSpec');
 
   Config.templateRoot = Config.libPkgRoot +
-      ((Config.libPkgRoot == '.') ? '/.' : '/') +
+      ((Config.libPkgRoot == '.') ? Config.hereDir : '/') +
       'templates/' +
       template;
   // Config.debugLogger.v('Config.templateRoot: ${Config.templateRoot}');
 
   await setTemplateArgs(Config.templateRoot, libArgs, tArgs); // args);
 
-  Config.templateRoot = path.normalize(templates[template]['rootUri']);
+  Config.templateRoot = path.canonicalize(templateSpec['rootUri']);
 }
 
 // FIXME: _options == Config.options
 void dispatchBuiltin(String template, ArgResults _options,
     List<String> dartrixArgs, List<String> tArgs) async {
-  // Config.debugLogger.d('dispatchBuiltin');
+  // Config.debugLogger.d('dispatchBuiltin $template');
   // print('option args: ${_options.arguments}');
   // print('option rest: ${_options.rest}');
 
-  await processArgs('dartrix', template, _options, dartrixArgs, tArgs);
+  await processArgs(':dartrix', template, _options, dartrixArgs, tArgs);
 
-  var templates = await listTemplatesAsMap(null); // listBuiltinTemplates();
+  // var templates = await listTemplatesAsMap(null); // listBuiltinTemplates();
+  var templates = await listTemplates(':dartrix');
+
+  await generateFromBuiltin();
+
   // Config.ppLogger.v('bt: $templates, rtt: ${templates.runtimeType}');
-  if (templates.keys.contains(template)) {
-    //   // print('found template $template in lib');
-    //   // debugging:
-    //   // var pkg = templates[template];
-    //   // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
-    //   // var r = pkg['root'];
-    //   // Config.debugLogger.i('root: $r');
+  // if (templates.keys.contains(template)) {
+  //   //   // print('found template $template in lib');
+  //   //   // debugging:
+  //   //   // var pkg = templates[template];
+  //   //   // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
+  //   //   // var r = pkg['root'];
+  //   //   // Config.debugLogger.i('root: $r');
 
-    //   Config.templateRoot = templates[template]['root'];
+  //   //   Config.templateRoot = templates[template]['root'];
 
-    //   await processYamlArgs(Config.templateRoot, tArgs);
+  //   //   await processYamlArgs(Config.templateRoot, tArgs);
 
-    switch (template) {
-      case 'bashrc':
-        // await handleBashrc(templates[template]['root'], tArgs);
-        await handleBashrc(Config.templateRoot, tArgs);
-        break;
-      case 'dart_cmdsuite':
-        await handleDartCmdSuite(templates[template]['root'], tArgs);
-        break;
-      default:
-        // Config.prodLogger.e('No handler for template $template');
-        await generateFromBuiltin();
-    }
-  } else {
-    Config.prodLogger.e('template $template not found in lib :dartrix');
-  }
+  //   switch (template) {
+  //     case 'bashrc':
+  //       // await handleBashrc(templates[template]['root'], tArgs);
+  //       await handleBashrc(Config.templateRoot, tArgs);
+  //       // await generateFromBuiltin();
+  //       break;
+  //     case 'dart_cmdsuite':
+  //       await handleDartCmdSuite(templates[template]['root'], tArgs);
+  //       break;
+  //     default:
+  //       // Config.prodLogger.e('No handler for template $template');
+  //       await generateFromBuiltin();
+  //   }
+  // } else {
+  //   Config.prodLogger.e('template $template not found in lib :dartrix');
+  // }
 }
 
 void dispatchHere(String template, ArgResults _options, List<String> userArgs,    List<String> tArgs) async {
   // Config.ppLogger.v('dispatchHere $template, $_options, $userArgs, $tArgs');
 
   await processArgs(':here', template, _options, userArgs, tArgs);
+
   // var templates = await listTemplatesAsMap('./');
-  var templates = await listHereTemplates();
-  print('here templates: $templates');
+  // var templates = await listHereTemplates();
+  var templates = await listTemplates(':here');
+
+  // print('here templates: $templates');
   var tNames = templates.map((t) => t['name']);
-  
+
   if (tNames.contains(template)) {
-    spawnCallback({});
+    // spawnCallback({});
+    await generateFromBuiltin();
   } else {
     Config.prodLogger.e('template $template not found in lib :here');
   }
@@ -136,18 +163,20 @@ void dispatchPlugin(String pkg, String template, ArgResults _options,
     await spawnPluginFromPackage(
         spawnCallback, externalOnDone, pkg, [template, ...?tArgs]);
   } else {
-    spawnCallback({});
+    // spawnCallback({});
+    await generateFromBuiltin();
   }
 }
 
 void dispatchUser(String template, ArgResults _options, List<String> userArgs,
     List<String> tArgs) async {
-  Config.ppLogger.v('dispatchUser $template, $_options, $userArgs, $tArgs');
+  // Config.ppLogger.v('dispatchUser $template, $_options, $userArgs, $tArgs');
 
   await processArgs(':home', template, _options, userArgs, tArgs);
   var templates = await listTemplatesAsMap(Config.home + '/.dartrix.d');
   if (templates.keys.contains(template)) {
-    spawnCallback({});
+    // spawnCallback({});
+    await generateFromBuiltin();
   } else {
     Config.prodLogger.e('template $template not found in lib :user');
   }

@@ -110,7 +110,7 @@ void setBuiltinTemplatesRoot() async {
   // String scriptPath = path.prettyUri(Platform.script.toString());
   // relative path, e.g. ../../mobileink/dartrix/bin/new.dart
   // Config.logger.i('platformScriptPath: ${scriptPath}');
-  // Config.logger.i('platformScriptPath, normalized: ${path.normalize(scriptPath)}');
+  // Config.logger.i('platformScriptPath, canonicalized: ${path.canonicalize(scriptPath)}');
   // Config.logger.i('platformScriptPath, canonical: ${path.canonicalize(scriptPath)}');
 
   //Uri
@@ -219,7 +219,7 @@ Future<List<Map>> resolvePkg(String templateLibName) async {
           'version': Config.appVersion,
           'docstring' : 'Builtin templates',
           'scope': 'builtin',
-          'rootUri': Config.appPkgRoot
+          'rootUri': path.canonicalize(Config.appPkgRoot)
         }
       ];
       break;
@@ -410,7 +410,7 @@ Future<List<Map>> searchSysCache(String uri) async {
         'name': path.basename(pkg.path).split('-')[0],
         'version': path.basename(pkg.path).split('-')[1],
         'docstring': ty['description'], //FIXME
-        'rootUri': pkg.path,
+        'rootUri': path.canonicalize(pkg.path),
         'scope': 'sys'
       };
       syscachePkgs.add(pspec);
@@ -521,7 +521,7 @@ Future<List<Map<String, String>>> getPubDevPlugins(String url) async {
 
 String getPluginVersion(String rootPath) {
   print('getPluginVersion $rootPath');
-  var f = path.normalize(rootPath + '/pubspec.yaml');
+  var f = path.canonicalize(rootPath + '/pubspec.yaml');
   var yaml = loadYamlFileSync(f);
   return yaml['version'];
 }

@@ -23,6 +23,12 @@ class ParamConfig extends Configuration {
   String typeHelp; // parser 'valueHelp'
   String defaultsTo;
   @optionalConfiguration
+  bool negatable;
+  @optionalConfiguration
+  bool hidden;
+  @optionalConfiguration
+  bool private;
+  @optionalConfiguration
   String seg;
   @optionalConfiguration
   String hook;
@@ -42,7 +48,7 @@ class TemplateYaml extends Configuration {
   // @optionalConfiguration
   String dartrix;
   @optionalConfiguration
-  bool rewrite_paths = true;
+  bool meta;
 }
 
 class LibraryRef extends Configuration {
@@ -85,7 +91,7 @@ Map getAppYaml() {
 
 TemplateYaml getLibYaml(String templateRoot) {
   var config;
-  var yamlFile = path.normalize(templateRoot + '/dartrix.yaml');
+  var yamlFile = path.canonicalize(templateRoot + '/dartrix.yaml');
   try {
     config = TemplateYaml(yamlFile);
   } catch (e) {
@@ -100,22 +106,24 @@ TemplateYaml getLibYaml(String templateRoot) {
 }
 
 TemplateYaml getTemplateYaml(String templateRoot) {
-  var config;
-  var yamlFile = path.normalize(templateRoot + '/.yaml');
+  // Config.debugLogger.d('getTemplateYaml $templateRoot');
+  if (Config.templateYaml != null) return Config.templateYaml;
+  TemplateYaml config;
+  var yamlFile = path.canonicalize(templateRoot + '/.yaml');
+  print('yamlFile $yamlFile');
   try {
     config = TemplateYaml(yamlFile);
   } catch (e) {
     if (Config.debug) {
-      Config.prodLogger.e('getTemplateYaml: $e');
-      Config.prodLogger.e('bad file: ${yamlFile}');
       Config.debugLogger.e(e);
-      exit(1);
+      // exit(1);
+      return null;
     } else {
-      Config.prodLogger.e('getTemplateYaml: $e');
-      Config.prodLogger.e('bad file: ${yamlFile}');
-      exit(1);
+      Config.prodLogger.e(e);
+      return null;
     }
   }
+  Config.templateYaml = config; // memoize it
   return config;
 }
 
@@ -150,7 +158,7 @@ UserYaml getUserYaml() {
   // print('NORMALIZING');
   userYaml.libraries.forEach((lib) {
     // print(lib.path);
-    var libPath = path.normalize(userHome + '/' + lib.path);
+    var libPath = path.canonicalize(userHome + '/' + lib.path);
     lib.path = libPath;
     // print(lib.path);
   });
@@ -192,7 +200,7 @@ UserYaml getLocalYaml() {
     // print(lib.path);
     var libPath;
     if (path.isRelative(lib.path)) {
-      libPath = path.normalize(localHome + '/' + lib.path);
+      libPath = path.canonicalize(localHome + '/' + lib.path);
       lib.path = libPath;
     }
     // print(lib.path);

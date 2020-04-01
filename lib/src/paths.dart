@@ -5,6 +5,7 @@ import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
+import 'package:dartrix/src/debug.dart' as debug;
 
 // Path Rewriting
 
@@ -21,10 +22,13 @@ String rewritePath(String _path) {
   // });
   // List<String> segs = domPath.split(path.separator);
   //List<String>
-  var segs = _path.split(path.separator);
+  var thePath = _path.replaceFirst(Directory.current.path + '/', '');
+  // print('thePath: $thePath');
+  var segs = thePath.split(path.separator);
   var sm = segs.map((seg) {
-      // _log.fine('seg: $seg');
+      // Config.ppLogger.i('seg: $seg');
       if (tData['segmap'][seg] == null) {
+        // not in segment
         if (seg.endsWith('MUSTACHE')) {
           return seg.replaceAll('MUSTACHE', 'mustache');
         } else {
@@ -51,9 +55,10 @@ String rewritePath(String _path) {
           }
         }
       } else {
+        // in segmap
         switch (seg) {
-          // case 'FILE':
-          // break;
+          case 'CWD': return seg; // will be reprocessed below, for metas
+          break;
           case 'HOME':
           // Config.ppLogger.v('segmap HOME: ${tData["segmap"]["HOME"]}');
           // Config.ppLogger.v('HOME: ${Config.home}');
@@ -61,19 +66,42 @@ String rewritePath(String _path) {
           if (tData['segmap']['HOME'] != Config.home) {
             if (path.isRelative(tData['segmap']['HOME'])) {
               tData['segmap']['HOME'] =
-              path.normalize(Config.home + '/' + tData['segmap']['HOME']);
+              path.canonicalize(Config.home + '/' + tData['segmap']['HOME']);
             }
           }
           // Config.ppLogger.v('rewritten segmap HOME: ${tData["segmap"]["HOME"]}');
           return tData['segmap'][seg];
           break;
-          // case 'CWD':
-          // break;
           default:
-          return tData['segmap'][seg];
+          if (Config.meta) {
+            if (tData['segmap']['_META'].contains(seg)) {
+              // print('seg: $seg : ${tData["segmap"][seg]}');
+              return tData['segmap'][seg];
+            } else {
+              return seg;
+            }
+          } else {
+            return tData['segmap'][seg];
+          }
         }
       }
   });
+  // print('segmap._META: ${tData["segmap"]["_META"]}');
+
   var result = sm.join('/');
+  print('result: $result');
+  // print('meta before: $result');
+ if (Config.meta) {
+   result = result.replaceFirst('_CWD', '.');
+   // if --here
+   result = result.replaceFirst('_TEMPLATES', '.templates');
+   result = result.replaceFirst('YAML', '.yaml');
+    // result = result.replaceFirst('NAME', 'appname');
+  } else {
+    result = result.replaceAll('CWD', tData['segmap']['CWD']);
+  }
+  result = path.normalize(result);
+  // print('meta after: $result');
+
   return result;
 }

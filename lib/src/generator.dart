@@ -10,7 +10,7 @@ import 'package:dartrix/src/paths.dart';
 
 /// This routine is invoked when the external isolate returns data.
 void spawnCallback(dynamic _xData) {
-  // Config.logger.d('spawnCallback: $_xData');
+  Config.debugLogger.d('spawnCallback: $_xData');
   // Config.logger.d('_externalPkgPath path: $_externalPkgPath');
   // Config.logger.d('Config.templateRoot: ${Config.templateRoot}');
   // Config.logger.d('_externalTemplates: $_externalTemplates');
@@ -52,13 +52,13 @@ void spawnCallback(dynamic _xData) {
 
   tFileList.forEach((tfile) {
     // Config.ppLogger.d('tfile: $tfile');
-    var outSubpath = path.normalize(// outPathPrefix +
+    var outSubpath = path.canonicalize(// outPathPrefix +
         tfile.path.replaceFirst(Config.templateRoot, ''));
     outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
     if (Config.debug) {
       Config.ppLogger.d('outSubpath: $outSubpath');
     }
-    outSubpath = path.normalize(rewritePath(outSubpath));
+    outSubpath = path.canonicalize(rewritePath(outSubpath));
     if (Config.debug) {
       Config.ppLogger.d('outSubpath rewritten: $outSubpath');
     }
@@ -131,7 +131,7 @@ void spawnCallback(dynamic _xData) {
 
 /// Run builtin template. The template is stored in Config.templateRoot.
 void generateFromBuiltin() async {
-  // Config.prodLogger.v('generateFromBuiltin');
+  Config.prodLogger.v('generateFromBuiltin entry');
 
   if (Config.debug) {
     debug.debugData({});
@@ -169,19 +169,21 @@ void generateFromBuiltin() async {
   if (!tData['dartrix']['force']) {
     tFileList.forEach((tfile) {
       // Config.logger.v('cwd: ${Directory.current.path}');
-      // Config.logger.v('tfile: $tfile');
+      Config.logger.v('tfile: $tfile');
       // Config.logger.v('tData[\'out\']: ${tData['out']}');
-      var templateOutPath = tfile.path.replaceFirst(Config.templateRoot, '');
+      var templateOutPath = tfile.path.replaceFirst(
+        Config.templateRoot + '/', '');
       // tfile.path.replaceFirst(templatesRoot + '/' + template + '/', '');
       // tfile.path.replaceFirst(templatesRoot + '/' + template + '/', '');
       // templatesRoot + '/' + Config.options['template'] + '/', '');
       // Config.logger.v('templateOutPath: $templateOutPath');
-      // var outSubpath = path.normalize(tData['out'] + templateOutPath);
+      // var outSubpath = path.canonicalize(tData['out'] + templateOutPath);
       var outSubpath = templateOutPath.replaceFirst(RegExp('\.mustache\$'), '');
-      // Config.logger.v('outSubpath: $outSubpath');
+      Config.logger.v('outSubpath: $outSubpath');
 
-      outSubpath = path.normalize(rewritePath(outSubpath));
-      // Config.logger.v('rewritten outSubpath: $outSubpath');
+      // debug.debugData({});
+      outSubpath = path.canonicalize(rewritePath(outSubpath));
+      Config.logger.v('rewritten outSubpath: $outSubpath');
 
       // if (path.isRelative(outSubpath)) {
       //   outSubpath = Directory.current.path + '/' + outSubpath;
@@ -221,7 +223,7 @@ void generateFromBuiltin() async {
     // _log.finer('tfile: $tfile');
 
     // first remove template name prefix path
-    var outSubpath = path.normalize(// tData['out'] +
+    var outSubpath = path.canonicalize(// tData['out'] +
         tfile.path.replaceFirst(Config.templateRoot + '/', ''));
     // tfile.path.replaceFirst(templatesRoot + '/' + template, ''));
     // templatesRoot + '/' + Config.options['template'], ''));
@@ -231,8 +233,8 @@ void generateFromBuiltin() async {
     // then remove mustache extension
     outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
     
-    // result is normalized absolute path
-    // outSubpath = path.normalize(rewritePath(outSubpath));
+    // result is canonicalized absolute path
+    // outSubpath = path.canonicalize(rewritePath(outSubpath));
     outSubpath = rewritePath(outSubpath);
     if (Config.debug) {
       Config.ppLogger.v('rewritten outSubpath: $outSubpath');
@@ -297,7 +299,7 @@ void generateFromBuiltin() async {
   var outdir;
   if (writtenFiles.isNotEmpty) {
     var outs = [
-      for (var f in writtenFiles) path.normalize(path.dirname(f)),
+      for (var f in writtenFiles) path.canonicalize(path.dirname(f)),
     ];
     outs.sort((a, b) => a.length.compareTo(b.length));
     outdir = outs.first;

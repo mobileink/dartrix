@@ -52,7 +52,7 @@ void sanityCheck() {
   if (Config.verbose) Config.logger.i('Sanity check passed.');
 }
 
-String normalizeLibName(String libName) {
+String canonicalizeLibName(String libName) {
   switch (libName) {
     case ':.': return ':here'; break;
     case ':h': return ':home'; break;
@@ -64,6 +64,7 @@ String normalizeLibName(String libName) {
 }
 
 bool verifyExists(String fsePath) {
+  // print('verifyExists $fsePath');
   var fse = FileSystemEntity.typeSync(fsePath);
   return (fse != FileSystemEntityType.notFound);
 }
@@ -73,7 +74,7 @@ bool stdTLibExists(String scope) {
   var fse;
   switch (scope) {
     case ':here':
-    path = './.templates';
+    path = '${Config.hereDir}/templates';
     fse = FileSystemEntity.typeSync(path);
     return (fse != FileSystemEntityType.notFound);
     break;

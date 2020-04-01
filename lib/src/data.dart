@@ -7,6 +7,7 @@ import 'package:process_run/which.dart';
 // import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 
+import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/yaml.dart';
 
@@ -94,7 +95,7 @@ var flutter_sdk =
 //   tData['segmap']['PLATFORM'] = Platform.operatingSystem;
 //   tData['segmap']['PKG'] = Config.options['package'];
 //   tData['segmap']['CLASS'] = Config.options['class'];
-//   tData['segmap']['RDOMAINPATH'] = tData['rdomain'].replaceAll('.', '/');
+//   tData['segmap']['RDOMAINPATH'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
 //   if (Config.options['relative-root'] == null) {
 //     tData['segmap']['ROOT'] = './';
 //   } else {
@@ -103,20 +104,22 @@ var flutter_sdk =
 // }
 
 void dartPkgHook(String pkg) {
-  tData['segmap']['DPKG'] = pkg.replaceAll('.', '/');
+  tData['segmap']['DPKG'] = pkg.replaceAll(Config.hereDir, '/');
   tData['package']['dart'] = pkg;
 }
 
 void javaPkgHook(String pkg) {
   tData['rdomain'] = pkg;
-  tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
+  tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
   tData['package']['java'] = pkg;
 }
 
+//FIXME: put this in template.dart?
 void setTemplateArgs(
     String templateRoot, List<String> libArgs, List<String> tArgs) async {
-  // Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
+  Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
 
+  // debug.debugData({});
   // 1. construct arg parser from yaml file
   // next: construct arg parser from yaml file
 
@@ -130,11 +133,12 @@ void setTemplateArgs(
 
   var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
   yaml.params.forEach((param) {
-    // Config.logger.i('param: $param');
+    // Config.logger.i('param: ${param.name}');
     if (param.typeHelp == 'bool') {
       _argParser.addFlag(param.name,
           abbr: param.abbr,
           help: param.help,
+          negatable: param.negatable ?? true,
           defaultsTo: (param.defaultsTo == 'true') ? true : false);
     } else {
       _argParser.addOption(param.name,
@@ -178,26 +182,42 @@ void setTemplateArgs(
     exit(0);
   }
 
+  if (myoptions.wasParsed('domain')) {
+    print('uuuuuuuuuuuuuuuu');
+    print(myoptions['domain']);
+  }
   // now merge user passed args with default data map
   // print('MERGE user options');
 
   // Set defaults
-  tData['segmap'].forEach((seg, v) {
-    tData[seg.toLowerCase()] = v;
-  });
+  // tData['segmap'].forEach((seg, v) {
+  //   tData[seg.toLowerCase()] = v;
+  // });
 
-  // tData['domain'] = tData['segmap']['DOMAIN'];
-  // tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-  tData['segmap']['JPKG'] = tData['rdomain'].replaceAll('.', '/');
+  // print('subdom: ${tData["segmap"]["SUBDOMAIN"]}');
+
+
+  tData['segmap']['JPKG'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
   tData['segmap']['RDOMAIN'] = tData['segmap']['JPKG'];
   tData['segmap']['SUBDOMAIN'] = tData['subdomain'];
   tData['segmap']['ORG'] = tData['ORG'];
+
+  if (yaml.meta == true) {
+    Config.meta = true;
+    tData['segmap']['YAML'] = '.yaml';
+  }
+
+  // print('RDOM2: ${tData["segmap"]["RDOMAIN"]}');
+
+  // print('subdom2: ${tData["segmap"]["SUBDOMAIN"]}');
+
 
   // Override with user args
   myoptions.options.forEach((option) {
     // print('option: ${option} = ${myoptions[option]}');
     // print('params rtt: ${yaml.params.runtimeType}');
     var param;
+    // get the yaml param matching the option
     try {
       param = yaml.params.firstWhere((param) {
         return param.name == option;
@@ -210,7 +230,7 @@ void setTemplateArgs(
       Config.ppLogger.e(e);
       return;
     }
-    // print('yaml: ${param.name}');
+    // print('yaml: ${param.name} : ${param.defaultsTo}');
     if (param.hook != null) {
       switch (param.hook) {
         case 'dpkg-hook':
@@ -230,21 +250,39 @@ void setTemplateArgs(
         switch (option) {
           case 'domain':
             tData['domain'] = myoptions[option];
-            tData['segmap']['DOMAIN'] = myoptions[option].replaceAll('.', '/');
-            tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
+            tData['segmap']['DOMAIN'] = myoptions[option].replaceAll(Config.hereDir, '/');
+            tData['rdomain'] = tData['domain'].split('.').reversed.join(Config.hereDir);
+            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
             break;
           case 'subdomain':
             tData['subdomain'] = myoptions[option];
             tData['segmap']['SUBDOMAIN'] =
-                myoptions[option].replaceAll('.', '/');
+                myoptions[option].replaceAll(Config.hereDir, '/');
+            break;
+            case 'here':
+            if (myoptions[option]) {
+              tData['segmap']['TEMPLATES'] = '.templates';
+            } else {
+              tData['segmap']['TEMPLATES'] = 'templates';
+            }
             break;
           default:
         }
       } else {
-        tData[param.seg.toLowerCase()] = myoptions[option];
-        tData['segmap'][param.seg] = myoptions[option];
-        tData[option] = myoptions[option];
+        // seg params
+        if (param.seg == 'DOMAIN') {
+          tData['domain'] = myoptions[option];
+          tData['rdomain'] = tData['domain'].split('.').reversed.join(Config.hereDir);
+          tData['segmap']['DOMAIN'] = tData['domain'].replaceAll(Config.hereDir, '/');
+          tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
+        } else {
+          tData[param.seg.toLowerCase()] = myoptions[option];
+          tData['segmap'][param.seg] = myoptions[option];
+          tData[option] = myoptions[option];
+          if (Config.meta) {
+            tData['segmap']['_META'].add(param.seg);
+          }
+        }
       }
     }
     // print('looping');
@@ -267,6 +305,7 @@ Map tData = {
     'app': '0.1.0',
     'args': '^1.6.0',
     'cupertino_icons': '\'^0.1.3\'',
+    'dartrix' : Config.appVersion,
     'e2e': '^0.2.0',
     'flutter': '\'>=1.12.8 <2.0.0\'',
     'gradle': '3.5.0',
@@ -320,7 +359,7 @@ Map tData = {
     // keys are segment placeholders in path templates
     'ROOT': '/',
     'HOME': Config.home,
-    'CWD': Directory.current.path,
+    'CWD': '.', // DO NOT CANONICALIZE
     'SYSTEMP': Directory.systemTemp.path,
     'DOTFILE': '', // rewrite DOTFILE.foo as .foo
     'DOTDIR_D': '',
@@ -330,6 +369,8 @@ Map tData = {
     'CLASS': 'Hello',
     'JPKG': 'org/example',
     // 'ORG' : 'org/example',  // reverse-domain notation
-    'DEPT': 'hello' // forms part of package url, org.example.hello
+    'DEPT': 'hello', // forms part of package url, org.example.hello
+    // _META: list of segs to rewrite even in meta mode
+    '_META': [],
   }
 };

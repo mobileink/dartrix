@@ -18,7 +18,7 @@ void getManPages(String rootDir) {}
 void printManpage(String lib, String rootDir, String manPage) async {
   //String
   var manDir = rootDir + '/man';
-  manDir = path.normalize(manDir);
+  manDir = path.canonicalize(manDir);
   // Config.logger.i('manDir: $manDir');
   // Config.logger.i('lib: $lib');
   manPage = manPage ?? lib + '_dartrix';

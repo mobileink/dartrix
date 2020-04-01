@@ -14,7 +14,7 @@ void spawnPluginFromPackage(
     onDone onDoneCallback,
     String libName, // pkg name without _dartrix
     List<String> args) async {
-  // Config.ppLogger.v('entry: spawnPluginFromPackage($libName, $args)');
+  Config.debugLogger.d('entry: spawnPluginFromPackage($libName, $args)');
 
   // var pkgRootPath = await resolvePkgRoot(libName);
 
@@ -58,7 +58,7 @@ void spawnPluginFromPackage(
   // Step 5. Construct the packageConfig Uri required by spawnUri.
   // WARNING: spawnUri evidently does not yet support version 2, so
   // construct a version 1 packageConfig (i.e. using a .packages file)
-  // var pkgConfigUriPath = path.normalize(pkgRootUri.path); // + '/.packages');
+  // var pkgConfigUriPath = path.canonicalize(pkgRootUri.path); // + '/.packages');
   // var pkgPackageConfig1Uri = Uri.parse(pkgConfigUriPath);
 
   // Version 2 will use /.dart_tools/package_config.json

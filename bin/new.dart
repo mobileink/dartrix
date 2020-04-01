@@ -78,11 +78,11 @@ Map getTemplateArgs(List<String> subArgs) {
     ft = subArgs.indexOf('-t');
     if (ft < 0) {
       // -t not found
-      Config.prodLogger.w('Missing required template option: -t | --template');
       if ((subArgs.contains('-h') || subArgs.contains('--help'))) {
         libArgs = subArgs.sublist(1);
         tArgs.add('-h');
       } else {
+        Config.prodLogger.w('Missing required template option: -t | --template');
         exit(0);
       }
     } else {
@@ -125,15 +125,14 @@ void main(List<String> args) async {
   await Config.config('dartrix');
 
   Config.argParser = ArgParser(allowTrailingOptions: false);
+  // Config.argParser.addOption('config-file',
+  //     help: 'Configuration file. Optional.', defaultsTo: './dartrix.yaml');
+  Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
+  Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
-  Config.argParser.addOption('config-file',
-      help: 'Configuration file.', defaultsTo: './dartrix.yaml');
-  Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
-  Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
-  Config.argParser.addFlag('version', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('debug', defaultsTo: false, negatable: false);
 
   try {
@@ -210,7 +209,7 @@ void main(List<String> args) async {
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
     Config.libName = optionsRest[0];
 
-    Config.libName = normalizeLibName(Config.libName);
+    Config.libName = canonicalizeLibName(Config.libName);
 
     var pkgList = await resolvePkg(Config.libName);
     // print('pkgList: $pkgList');
@@ -227,6 +226,7 @@ void main(List<String> args) async {
     // Config.ppLogger.i('pkgList: $pkgList');
 
     // resolvePkg returns list, first item is preferred
+    // print('rootUri: ${pkgList[0]["rootUri"]}');
     Config.libPkgRoot = pkgList[0]['rootUri'];
 
     // Config.ppLogger.v('libPkgRoot: ${Config.libPkgRoot}');
@@ -253,16 +253,14 @@ void main(List<String> args) async {
         }
     }
     // print('libpkgroot: ${Config.libPkgRoot}');
+    // print('libName: ${Config.libName}');
     if (!(optionsRest.contains('-h') || optionsRest.contains('--help'))) {
-      var t = Config.libPkgRoot +
-          '/' +
-          ((Config.libPkgRoot == '.') ? '.' : '') +
-          'templates/' +
-          templateArgs['template'];
-      // print('t: $t');
+      var t = Config.libPkgRoot
+          + '/templates/'
+          + templateArgs['template'];
       if (!verifyExists(t)) {
         Config.prodLogger.e(
-            'Template ${templateArgs["template"]} not found in library ${Config.libName}');
+            'Template ${templateArgs["template"]} (${t}) not found in library ${Config.libName}');
         exit(0);
       }
     }
@@ -280,7 +278,7 @@ void main(List<String> args) async {
         break;
       case ':d':
       case ':dartrix':
-        dispatchBuiltin(templateArgs['template'], Config.options,
+        await dispatchBuiltin(templateArgs['template'], Config.options,
             templateArgs['libArgs'], templateArgs['tArgs']); // optionsRest);
         break;
       case ':h':
@@ -302,5 +300,8 @@ void main(List<String> args) async {
             templateArgs['libArgs'],
             templateArgs['tArgs']); // optionsRest);
     }
+  }
+  if (Config.dryRun) {
+    Config.ppLogger.w('This was a dry-run. No output was generated.');
   }
 }
