@@ -1,0 +1,3 @@
+# mdoc - manpage template
+
+Template under development...

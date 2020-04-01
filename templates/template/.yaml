@@ -1,0 +1,76 @@
+name: template
+version: 0.1.0
+docstring: A Dartrix template template.
+description: Generates a Dartrix template.
+
+dartrix: 0.1.24-alpha
+
+meta: true   # this is a meta-template
+
+params:
+
+- name       : 'name'
+  abbr       : 'n'
+  docstring  : 'Name of template'
+  # help       : ''
+  typeHelp   : 'string'
+  defaultsTo : 'mytemplate'
+  seg        : '_TEMPLATE'
+
+- name       : 'here'
+  # abbr       : 'x'
+  docstring  : 'Output to :here'
+  help       : 'Write output to :here (./.templates instead of ./templates)'
+  typeHelp   : 'bool'
+  defaultsTo : 'false'
+  negatable  : false
+
+# - name: 'pkg'
+#   abbr: 'p'
+#   docstring: 'Package.'
+#   help: 'Package name, in reverse domain notation.'
+#   typeHelp: 'segmented.string'
+#   defaultsTo: 'org.example'
+#   hook: 'java-pkg'
+
+# - name: 'cwd'
+#   abbr: 'w'
+#   docstring: 'Current Working Dir.'
+#   help: 'Package name, in reverse domain notation.'
+#   typeHelp: 'segmented.string'
+#   defaultsTo: 'CWD'
+#   seg: 'MYCWD'
+
+# - name: 'yaml'
+#   abbr: 'y'
+#   docstring: 'Yaml dotfile name.'
+#   help: 'Package name, in reverse domain notation.'
+#   typeHelp: 'segmented.string'
+#   defaultsTo: '.yaml'
+#   hidden: true
+#   seg: 'YAML'
+
+# - name: 'dept'
+#   private: true
+#   abbr: 'd'
+#   docstring: 'Department.'
+#   help: 'Department. Forms part of the package URL/path, e.g. org.example.department'
+#   typeHelp: 'string'
+#   defaultsTo: 'greetings'
+#   seg: 'DEPT'
+
+# - name: 'class'
+#   abbr: 'c'
+#   docstring: 'Class name.'
+#   help: 'Java class name.'
+#   typeHelp: 'string'
+#   defaultsTo: 'Hello'
+#   seg: 'CLASS'
+
+# - name       : 'source'
+#   abbr       : 's'
+#   docstring  : 'Source path.'
+#   typeHelp   : 'subpath'
+#   defaultsTo : 'src/main/java'
+#   help       : 'The source directory structure for the generated project.'
+#   seg        : 'SRC'
