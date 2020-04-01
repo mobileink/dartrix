@@ -1,52 +1,44 @@
-name: bashrc
-version: 0.1.0
-docstring: Generates file of bash aliases for Dartrix commands
-description: Writes 'bashrc' containing bash alias directives suitable for `source` command from command line or `.bashrc`.
+name           : bashrc
+version        : 0.1.0
+docstring      : Generates file of bash aliases for Dartrix commands
+description    : Writes bashrc containing bash alias directives suitable for `source` command from command line or `.bashrc`.
 
-dartrix: 0.1.24-alpha
+dartrix        : 0.1.24-alpha
 
 params:
-- name: 'name'
-  abbr: 'n'
-  docstring: 'Name of output file.'
-  help: 'Name of output file containing bash alias definitions.'
-  typeHelp: 'string'
-  defaultsTo: 'bashrc'
-  seg: 'FILE'
 
-- name: 'prefix'
-  abbr: 'p'
-  docstring: 'Cmd prefix.'
-  help: 'String prefixed to each command name.'
-  typeHelp: 'string'
-  defaultsTo: 'dev'
+- name         : name
+  abbr         : n
+  docstring    : Name of output file.
+  help         : Name of output file containing bash alias definitions.
+  type         : string
+  defaultsTo   : bashrc
+  seg          : BASHRC
 
-- name: 'config-dir'
-  abbr: 'c'
-  docstring: 'Directory for Dartrix config files.'
-  help: 'The output file will be written to this directory, relative to --dartrix-config-home.'
-  typeHelp: 'dir'
-  defaultsTo: '.dartrix.d'
-  seg:     'DARTDIR'
+- name         : prefix
+  abbr         : p
+  docstring    : Cmd prefix.
+  help         : String prefixed to each command name.
+  type         : string
+  defaultsTo   : dev
 
-# - name: 'dartrix-config-home'
-#   abbr: 'd'
-#   docstring: 'Home directory for Dartrix config dir.'
-#   help: 'The output file will be written to the --config-dir subdirectory of this directory.  Relative override paths relative to current working directory.'
-#   typeHelp: 'dir'
-#   defaultsTo: '$HOME'
-#   seg: 'HOME'
+- name         : out
+  abbr         : o
+  docstring    : Output directory.
+  help         : Output directory, relative to current working directory.
+  type         : _out_prefix
+  defaultsTo   : ./
 
-- name: 'enable-asserts'
-  abbr: 'e'
-  docstring: 'Enable asserts'
-  help: 'Pass flag --enable-asserts to "pub global run".'
-  typeHelp: 'bool'
-  defaultsTo: 'true'
+- name         : enable-asserts
+  abbr         : e
+  docstring    : Enable asserts
+  help         : Pass flag --enable-asserts to "pub global run".
+  type         : bool
+  defaultsTo   : 'true'
 
-- name: 'verbose'
-  abbr: 'v'
-  docstring: 'Verbose output'
-  help: 'A longer, more detailed description.'
-  typeHelp: 'bool'
-  defaultsTo: 'false'
+- name         : verbose
+  abbr         : v
+  docstring    : Verbose output
+  help         : A longer, more detailed description.
+  type         : bool
+  defaultsTo   : 'false'
