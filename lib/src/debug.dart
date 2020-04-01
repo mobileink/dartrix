@@ -16,7 +16,7 @@ bool debug = false;
 
 void debugData(Map xData) async {
   Config.logger.d('Datrix datamap:');
-  var sorted = await SplayTreeMap.from(tData);
+  var sorted = SplayTreeMap.from(tData);
   var encoder = JsonEncoder.withIndent('    ');
   var j = encoder.convert(sorted);
   Config.ppLogger.v(j);

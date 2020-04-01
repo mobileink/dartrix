@@ -134,18 +134,20 @@ void setTemplateArgs(
   var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
   yaml.params.forEach((param) {
     // Config.logger.i('param: ${param.name}');
-    if (param.typeHelp == 'bool') {
+    if (param.type == 'bool') {
       _argParser.addFlag(param.name,
           abbr: param.abbr,
           help: param.help,
           negatable: param.negatable ?? true,
           defaultsTo: (param.defaultsTo == 'true') ? true : false);
-    } else {
+      } else {
+        // print('${param.type}');
       _argParser.addOption(param.name,
           abbr: param.abbr,
-          valueHelp: param.typeHelp,
-          help: param.docstring,
-          //+ param?.help ,
+          valueHelp: (param.type == '_out_prefix') ? 'path' : param.type,
+          help: (param.type == '_out_prefix')
+          ? 'Output path relative to ./'
+          : param.docstring,
           defaultsTo: param.defaultsTo);
     }
   });
@@ -202,10 +204,14 @@ void setTemplateArgs(
   tData['segmap']['SUBDOMAIN'] = tData['subdomain'];
   tData['segmap']['ORG'] = tData['ORG'];
 
-  if (yaml.meta == true) {
-    Config.meta = true;
-    tData['segmap']['YAML'] = '.yaml';
+  if (yaml.meta != null) {
+    Config.meta = yaml.meta.meta;
   }
+
+  // if (yaml.meta == true) {
+  //   Config.meta = true;
+  //   tData['segmap']['YAML'] = '.yaml';
+  // }
 
   // print('RDOM2: ${tData["segmap"]["RDOMAIN"]}');
 
@@ -218,6 +224,7 @@ void setTemplateArgs(
     // print('params rtt: ${yaml.params.runtimeType}');
     var param;
     // get the yaml param matching the option
+
     try {
       param = yaml.params.firstWhere((param) {
         return param.name == option;
@@ -230,6 +237,15 @@ void setTemplateArgs(
       Config.ppLogger.e(e);
       return;
     }
+
+    if (param.type == '_plugin_name') {
+      tData['_plugin_name'] = myoptions[option];
+    }
+
+    if (param.type == '_template_name') {
+      tData['_template_name'] = myoptions[option];
+    }
+
     // print('yaml: ${param.name} : ${param.defaultsTo}');
     if (param.hook != null) {
       switch (param.hook) {
@@ -243,6 +259,14 @@ void setTemplateArgs(
           break;
         default:
           Config.prodLogger.w('Unknown param hook: ${param.hook}');
+      }
+    } else if (param.type == '_out_prefix') {
+      tData['_out_prefix'] = myoptions[option];
+    } else if (param.type == '_dart_package') {
+      // tData['segmap']['DPKG'] = myoptions[option](Config.hereDir, '/');
+      tData['package']['dart'] = myoptions[option];
+      if (param.seg != null) {
+        tData['segmap'][param.seg] = myoptions[option];
       }
     } else {
       if (param.seg == null) {
@@ -277,9 +301,9 @@ void setTemplateArgs(
           tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
         } else {
           tData[param.seg.toLowerCase()] = myoptions[option];
-          tData['segmap'][param.seg] = myoptions[option];
+          tData['segmap'][param.seg.toUpperCase()] = myoptions[option];
           tData[option] = myoptions[option];
-          if (Config.meta) {
+          if (Config.meta != null) {
             tData['segmap']['_META'].add(param.seg);
           }
         }
@@ -359,10 +383,10 @@ Map tData = {
     // keys are segment placeholders in path templates
     'ROOT': '/',
     // 'HOME': Config.home,
-    'CWD': '.', // DO NOT CANONICALIZE
+    // 'CWD': '.', // DO NOT CANONICALIZE
     'SYSTEMP': Directory.systemTemp.path,
-    'DOTFILE': '', // rewrite DOTFILE.foo as .foo
-    'DOTDIR_D': '',
+    'DOT': '.', // rewrite DOTfoo as .foo
+    // 'DOTDIR_D': '',
     'DOMAIN': 'example/org',
     'RDOMAIN': 'org/example',
     'SUBDOMAIN': 'hello',

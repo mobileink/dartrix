@@ -64,7 +64,10 @@ class Config {
 
   static bool searchLocal = false; // for list cmd
   static bool searchPubDev = false; // for list cmd
-  static bool meta = false;  // for meta-templates
+
+  // memoized metadata stuff from yaml params
+  static Meta meta;
+  static String outPathPrefix;
 
   static String _appVersion;
 

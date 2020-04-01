@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:path/path.dart' as path;
 
+import 'package:dartrix/src/annotations.dart';
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/yaml.dart';
 
 // Path Rewriting
 
@@ -15,12 +17,19 @@ import 'package:dartrix/src/debug.dart' as debug;
 // HOME : $HOME
 // CWD  : Current Working Directory = Directory.current
 
-String rewritePath(String _path) {
+@exdefn(returns: "rewritten path")
+String rewritePath(
+  @exparam("file system path for template component")
+  String _path)
+{
   // Config.ppLogger.i('rewritePath: $_path');
   // tData['segmap'].forEach((k,v) {
   //     Config.logger.v('seg $k => $v');
   // });
   // List<String> segs = domPath.split(path.separator);
+
+  // debug.debugData({});
+
   //List<String>
   var thePath = _path.replaceFirst(Directory.current.path + '/', '');
   // print('thePath: $thePath');
@@ -32,33 +41,48 @@ String rewritePath(String _path) {
         if (seg.endsWith('MUSTACHE')) {
           return seg.replaceAll('MUSTACHE', 'mustache');
         } else {
-          // no rewrite for full seg, check for partial
-          var base = path.basenameWithoutExtension(seg);
-          if (tData['segmap'][base] == null) {
-            // no rewrite for FOO of FOO.bar, check for BAR of foo.BAR
-            var ext = path.extension(seg);
-            if (tData['segmap'][ext] == null) {
-              return seg;
-            } else {
-              var rw = base + tData['segmap'][ext];
-              return rw;
-            }
-          } else {
-            // e.g. FOO.bar matched FOO
-            var rw;
-            if (base == 'DOTDIR_D') {
-              rw = tData['segmap'][base]; //  + path.extension(seg) + '.d';
-            } else {
-              rw = tData['segmap'][base] + path.extension(seg);
-            }
-            return rw;
+          // find segmap entry whose key is contained in seg
+          var key;
+          try {
+            key = tData['segmap'].keys.singleWhere((key) {
+                // print('TEST: $key');
+                return seg.contains(key);
+            });
+            // print('MATCH: $seg');
+            return seg.replaceAll(key, tData['segmap'][key]);
+          } catch(e) {
+            //print(e);
+            // print('nomatch: $seg');
           }
+          return seg;
+
+          // no rewrite for full seg, check for partial match
+          // var base = path.basenameWithoutExtension(seg);
+          // if (tData['segmap'][base] == null) {
+          //   // no rewrite for FOO of FOO.bar, check for BAR of foo.BAR
+          //   var ext = path.extension(seg);
+          //   if (tData['segmap'][ext] == null) {
+          //     return seg;
+          //   } else {
+          //     var rw = base + tData['segmap'][ext];
+          //     return rw;
+          //   }
+          // } else {
+          //   // e.g. FOO.bar matched FOO
+          //   var rw;
+          //   if (base == 'DOTDIR_D') {
+          //     rw = tData['segmap'][base]; //  + path.extension(seg) + '.d';
+          //   } else {
+          //     rw = tData['segmap'][base] + path.extension(seg);
+          //   }
+          //   return rw;
+          // }
         }
       } else {
         // in segmap
         switch (seg) {
-          case 'CWD': return seg; // will be reprocessed below, for metas
-          break;
+          // case 'CWD': return seg; // will be reprocessed below, for metas
+          // break;
           // case 'HOME':
           // // Config.ppLogger.v('segmap HOME: ${tData["segmap"]["HOME"]}');
           // // Config.ppLogger.v('HOME: ${Config.home}');
@@ -71,9 +95,9 @@ String rewritePath(String _path) {
           // }
           // // Config.ppLogger.v('rewritten segmap HOME: ${tData["segmap"]["HOME"]}');
           // return tData['segmap'][seg];
-          break;
+          // break;
           default:
-          if (Config.meta) {
+          if (Config.meta != null) {
             if (tData['segmap']['_META'].contains(seg)) {
               // print('seg: $seg : ${tData["segmap"][seg]}');
               return tData['segmap'][seg];
@@ -97,16 +121,27 @@ String rewritePath(String _path) {
   }
 
   // print('result: $result');
-  // print('meta before: $result');
- if (Config.meta) {
-   result = result.replaceFirst('_CWD', '.');
+
+  // meta: insert path prefix
+ if (Config.meta != null) {
+   // result = result.replaceFirst('_CWD', '.');
    // if --here
-   result = result.replaceFirst('_TEMPLATES', Config.hereDir + 'templates');
+   // print('Config.meta: ${Config.meta}');
+   if (Config.meta == Meta.template) {
+     result = 'templates/' + tData['_template_name'] + '/' + result;
+   } else if (Config.meta == Meta.plugin) {
+     //FIXME: insert name param with _dartrix
+     result = tData['_plugin_name'] + '/' + result;
+   }
    result = result.replaceFirst('YAML', '.yaml');
     // result = result.replaceFirst('NAME', 'appname');
   } else {
-    result = result.replaceAll('CWD', tData['segmap']['CWD']);
+    // result = result.replaceAll('CWD', tData['segmap']['CWD']);
+    if (tData['_out_prefix'] != null) {
+      result = tData['_out_prefix'] + '/' + result;
+    }
   }
+
   result = path.normalize(result);
   // print('meta after: $result');
 

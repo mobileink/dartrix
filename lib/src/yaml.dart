@@ -20,7 +20,9 @@ class ParamConfig extends Configuration {
   String docstring;
   @optionalConfiguration
   String help;
-  String typeHelp; // parser 'valueHelp'
+  // String typeHelp; // parser 'valueHelp'
+  // @optionalConfiguration
+  String type; // _plugin, _template, _out_prefix
   String defaultsTo;
   @optionalConfiguration
   bool negatable;
@@ -32,6 +34,26 @@ class ParamConfig extends Configuration {
   String seg;
   @optionalConfiguration
   String hook;
+}
+
+enum Meta {template, plugin}
+class MetaParam extends Configuration {
+  // LibraryRef() : super.fromFile(File(fileName));
+  Meta meta;
+  void decode(dynamic anyValue) {
+    if (anyValue is! String) {
+      throw ConfigurationException(MetaParam, 'Param meta must be one of plugin or template');
+    }
+
+    try {
+      meta = Meta.values.firstWhere((e) => e.toString() == 'Meta.' + anyValue);
+    } catch(e) {
+      if (e.message.startsWith('No element')) {
+        Config.prodLogger.e('Invalid value for parameter meta: ${anyValue}.  Must be either \'template\' or \'plugin\'.');
+      } else {
+      }
+    }
+  }
 }
 
 class TemplateYaml extends Configuration {
@@ -48,7 +70,7 @@ class TemplateYaml extends Configuration {
   // @optionalConfiguration
   String dartrix;
   @optionalConfiguration
-  bool meta;
+  MetaParam meta;
 }
 
 class LibraryRef extends Configuration {
@@ -119,7 +141,7 @@ TemplateYaml getTemplateYaml(String templateRoot) {
       // exit(1);
       return null;
     } else {
-      Config.prodLogger.e(e);
+      Config.prodLogger.e('$e ${yamlFile}');
       return null;
     }
   }

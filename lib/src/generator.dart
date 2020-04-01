@@ -10,7 +10,7 @@ import 'package:dartrix/src/paths.dart';
 
 /// This routine is invoked when the external isolate returns data.
 void spawnCallback(dynamic _xData) {
-  Config.debugLogger.d('spawnCallback: $_xData');
+  // Config.debugLogger.d('spawnCallback: $_xData');
   // Config.logger.d('_externalPkgPath path: $_externalPkgPath');
   // Config.logger.d('Config.templateRoot: ${Config.templateRoot}');
   // Config.logger.d('_externalTemplates: $_externalTemplates');
