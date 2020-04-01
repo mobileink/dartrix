@@ -26,7 +26,7 @@ params:
   docstring: 'Directory for Dartrix config files.'
   help: 'The output file will be written to this directory, relative to --dartrix-config-home.'
   typeHelp: 'dir'
-  defaultsTo: '.dart.d'
+  defaultsTo: '.dartrix.d'
   seg:     'DARTDIR'
 
 - name: 'dartrix-config-home'
