@@ -358,7 +358,7 @@ Map tData = {
   'segmap': {
     // keys are segment placeholders in path templates
     'ROOT': '/',
-    'HOME': Config.home,
+    // 'HOME': Config.home,
     'CWD': '.', // DO NOT CANONICALIZE
     'SYSTEMP': Directory.systemTemp.path,
     'DOTFILE': '', // rewrite DOTFILE.foo as .foo

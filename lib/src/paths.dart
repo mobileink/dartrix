@@ -59,18 +59,18 @@ String rewritePath(String _path) {
         switch (seg) {
           case 'CWD': return seg; // will be reprocessed below, for metas
           break;
-          case 'HOME':
-          // Config.ppLogger.v('segmap HOME: ${tData["segmap"]["HOME"]}');
-          // Config.ppLogger.v('HOME: ${Config.home}');
+          // case 'HOME':
+          // // Config.ppLogger.v('segmap HOME: ${tData["segmap"]["HOME"]}');
+          // // Config.ppLogger.v('HOME: ${Config.home}');
 
-          if (tData['segmap']['HOME'] != Config.home) {
-            if (path.isRelative(tData['segmap']['HOME'])) {
-              tData['segmap']['HOME'] =
-              path.canonicalize(Config.home + '/' + tData['segmap']['HOME']);
-            }
-          }
-          // Config.ppLogger.v('rewritten segmap HOME: ${tData["segmap"]["HOME"]}');
-          return tData['segmap'][seg];
+          // if (tData['segmap']['HOME'] != Config.home) {
+          //   if (path.isRelative(tData['segmap']['HOME'])) {
+          //     tData['segmap']['HOME'] =
+          //     path.canonicalize(Config.home + '/' + tData['segmap']['HOME']);
+          //   }
+          // }
+          // // Config.ppLogger.v('rewritten segmap HOME: ${tData["segmap"]["HOME"]}');
+          // return tData['segmap'][seg];
           break;
           default:
           if (Config.meta) {
@@ -89,7 +89,14 @@ String rewritePath(String _path) {
   // print('segmap._META: ${tData["segmap"]["_META"]}');
 
   var result = sm.join('/');
-  print('result: $result');
+
+  // disallow writing outside of CWD
+  if (result.startsWith('/')) {
+    Config.ppLogger.w('Templates may not write outside of current working directory and below. Stripping initial \'/\' from output path.');
+    result = result.substring(1);
+  }
+
+  // print('result: $result');
   // print('meta before: $result');
  if (Config.meta) {
    result = result.replaceFirst('_CWD', '.');
