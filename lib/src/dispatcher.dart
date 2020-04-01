@@ -79,7 +79,7 @@ void dispatchBuiltin(String template, ArgResults _options,
   await processArgs(':dartrix', template, _options, dartrixArgs, tArgs);
 
   // var templates = await listTemplatesAsMap(null); // listBuiltinTemplates();
-  var templates = await listTemplates(':dartrix');
+  // var templates = await listTemplates(':dartrix');
 
   await generateFromBuiltin();
 
