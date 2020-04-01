@@ -101,7 +101,7 @@ String rewritePath(String _path) {
  if (Config.meta) {
    result = result.replaceFirst('_CWD', '.');
    // if --here
-   result = result.replaceFirst('_TEMPLATES', '.templates');
+   result = result.replaceFirst('_TEMPLATES', Config.hereDir + 'templates');
    result = result.replaceFirst('YAML', '.yaml');
     // result = result.replaceFirst('NAME', 'appname');
   } else {
