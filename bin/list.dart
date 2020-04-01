@@ -50,7 +50,7 @@ void initBuiltinArgs() async {
 void printLocalTemplates() async {
   // Config.ppLogger.v('printLocalTemplates entry'); //, ${options');
   List<Map> localTemplates = listLocalTemplates();
-  print('Local templates (${Config.local}/templates):');
+  print(':local templates (${Config.local}/templates):');
   String tName;
   localTemplates.forEach((t) {
     tName = sprintf('%-18s', [t['name']]);
@@ -63,7 +63,7 @@ void printUserTemplates() async {
   List<Map> userTemplates = listUserTemplates();
   if (userTemplates.isNotEmpty) {
     print(
-        'User templates (~/.dartrix.d/templates):'); //FIME: add  (${userDartrixHome})
+        ':user templates (~/.dartrix.d/templates):'); //FIME: add  (${userDartrixHome})
   }
   String tName;
   userTemplates.forEach((t) {
@@ -101,7 +101,7 @@ void printPluginTemplates(String libName, ArgResults options) async {
 
   //List<Map>
   var userLibs = await resolvePkg(libName);
-  Config.ppLogger.d('userLibs: $userLibs');
+  // Config.ppLogger.d('userLibs: $userLibs');
 
   if (userLibs.isEmpty) return;
 
@@ -137,7 +137,7 @@ void printPluginTemplates(String libName, ArgResults options) async {
   // print(libName);
   switch (libName) {
     case ':here':
-      print(':here (:.) templates:');
+      print(':here templates (${Config.hereDir}):');
       break;
     case ':h':
     case ':home':
@@ -237,7 +237,7 @@ void printUsage(ArgParser argParser) async {
         }
       }
       var l = sprintf(format,
-        [':local', v, 'Local templates (${Config.local}/templates)']);
+        [':local', v, ':local templates (${Config.local}/templates)']);
       print(thePen('$l'));
     }
   }
@@ -393,8 +393,12 @@ void main(List<String> args) async {
         exit(0);
         break;
       default:
+      if (Config.libName.startsWith(':')) {
+        print('No template library with key \'${Config.libName}\'. Available keys: :. (:here), :u (:user), :l (:local), :d (:dartrix)');
+      } else {
         // printPluginTemplates(Config.options.rest[0], Config.options);
         printPluginTemplates(Config.libName, Config.options);
+      }
     }
   }
 }
