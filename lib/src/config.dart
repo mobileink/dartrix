@@ -120,6 +120,10 @@ String getAppVersion() {
 Future<String> verifyAppVersion(String libPkgRoot) async {
   // Config.debugLogger.v('verifyAppVersion $libPkgRoot');
   var yaml = loadYamlFileSync(libPkgRoot + '/pubspec.yaml');
+  if (yaml == null) {
+    Config.prodLogger.w('verifyAppVersion: pubspec.yaml not found');
+    return null;
+  }
   // print('yaml: $yaml');
   var appVersionStr;
   try {

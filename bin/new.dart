@@ -239,7 +239,8 @@ void main(List<String> args) async {
       case ':.':
       case ':here':
       case ':h':
-      case ':home':
+      break;
+      case ':user':
       break;
       case ':l':
       case ':local':
