@@ -31,7 +31,12 @@ void processTemplate() async {
   }
 
   tFileList.removeWhere((f) => f.path.endsWith('~'));
-  tFileList.removeWhere((f) => f.path.endsWith('/.yaml'));
+  // remove all dotfiles - users must use e.g. DOTgitignore
+  tFileList.removeWhere((f) {
+      var tpath = f.path.replaceFirst(Config.templateRoot + '/', '');
+      // print('tpath: $tpath');
+      return tpath.startsWith('.');
+  });
   tFileList.retainWhere((f) => f is File);
 
   if (Config.verbose) {
