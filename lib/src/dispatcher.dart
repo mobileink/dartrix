@@ -27,7 +27,7 @@ import 'package:dartrix/src/handlers/bashrc.dart';
 void printLibOptions(String tlib) {
   switch (tlib) {
     case ':dartrix':
-    print('Options for library :dartrix:');
+    print('Library :dartrix options:');
     print('--here\tPut output in ./.templates');
     break;
     case ':here':
