@@ -57,9 +57,10 @@ void validateTemplateName(String t) {
 
 void printUsage(ArgParser argParser) async {
   // print('\n\t\tDartrix Templating System - "new" command\n');
-  print('dartrix:new,  version ${await Config.appVersion}\n');
+  print('dartrix:new,  version ${await Config.appVersion}');
+  print('Generate new resources from a template.\n');
   print(
-      'usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
+      'Usage:\tdartrix:new [options] LIBRARY [lib-options] -t TEMPLATE [template-options]\n');
   ;
   print('Options:');
   print(argParser.usage);
@@ -259,6 +260,7 @@ void main(List<String> args) async {
       var t = Config.libPkgRoot
           + '/templates/'
           + templateArgs['template'];
+      // print('t: $t');
       if (!verifyExists(t)) {
         Config.prodLogger.e(
             'Template ${templateArgs["template"]} (${t}) not found in library ${Config.libName}');
