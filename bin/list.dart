@@ -215,7 +215,7 @@ void printUsage(ArgParser argParser) async {
       }
     }
     line = sprintf(
-      format, [':here', '$v', 'Here templates (./.templates)']);
+      format, [':here', '$v', 'Here templates (.dartrix.d/templates)']);
     print(thePen('$line'));
 
     if (stdTLibExists(':user')) {

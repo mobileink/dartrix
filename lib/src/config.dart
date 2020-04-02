@@ -32,10 +32,14 @@ class Config {
   static final ppLogger = Logger(
       filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
 
-  static String hereDir = '.dartrix/';
+  static String hereDir = '.dartrix.d/';
+  static bool   here    = false;
   static String userCache = home + '/.dart.d'; //FIXME: rename dartrixHome?
   static String dartrixDir = '.dartrix.d';
   static String dartrixHome = home + '/' + dartrixDir;
+
+  static bool generic = false;
+  static String genericIndex;
 
   static String sysCache = getSysCache();
 

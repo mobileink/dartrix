@@ -1,53 +1,35 @@
-name: plugin
-version: 0.1.0
-docstring: "[UNDER DEVELOPMENT] A template to generate a Dartrix template library plugin."
-description: Generates a Dartrix template library plugin package.
-dartrix: 0.1.24-alpha
+name         : plugin
+version      : 0.1.0
+docstring    : "[UNDER DEVELOPMENT] A template to generate a Dartrix template library plugin."
+description  : Generates a Dartrix template library plugin package.
 
-meta: true
+dartrix      : 0.1.24-alpha
 
-params:
-- name       : 'name'
-  abbr       : 'n'
-  docstring  : 'Name of plugin'
-  # help       : ''
-  typeHelp   : 'string'
-  defaultsTo : 'myplugin'
-  seg        : '_TEMPLATE'
+meta         : plugin
 
-- name: 'prefix'
-  abbr: 'p'
-  docstring: 'Cmd prefix.'
-  help: 'String prefixed to each command name.'
-  typeHelp: 'string'
-  defaultsTo: 'dev'
+params       :
+- name       : name
+  abbr       : n
+  docstring  : Name of plugin
+  type       : _plugin_name
+  defaultsTo : myplugin
 
-- name: 'config-dir'
-  abbr: 'c'
-  docstring: 'Directory for Dartrix config files.'
-  help: 'The output file will be written to this directory, relative to --dartrix-config-home.'
-  typeHelp: 'dir'
-  defaultsTo: '.dart.d'
-  seg:     'DARTDIR'
+- name       : out
+  abbr       : o
+  docstring  : Output directory
+  help       : Output path relative to current working directory.
+  type       : _out_prefix
+  defaultsTo : hello_java
 
-- name: 'dartrix-config-home'
-  abbr: 'd'
-  docstring: 'Home directory for Dartrix config dir.'
-  help: 'The output file will be written to the --config-dir subdirectory of this directory.  Relative override paths relative to current working directory.'
-  typeHelp: 'dir'
-  defaultsTo: '$HOME'
-  seg: 'HOME'
+- name       : source
+  docstring  : Source path.
+  type       : subpath
+  defaultsTo : src/main/java
+  help       : The source directory structure for the generated project.
+  seg        : SRC
 
-- name: 'enable-asserts'
-  abbr: 'e'
-  docstring: 'Enable asserts'
-  help: 'Pass flag --enable-asserts to "pub global run".'
-  typeHelp: 'bool'
-  defaultsTo: 'true'
-
-- name: 'verbose'
-  abbr: 'v'
-  docstring: 'Verbose output'
-  help: 'A longer, more detailed description.'
-  typeHelp: 'bool'
-  defaultsTo: 'false'
+- name       : verbose
+  abbr       : v
+  docstring  : Verbose output
+  help       : A longer, more detailed description.
+  type       : bool

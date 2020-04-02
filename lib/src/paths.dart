@@ -142,6 +142,11 @@ String rewritePath(
     }
   }
 
+  // --here passed. for :dartrix/template only, but we have to check every time
+  if (Config.here) {
+    result = Config.hereDir + '/' + result;
+  }
+
   result = path.normalize(result);
   // print('meta after: $result');
 

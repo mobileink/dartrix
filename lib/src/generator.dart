@@ -150,6 +150,15 @@ void processTemplate() async {
   var template = path.basename(Config.templateRoot);
   // Config.logger.v('template: $template');
   List tFileList = Directory(Config.templateRoot).listSync(recursive: true);
+  // print('templateRoot: ${Config.templateRoot}');
+  if (Config.generic) {
+    print('gen index: ${Config.genericIndex}');
+    tFileList.retainWhere((f) {
+        var tpath = f.path.replaceFirst(Config.templateRoot + '/', '');
+        // print('tpath: $tpath');
+        return tpath.startsWith(Config.genericIndex);
+    });
+  }
 
   tFileList.removeWhere((f) => f.path.endsWith('~'));
   tFileList.removeWhere((f) => f.path.endsWith('/.yaml'));
@@ -169,10 +178,17 @@ void processTemplate() async {
   if (!tData['dartrix']['force']) {
     tFileList.forEach((tfile) {
       // Config.logger.v('cwd: ${Directory.current.path}');
-      // Config.logger.v('tfile: $tfile');
+      Config.logger.v('tfile: $tfile');
       // Config.logger.v('tData[\'out\']: ${tData['out']}');
       var templateOutPath = tfile.path.replaceFirst(
         Config.templateRoot + '/', '');
+      print('tout: $templateOutPath');
+
+      if (Config.generic) {
+        templateOutPath = templateOutPath
+        .replaceFirst(Config.genericIndex + '/', '');
+      }
+
       // tfile.path.replaceFirst(templatesRoot + '/' + template + '/', '');
       // tfile.path.replaceFirst(templatesRoot + '/' + template + '/', '');
       // templatesRoot + '/' + Config.options['template'] + '/', '');
@@ -227,6 +243,12 @@ void processTemplate() async {
         tfile.path.replaceFirst(Config.templateRoot + '/', ''));
     // tfile.path.replaceFirst(templatesRoot + '/' + template, ''));
     // templatesRoot + '/' + Config.options['template'], ''));
+
+    if (Config.generic) {
+      outSubpath = outSubpath
+      .replaceFirst(Config.genericIndex + '/', '');
+    }
+
     if (Config.debug) {
       Config.ppLogger.v('outSubpath template: $outSubpath');
     }

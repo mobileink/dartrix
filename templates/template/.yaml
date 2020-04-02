@@ -1,26 +1,30 @@
 name: template
 version: 0.1.0
 docstring: Generates a template in ./templates/
-description: Generates a Dartrix template.
+description: Generates a Dartrix template; output to ./templates/
 
 dartrix: 0.1.24-alpha
 
 meta: template
+generic: lang  # primary index
 
 params:
 
 - name       : 'name'
   abbr       : 'n'
   docstring  : 'Name of template'
-  # help       : ''
-  type   : '_template_name'
+  type       : '_template_name'
   defaultsTo : 'mytemplate'
 
-- name       : 'here'
-  # abbr       : 'x'
-  docstring  : 'Output to :here'
-  help       : 'Write output to :here (./.templates instead of ./templates)'
-  type   : 'bool'
-  defaultsTo : 'false'
-  negatable  : false
+- name       : lang
+  abbr       : l
+  docstring  : Programming language
+  type       : string
+  defaultsTo : dart
+  help       : Generate code for programming language
 
+- name       : here
+  docstring  : Emit to :here
+  help       : Emit to :here dir (./.dartrix.d/templates)
+  type       : bool
+  defaultsTo : 'false'

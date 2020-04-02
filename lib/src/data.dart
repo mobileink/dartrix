@@ -134,21 +134,24 @@ void setTemplateArgs(
   var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
   yaml.params.forEach((param) {
     // Config.logger.i('param: ${param.name}');
-    if (param.type == 'bool') {
+    if (param.private) {
+      // do not expose private params
+    } else if (param.type == 'bool') {
       _argParser.addFlag(param.name,
-          abbr: param.abbr,
-          help: param.help,
-          negatable: param.negatable ?? true,
-          defaultsTo: (param.defaultsTo == 'true') ? true : false);
-      } else {
-        // print('${param.type}');
+        abbr: param.abbr,
+        help: param.help,
+        hide: param.hidden ?? false,
+        negatable: param.negatable ?? true,
+        defaultsTo: (param.defaultsTo == 'true') ? true : false);
+    } else {
+      // print('${param.type}');
       _argParser.addOption(param.name,
-          abbr: param.abbr,
-          valueHelp: (param.type == '_out_prefix') ? 'path' : param.type,
-          help: (param.type == '_out_prefix')
-          ? 'Output path relative to ./'
-          : param.docstring,
-          defaultsTo: param.defaultsTo);
+        abbr: param.abbr,
+        valueHelp: (param.type == '_out_prefix') ? 'path' : param.type,
+        help: (param.type == '_out_prefix')
+        ? 'Output path relative to ./'
+        : param.docstring,
+        defaultsTo: param.defaultsTo);
     }
   });
   // always add --help
@@ -174,9 +177,23 @@ void setTemplateArgs(
   // print('myoptions: ${myoptions.options}');
   // print('args: ${myoptions.arguments}');
 
+  if (yaml.generic != null) {
+    Config.generic = true;
+    var indexParam = yaml.params.singleWhere((p) => p.name == yaml.generic);
+    print('generic indexParam: $indexParam');
+    Config.genericIndex = '_' + myoptions[indexParam.name];
+    print('genericIndex: ${Config.genericIndex}');
+  }
+
+  if (myoptions.options.contains('here') && myoptions['here'] == true) {
+    Config.here = true;
+  }
+  print('config.here: ${Config.here}');
+
   if (myoptions.wasParsed('help')) {
     // printUsage(_argParser);
-    print('\nTemplate \'$template\' options:');
+    print('\nTemplate \'$template\': ${yaml.description}');
+    print('Options:');
     print(_argParser.usage);
     if (yaml.note != null) {
       print('\nNote: ${yaml.note}');

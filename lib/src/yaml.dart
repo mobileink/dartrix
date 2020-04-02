@@ -23,13 +23,14 @@ class ParamConfig extends Configuration {
   // String typeHelp; // parser 'valueHelp'
   // @optionalConfiguration
   String type; // _plugin, _template, _out_prefix
+  @optionalConfiguration
   String defaultsTo;
   @optionalConfiguration
   bool negatable;
   @optionalConfiguration
-  bool hidden;
+  bool hidden = false;
   @optionalConfiguration
-  bool private;
+  bool private = false;
   @optionalConfiguration
   String seg;
   @optionalConfiguration
@@ -71,6 +72,9 @@ class TemplateYaml extends Configuration {
   String dartrix;
   @optionalConfiguration
   MetaParam meta;
+
+  @optionalConfiguration
+  String generic;
 }
 
 class LibraryRef extends Configuration {
