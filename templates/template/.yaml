@@ -1,19 +1,21 @@
 name: template
 version: 0.1.0
-docstring: Generates a template in ./templates/
-description: Generates a Dartrix template; output to ./templates/
+docstring: Generic meta-template. Parameterized by programming language.
+description: Generates a Dartrix template for a programming language.
 
 dartrix: 0.1.24-alpha
 
 meta: template
-generic: lang  # primary index
+generic: lang  # = param typed _index
+# resources shared across instances in 'lang' subdir
 
 params:
+
 
 - name       : 'name'
   abbr       : 'n'
   docstring  : 'Name of template'
-  type       : '_template_name'
+  type       : '_index'
   defaultsTo : 'mytemplate'
 
 - name       : lang
@@ -28,3 +30,4 @@ params:
   help       : Emit to :here dir (./.dartrix.d/templates)
   type       : bool
   defaultsTo : 'false'
+  negatable  : 'false'
