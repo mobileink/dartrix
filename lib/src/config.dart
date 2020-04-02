@@ -40,6 +40,7 @@ class Config {
 
   static bool generic = false;
   static String genericIndex;
+  static String genericSelection;
 
   static String sysCache = getSysCache();
 

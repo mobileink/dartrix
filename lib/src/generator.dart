@@ -156,7 +156,8 @@ void processTemplate() async {
     tFileList.retainWhere((f) {
         var tpath = f.path.replaceFirst(Config.templateRoot + '/', '');
         // print('tpath: $tpath');
-        return tpath.startsWith(Config.genericIndex);
+        return (tpath.startsWith(Config.genericSelection)
+          || tpath.startsWith(Config.genericIndex));
     });
   }
 
@@ -185,6 +186,8 @@ void processTemplate() async {
       print('tout: $templateOutPath');
 
       if (Config.generic) {
+        templateOutPath = templateOutPath
+        .replaceFirst(Config.genericSelection + '/', '');
         templateOutPath = templateOutPath
         .replaceFirst(Config.genericIndex + '/', '');
       }
@@ -245,6 +248,8 @@ void processTemplate() async {
     // templatesRoot + '/' + Config.options['template'], ''));
 
     if (Config.generic) {
+      outSubpath = outSubpath
+      .replaceFirst(Config.genericSelection + '/', '');
       outSubpath = outSubpath
       .replaceFirst(Config.genericIndex + '/', '');
     }

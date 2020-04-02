@@ -131,28 +131,83 @@ void setTemplateArgs(
   // + '/templates/' + template);
   // Config.logger.i('yaml: ${yaml.params}');
 
-  var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
-  yaml.params.forEach((param) {
-    // Config.logger.i('param: ${param.name}');
-    if (param.private) {
-      // do not expose private params
-    } else if (param.type == 'bool') {
-      _argParser.addFlag(param.name,
-        abbr: param.abbr,
-        help: param.help,
-        hide: param.hidden ?? false,
-        negatable: param.negatable ?? true,
-        defaultsTo: (param.defaultsTo == 'true') ? true : false);
-    } else {
-      // print('${param.type}');
-      _argParser.addOption(param.name,
-        abbr: param.abbr,
-        valueHelp: (param.type == '_out_prefix') ? 'path' : param.type,
-        help: (param.type == '_out_prefix')
-        ? 'Output path relative to ./'
-        : param.docstring,
-        defaultsTo: param.defaultsTo);
+  var allowedVals;
+  var genericIndexParam;
+  var replaceString;
+  if (yaml.generic != null) {
+    Config.generic = true;
+    Config.genericIndex = yaml.generic;
+    replaceString = '_<' + Config.genericIndex + '>';
+
+    try {
+      genericIndexParam = yaml.params.singleWhere((parm)
+        => parm.name == yaml.generic);
+    } catch(e) {
+      Config.ppLogger.e('Generic index parameter not found: ${yaml.generic}');
+      Config.ppLogger.e(e);
+      exit(1);
     }
+
+    var indexVals = Directory(Config.templateRoot).listSync(recursive: true);
+    //FIXME: memoize these so generator need not read again
+    indexVals.removeWhere((f) => f.path.endsWith('~'));
+    indexVals.removeWhere((f) => f.path.contains('/.'));
+    indexVals.removeWhere((f) => f.path.endsWith(Config.genericIndex));
+    indexVals.retainWhere((f) => f is Directory);
+
+    // print('indexVals $indexVals');
+    allowedVals = indexVals.map((dir) {
+        var tpath = dir.path.replaceFirst(Config.templateRoot + '/', '');
+        return path.split(tpath)[0];
+    }).toSet();
+    // print('allowedVals: $allowedVals');
+  }
+
+  var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
+
+  yaml.params.forEach((param) {
+      // Config.logger.i('param: ${param.name}');
+      if (param.private) {
+        // do not expose private params
+      } else if (param.type == 'bool') {
+        _argParser.addFlag(param.name,
+          abbr: param.abbr,
+          help: param.help,
+          hide: param.hidden ?? false,
+          negatable: param.negatable ?? true,
+          defaultsTo: (param.defaultsTo == 'true') ? true : false);
+      } else if (param.name == yaml.generic) {
+        _argParser.addOption(param.name,
+          abbr: param.abbr,
+          allowed: allowedVals,
+          help: (param.type == '_out_prefix')
+          ? 'Output path relative to ./'
+          : param.docstring,
+          defaultsTo: param.defaultsTo);
+      } else if (yaml.generic != null && (param.type == '_index')) {
+        _argParser.addOption(param.name,
+          abbr: param.abbr,
+          valueHelp: (param.type == '_out_prefix')
+          ? 'path'
+          : (param.type == '_index')
+          ? 'String'
+          : param.type,
+          // allowed: allowedVals,
+          help: (param.type == '_out_prefix')
+          ? 'Output path relative to ./'
+          : param.docstring,
+          defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
+      } else {
+        _argParser.addOption(param.name,
+          abbr: param.abbr,
+          valueHelp: (param.type == '_out_prefix')
+          ? param.docstring : param.type,
+          // help: (param.type == '_out_prefix')
+          // ? 'Output path relative to ./'
+          // : param.docstring,
+          help: param.help,
+          defaultsTo: param.defaultsTo);
+      }
   });
   // always add --help
   _argParser.addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
@@ -178,17 +233,13 @@ void setTemplateArgs(
   // print('args: ${myoptions.arguments}');
 
   if (yaml.generic != null) {
-    Config.generic = true;
-    var indexParam = yaml.params.singleWhere((p) => p.name == yaml.generic);
-    print('generic indexParam: $indexParam');
-    Config.genericIndex = '_' + myoptions[indexParam.name];
-    print('genericIndex: ${Config.genericIndex}');
+    Config.genericSelection = myoptions[Config.genericIndex];
   }
 
   if (myoptions.options.contains('here') && myoptions['here'] == true) {
     Config.here = true;
   }
-  print('config.here: ${Config.here}');
+  // print('config.here: ${Config.here}');
 
   if (myoptions.wasParsed('help')) {
     // printUsage(_argParser);
