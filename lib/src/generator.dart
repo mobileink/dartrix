@@ -130,7 +130,7 @@ void spawnCallback(dynamic _xData) {
 }
 
 /// Run builtin template. The template is stored in Config.templateRoot.
-void generateFromBuiltin() async {
+void processTemplate() async {
   // Config.prodLogger.v('generateFromBuiltin entry');
 
   if (Config.debug) {

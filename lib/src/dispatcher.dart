@@ -81,7 +81,7 @@ void dispatchBuiltin(String template, ArgResults _options,
   // var templates = await listTemplatesAsMap(null); // listBuiltinTemplates();
   // var templates = await listTemplates(':dartrix');
 
-  await generateFromBuiltin();
+  await processTemplate();
 
   // Config.ppLogger.v('bt: $templates, rtt: ${templates.runtimeType}');
   // if (templates.keys.contains(template)) {
@@ -100,14 +100,14 @@ void dispatchBuiltin(String template, ArgResults _options,
   //     case 'bashrc':
   //       // await handleBashrc(templates[template]['root'], tArgs);
   //       await handleBashrc(Config.templateRoot, tArgs);
-  //       // await generateFromBuiltin();
+  //       // await processTemplate();
   //       break;
   //     case 'dart_cmdsuite':
   //       await handleDartCmdSuite(templates[template]['root'], tArgs);
   //       break;
   //     default:
   //       // Config.prodLogger.e('No handler for template $template');
-  //       await generateFromBuiltin();
+  //       await processTemplate();
   //   }
   // } else {
   //   Config.prodLogger.e('template $template not found in lib :dartrix');
@@ -128,7 +128,7 @@ void dispatchHere(String template, ArgResults _options, List<String> userArgs,  
 
   if (tNames.contains(template)) {
     // spawnCallback({});
-    await generateFromBuiltin();
+    await processTemplate();
   } else {
     Config.prodLogger.e('template $template not found in lib :here');
   }
@@ -164,7 +164,7 @@ void dispatchPlugin(String pkg, String template, ArgResults _options,
         spawnCallback, externalOnDone, pkg, [template, ...?tArgs]);
   } else {
     // spawnCallback({});
-    await generateFromBuiltin();
+    await processTemplate();
   }
 }
 
@@ -176,7 +176,7 @@ void dispatchUser(String template, ArgResults _options, List<String> userArgs,
   var templates = await listTemplatesAsMap(Config.home + '/.dartrix.d');
   if (templates.keys.contains(template)) {
     // spawnCallback({});
-    await generateFromBuiltin();
+    await processTemplate();
   } else {
     Config.prodLogger.e('template $template not found in lib :user');
   }

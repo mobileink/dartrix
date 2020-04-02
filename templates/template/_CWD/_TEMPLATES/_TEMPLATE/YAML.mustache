@@ -1,0 +1,50 @@
+name: {{name}}
+version: 0.1.0
+docstring: A simple Java application.
+description: Prints Hello World.
+
+dartrix: {{version.dartrix}}
+
+params:
+
+- name       : 'greeting'
+  abbr       : 'g'
+  docstring  : 'A greeting'
+  typeHelp   : 'string'
+  defaultsTo : 'Hello'
+
+- name       : 'addressee'
+  abbr       : 'a'
+  docstring  : 'Addressee'
+  typeHelp   : 'string'
+  defaultsTo : 'World'
+
+- name       : 'proj'
+  abbr       : 'p'
+  docstring  : 'Name of project'
+  typeHelp   : 'string'
+  defaultsTo : 'myproj'
+  seg        : 'PROJ'
+
+- name       : 'domain'
+  abbr       : 'd'
+  docstring  : 'Domain'
+  typeHelp   : 'segmented.string'
+  defaultsTo : 'example.org'
+  seg        : 'DOMAIN'
+
+- name       : 'subdomain'
+  abbr       : 's'
+  docstring  : 'Subdomain part of domain.'
+  help       : 'E.g., in foo.bar.baz.com the sudomain is foo (or foo.bar)'
+  typeHelp   : 'string'
+  defaultsTo : 'greetings'
+  seg        : 'SUBDOM'
+
+- name       : 'class'
+  abbr       : 'c'
+  docstring  : 'Class name.'
+  help       : 'Java class name.'
+  typeHelp   : 'string'
+  defaultsTo : 'Hello'
+  seg        : 'CLASS'

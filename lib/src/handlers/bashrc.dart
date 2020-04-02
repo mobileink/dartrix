@@ -112,5 +112,5 @@ void handleBashrc(String dir, List<String> tArgs) async {
 
   // tData['segmap']['DOTDIR_D'] = myoptions['config-dir'];
 
-  await generateFromBuiltin();
+  await processTemplate();
 }
