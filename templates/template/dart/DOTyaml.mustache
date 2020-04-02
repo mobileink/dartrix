@@ -1,0 +1,58 @@
+name         : dart
+version      : 0.2.0
+docstring    : A Hello World template in Dart
+description  : Generates a Dart app that prints a hello msg.
+
+dartrix      : 0.1.24-alpha
+
+params:
+
+- name       : salutation
+  abbr       : s
+  docstring  : A salutation.
+  help       : A salutation like "Dear" or "Dearest".
+  type       : string
+  defaultsTo : Dear
+
+- name       : addressee
+  abbr       : a
+  docstring  : Addressee.
+  help       : Entity to whom message is addressed.
+  type       : string
+  defaultsTo : World
+
+- name       : greeting
+  abbr       : g
+  docstring  : Greeting msg.
+  help       : A greeting like "Hello" or "Salut".
+  type       : string
+  defaultsTo : Hello
+
+- name       : closing
+  abbr       : c
+  docstring  : Closing salutation
+  help       : Closing phrase of message
+  type       : string
+  defaultsTo : Sincerely
+
+- name       : from
+  abbr       : f
+  docstring  : Originator of message
+  type       : string
+  defaultsTo : Dart
+
+- name       : out
+  abbr       : o
+  docstring  : Output directory
+  help       : Output path relative to current working directory.
+  type       : _out_prefix
+  defaultsTo : mypkg
+  # seg        : {{name}}
+
+- name       : pkg
+  abbr       : p
+  docstring  : dart_pkg_name
+  help       : Dart package name.
+  type       : _out_prefix
+  defaultsTo : mypkg
+
