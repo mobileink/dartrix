@@ -1,0 +1,11 @@
+# {{rdomain}}.{{subdomain}}.{{class}}
+
+Hello World in Kotlin
+
+```
+$ pub global run dartrix:new hello -t kotlin -a {{_out_prefix}} -p {{rdomain}} -d {{subdomain}} -c {{class}} -g {{greeting}}
+$ cd {{_out_prefix}}
+$ kotlinc src/main/kotlin/{{segmap.RDOMAIN}}/{{segmap.SUBDOMAIN}}/{{class}}.kt
+$ kotlin {{class}}Kt
+{{greeting}}, {{addressee}}
+```
