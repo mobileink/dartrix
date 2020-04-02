@@ -63,7 +63,7 @@ void printBuiltins() async {
   // var templates = Directory(templatesRoot).listSync()
   //   ..retainWhere((f) => f is Directory);
 
-  print('Builtin templates:');
+  print(':dartrix (builtin) templates:');
 
   // var templates = await listTemplatesAsMap(null);
   var templates = await listBuiltinTemplates();
@@ -157,10 +157,26 @@ String abbrevPath(String path) {
 void printUsage(ArgParser argParser) async {
   // Config.ppLogger.d('printUsage entry');
   if (!Config.debug) {
-    print('dartrix:list, version 0.1.0\n');
+    print('dartrix:list, version 0.1.0');
+    print('List Dartrix libraries and commands.\n');
     print('Usage: dartrix:list [plhv] [<library>]\n');
     // print('Options (for builtins and plugin libraries only):\n');
     print(argParser.usage);
+  }
+}
+
+void printCommands(ArgParser argParser) async {
+  // Config.ppLogger.d('printCommands entry');
+  print('Dartrix commands:');
+  print('\tlint');
+  print('\tlist');
+  print('\tnew');
+  print('\tman');
+}
+void printList(ArgParser argParser) async {
+  // Config.ppLogger.d('printList entry');
+  if (!Config.debug) {
+    print('dartrix:list, version 0.1.0');
   }
   final format = '  %-14s%-14s%-70s';
   if (!Config.debug) {
@@ -187,7 +203,7 @@ void printUsage(ArgParser argParser) async {
       }
     }
     line = sprintf(
-      format, [':here', '$v', 'Here templates (.dartrix.d/templates)']);
+      format, [':here', '$v', 'Here templates (./.dartrix.d/templates)']);
     print(thePen('$line'));
 
     if (stdTLibExists(':user')) {
@@ -201,7 +217,7 @@ void printUsage(ArgParser argParser) async {
       }
     }
     line = sprintf(format,
-      [':user', '$v', 'User (private) templates (~/.dartrix.d/templates)']);
+      [':user', '$v', 'User templates (~/.dartrix.d/templates)']);
     print(thePen('$line'));
 
     if (Config.searchLocal) {
@@ -220,7 +236,7 @@ void printUsage(ArgParser argParser) async {
       print(thePen('$l'));
     }
   }
-  print('\nImports:');
+  print('  --------');
   // pkgs: map of pkgname: uri
   //List<Map>
   var plugins = await listTLibs(Config.appSfx);
@@ -274,9 +290,9 @@ void printUsage(ArgParser argParser) async {
     // print('\n${infoPen("path")}: active library');
     // print('\n* User (~/.dartrix.d/user.yaml)   + Local (${Config.local})');
     // print('> System (~/.pub-cache)');
-    print('\n*User  '
+    print('\n*:user  '
       + ((Config.searchLocal) ? '+Local' : '')
-      + '  >System'
+      + '  >:sys'
       + ((Config.searchPubDev) ? '  ^pub.dev' : ''));
   }
 }
@@ -290,14 +306,21 @@ void main(List<String> args) async {
 
   var argParser = ArgParser(usageLineLength: 120);
   // argParser.addCommand('list');
-  argParser.addFlag('pubdev',
-      abbr: 'p', defaultsTo: false, help: 'List pub.dev. Default: no');
-  argParser.addFlag('local',
-      abbr: 'l', defaultsTo: false, help: 'List local (/usr/local/share/dartrix) Default: no');
-  argParser.addFlag('help',
-      abbr: 'h', defaultsTo: false, help: 'Print this help message.');
-  argParser.addFlag('verbose', abbr: 'v', defaultsTo: false);
-  argParser.addFlag('debug', defaultsTo: false, hide: true);
+  argParser.addFlag('pubdev', abbr: 'p',
+    defaultsTo: false, negatable: false,
+    help: 'Include pub.dev in listing. Default: no');
+  argParser.addFlag('local', abbr: 'l',
+    defaultsTo: false, negatable: false,
+    help: 'Include :local in listing. (/usr/local/share/dartrix) Default: no');
+  argParser.addFlag('commands', abbr: 'c',
+    defaultsTo: false, negatable: false,
+    help: 'List Dartrix commands');
+  argParser.addFlag('help', abbr: 'h',
+    defaultsTo: false, negatable: false,
+    help: 'Print this help message.');
+  argParser.addFlag('verbose', abbr: 'v',
+    defaultsTo: false, negatable: false);
+  argParser.addFlag('debug', defaultsTo: false, negatable: false, hide: true);
 
   try {
     Config.options = argParser.parse(args);
@@ -333,6 +356,11 @@ void main(List<String> args) async {
     exit(0);
   }
 
+  if (Config.options['commands']) {
+    await printCommands(argParser);
+    exit(0);
+  }
+
   if (Config.debug) {
     await debug.debugConfig();
   }
@@ -341,11 +369,11 @@ void main(List<String> args) async {
 
   if (Config.options.rest.isEmpty) {
     // if Config.debug is set, printUsage will only print debug msgs
-    await printUsage(argParser);
+    await printList(argParser);
     // Now reset Config.debug and print usage
     if (Config.debug) {
       Config.debug = false;
-      await printUsage(argParser);
+      await printList(argParser);
     }
     // var bis = await listBuiltinTemplates();
     // print('bis: $bis');
