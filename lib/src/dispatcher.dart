@@ -78,40 +78,8 @@ void dispatchBuiltin(String template, ArgResults _options,
 
   await processArgs(':dartrix', template, _options, dartrixArgs, tArgs);
 
-  // var templates = await listTemplatesAsMap(null); // listBuiltinTemplates();
-  // var templates = await listTemplates(':dartrix');
-
   await processTemplate();
 
-  // Config.ppLogger.v('bt: $templates, rtt: ${templates.runtimeType}');
-  // if (templates.keys.contains(template)) {
-  //   //   // print('found template $template in lib');
-  //   //   // debugging:
-  //   //   // var pkg = templates[template];
-  //   //   // Config.logger.i('pkg: $pkg, rtt: ${pkg.runtimeType}');
-  //   //   // var r = pkg['root'];
-  //   //   // Config.debugLogger.i('root: $r');
-
-  //   //   Config.templateRoot = templates[template]['root'];
-
-  //   //   await processYamlArgs(Config.templateRoot, tArgs);
-
-  //   switch (template) {
-  //     case 'bashrc':
-  //       // await handleBashrc(templates[template]['root'], tArgs);
-  //       await handleBashrc(Config.templateRoot, tArgs);
-  //       // await processTemplate();
-  //       break;
-  //     case 'dart_cmdsuite':
-  //       await handleDartCmdSuite(templates[template]['root'], tArgs);
-  //       break;
-  //     default:
-  //       // Config.prodLogger.e('No handler for template $template');
-  //       await processTemplate();
-  //   }
-  // } else {
-  //   Config.prodLogger.e('template $template not found in lib :dartrix');
-  // }
 }
 
 void dispatchHere(String template, ArgResults _options, List<String> userArgs,    List<String> tArgs) async {
