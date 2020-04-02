@@ -19,34 +19,6 @@ import 'package:dartrix/src/resolver.dart';
 import 'package:dartrix/src/utils.dart';
 import 'package:dartrix/src/yaml.dart';
 
-// void initBuiltinArgs(Dartrix cmd) async { //CommandRunner runner) async {
-void initBuiltinArgs() async {
-  //CommandRunner runner) async {
-  // {template : docstring }
-  // Map
-  var biTemplates = await listTemplatesAsMap(null); // listBuiltinTemplates();
-  // for each template, read yaml and construct arg parser
-
-  // for (var t in biTemplates.keys) {
-  //   var tConfig = getTemplateYaml(t);
-  //   // print('$t config: ${tConfig.name}');
-  //   var subCmd = Dartrix.cmd(tConfig.name, tConfig.docstring);
-  //   tConfig.params.forEach((p) {
-  //       // var subCmd = Dartrix.cmd(p['name'], p['desc']);
-  //       subCmd.addOption(p.name, abbr: p.abbr,
-  //         help: p.help,
-  //         valueHelp: p.typeHelp,
-  //         defaultsTo: p.defaultsTo);
-  //   });
-  //   // cmd.addSubcommand(subCmd);
-  //   // runner.addCommand(cmd);
-  // }
-  var opts = biTemplates.keys.map((k) => path.basename(k));
-  print('bit keys: $opts');
-  // cmd.addOption('template', abbr: 't',
-  //   allowed: opts);
-}
-
 void printHereTemplates() async {
   // Config.ppLogger.v('printHereTemplates entry');
   List<Map> hereTemplates = listHereTemplates();
