@@ -252,20 +252,6 @@ void setTemplateArgs(
     exit(0);
   }
 
-  // if (myoptions.wasParsed('domain')) {
-  //   print('uuuuuuuuuuuuuuuu');
-  //   print(myoptions['domain']);
-  // }
-  // now merge user passed args with default data map
-  // print('MERGE user options');
-
-  // Set defaults
-  // tData['segmap'].forEach((seg, v) {
-  //   tData[seg.toLowerCase()] = v;
-  // });
-
-  // print('subdom: ${tData["segmap"]["SUBDOMAIN"]}');
-
 
   tData['segmap']['JPKG'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
   tData['segmap']['RDOMAIN'] = tData['segmap']['JPKG'];

@@ -398,30 +398,6 @@ Future<List<Map>> listTLibs(String suffix) async {
   // }
 }
 
-/// return map of templates for pkgRoot
-/// map keys:  name, root, docstring
-Future<Map> listTemplatesAsMap(String pkgRoot) async {
-  Config.debugLogger.v('listTemplatesAsMap $pkgRoot');
-  var templatesRoot;
-  if (pkgRoot == null) {
-    templatesRoot =
-        Config.builtinTemplatesRoot; //await setBuiltinTemplatesRoot();
-  } else {
-    templatesRoot = pkgRoot + '/' + ((pkgRoot == ':here') ? Config.hereDir : '') + 'templates';
-  }
-  var templates = Directory(templatesRoot).listSync()
-    ..retainWhere((f) => f is Directory);
-
-  var tmap = {
-    for (var tdir in templates)
-      path.basename(tdir.path): {
-        'rootUri': tdir.path,
-        'docstring': getTemplateDocString(tdir)
-      },
-  };
-  return tmap;
-}
-
 List<Map> listBuiltinTemplates() {
   var builtinsTemplatesRoot = Config.builtinTemplatesRoot;
   // print('builtinsTemplatesRoot: $builtinsTemplatesRoot');

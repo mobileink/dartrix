@@ -54,7 +54,6 @@ void processArgs(String pkg, String template, ArgResults _options,
     if (template == null) exit(0);
   }
 
-  // var templates = await listTemplatesAsMap(Config.libPkgRoot);
   var templateSpec = await listTemplate(pkg, Config.libPkgRoot, template);
   // Config.ppLogger.v('processArgs result: $templateSpec');
 
@@ -107,13 +106,8 @@ void dispatchLocal(String template, ArgResults _options, List<String> userArgs,
   Config.ppLogger.v('dispatchLocal $template, $_options, $userArgs, $tArgs');
 
   await processArgs(':local', template, _options, userArgs, tArgs);
-  var templates = await listTemplatesAsMap(Config.local);
 
- if (templates.keys.contains(template)) {
-    spawnCallback({});
-  } else {
-    Config.prodLogger.e('template $template not found in lib :local');
-  }
+  await processTemplate();
 }
 
 // FIXME: _options == Config.options
@@ -141,11 +135,7 @@ void dispatchUser(String template, ArgResults _options, List<String> userArgs,
   // Config.ppLogger.v('dispatchUser $template, $_options, $userArgs, $tArgs');
 
   await processArgs(':home', template, _options, userArgs, tArgs);
-  var templates = await listTemplatesAsMap(Config.home + '/.dartrix.d');
-  if (templates.keys.contains(template)) {
-    // spawnCallback({});
-    await processTemplate();
-  } else {
-    Config.prodLogger.e('template $template not found in lib :user');
-  }
+
+  await processTemplate();
+
 }

@@ -133,16 +133,6 @@ void printPluginTemplates(String libName, ArgResults options) async {
     TemplateYaml tConfig = getTemplateYaml(t.path);
     var tName = path.basename(t.path);
     var docString = tConfig.docstring;
-    // try {
-    //   docString =
-    //       File(templatesRoot + '/' + tName + '.docstring').readAsStringSync();
-    // } on FileSystemException {
-    //   if (Config.debug) {
-    //     docString = warningPen('${tName}.docstring not found');
-    //   }
-    // }
-    // var version = getPluginVersion(Config.libPkgRoot);
-    // Config.ppLogger.d('version: $version');
     tName = sprintf('%-18s', [tName]);
     print('\t${tName} ${docString}');
   });

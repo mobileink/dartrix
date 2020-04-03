@@ -32,7 +32,6 @@ String rewritePath(
 
   //List<String>
   var thePath = _path.replaceFirst(Directory.current.path + '/', '');
-  // print('thePath: $thePath');
   var segs = thePath.split(path.separator);
   var sm = segs.map((seg) {
       // Config.ppLogger.i('seg: $seg');
