@@ -119,7 +119,7 @@ String rewritePath(
     result = result.substring(1);
   }
 
-  // print('result: $result');
+  // print('''8d4898e3-3931-4c52-b837-73e068f78ab9:  result $result''');
 
   // meta: insert path prefix
  if (Config.meta != null) {
@@ -148,7 +148,7 @@ String rewritePath(
   }
 
   result = path.normalize(result);
-  // print('meta after: $result');
+  // print('''8af8c273-0e3a-4f4f-bda0-bfad7de91c98:  meta after: $result''');
 
   return result;
 }

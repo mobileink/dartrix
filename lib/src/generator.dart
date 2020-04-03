@@ -53,11 +53,11 @@ void processTemplate() async {
   if (!tData['dartrix']['force']) {
     tFileList.forEach((tfile) {
       // Config.logger.v('cwd: ${Directory.current.path}');
-      Config.logger.v('tfile: $tfile');
+      // print('''6b29edec-6503-4ca6-8a7b-b639efd50085:  tfile: $tfile''');
       // Config.logger.v('tData[\'out\']: ${tData['out']}');
       var templateOutPath = tfile.path.replaceFirst(
         Config.templateRoot + '/', '');
-      print('tout: $templateOutPath');
+      // print('tout: $templateOutPath');
 
       if (Config.generic) {
         templateOutPath = templateOutPath

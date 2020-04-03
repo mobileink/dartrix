@@ -100,11 +100,12 @@ class UserYaml extends Configuration {
 }
 
 Map loadYamlFileSync(String path) {
-  //File
   var file = File(path);
   if (file?.existsSync() == true) {
     return loadYaml(file.readAsStringSync());
   }
+  print('''addaece2-e72c-4d08-b6ca-ab4a9332d839:  ''');
+  Config.ppLogger.w('loadYamlFileSync $path: not found');
   return null;
 }
 
@@ -152,6 +153,7 @@ TemplateYaml getTemplateYaml(String templateRoot) {
       // exit(1);
       return null;
     } else {
+      print('''fb4f67f6-8035-486c-b94e-407cf7e85af0:  ''');
       Config.prodLogger.e('$e ${yamlFile}');
       return null;
     }
