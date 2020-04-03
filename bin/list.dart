@@ -131,6 +131,9 @@ void printPluginTemplates(String libName, ArgResults options) async {
   }
   templates.forEach((t) {
     TemplateYaml tConfig = getTemplateYaml(t.path);
+    if (tConfig == null) {
+      exit(1);
+    }
     var tName = path.basename(t.path);
     var docString = tConfig.docstring;
     tName = sprintf('%-18s', [tName]);
