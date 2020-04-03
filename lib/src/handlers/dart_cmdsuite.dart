@@ -82,8 +82,8 @@ void handleDartCmdSuite(String dir, List<String> tArgs) async {
   //       return param.name == option;
   //     });
   //     // print('yaml: ${param.name}');
-  //     if (param.segmap != null) {
-  //       tData['segmap'][param.segmap] = myoptions[option];
+  //     if (param.seg != null) {
+  //       tData['seg'][param.seg] = myoptions[option];
   //       tData[option] = myoptions[option];
   //     } else {
   //       tData[option] = myoptions[option];
@@ -101,18 +101,18 @@ void handleDartCmdSuite(String dir, List<String> tArgs) async {
   // tData['prefix'] = myoptions['prefix'];
   // tData['enable-asserts'] = myoptions['enable-asserts']? ' --enable-asserts' : '';
 
-  // tData['segmap']['dart_cmdsuite'] = myoptions['name'];
+  // tData['seg']['dart_cmdsuite'] = myoptions['name'];
 
   // var dcf = myoptions['dartrix-config-home'];
   // print('dartrix-config-home: ${dcf}');
   // if (path.isAbsolute(dcf)) {
-  //   tData['segmap']['HOME'] = dcf;
+  //   tData['seg']['HOME'] = dcf;
   // } else {
-  //   // tData['segmap']['HOME'] = tData['segmap']['HOME'] + '/' + dcf;
-  //   tData['segmap']['HOME'] = Directory.current.path + '/' + dcf;
+  //   // tData['seg']['HOME'] = tData['seg']['HOME'] + '/' + dcf;
+  //   tData['seg']['HOME'] = Directory.current.path + '/' + dcf;
   // }
 
-  // tData['segmap']['DOTDIR_D'] = myoptions['config-dir'];
+  // tData['seg']['DOTDIR_D'] = myoptions['config-dir'];
 
   await processTemplate();
 }

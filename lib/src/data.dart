@@ -28,15 +28,15 @@ Map xData; // external data
 
 // void mergeUserOptions() {
 //   if (Config.options['root'] != Config.argParser.getDefault('root')) {
-//     tData['segmap']['ROOT'] = Config.options['root'];
+//     tData['seg']['ROOT'] = Config.options['root'];
 //   }
 //   if (Config.options['domain'] != Config.argParser.getDefault('domain')) {
 //     // user specified domain
-//     tData['segmap']['RDOMAINPATH'] =
+//     tData['seg']['RDOMAINPATH'] =
 //         Config.options['domain'].split('.').reversed.join('/');
 //   }
 //   if (Config.options['class'] != Config.argParser.getDefault('class')) {
-//     tData['segmap']['CLASS'] = Config.options['class'];
+//     tData['seg']['CLASS'] = Config.options['class'];
 //   }
 // }
 
@@ -62,14 +62,14 @@ Map _mergeExternalData(Map _data, Map xData) {
 Map mergeExternalData(Map _data, Map xData) {
   tData = _mergeExternalData(_data, xData);
   if (xData['root'] != null) {
-    tData['segmap']['ROOTPATH'] = xData['root'];
+    tData['seg']['ROOTPATH'] = xData['root'];
   }
   if (xData['domain'] != null) {
-    tData['segmap']['RDOMAINPATH'] =
+    tData['seg']['RDOMAINPATH'] =
         xData['domain'].split('.').reversed.join('/');
   }
   if (xData['class'] != null) {
-    tData['segmap']['CLASS'] = xData['class'];
+    tData['seg']['CLASS'] = xData['class'];
   }
 
   // now set global var
@@ -91,26 +91,26 @@ var flutter_sdk =
     path.joinAll(path.split(flutterExecutable)..removeLast()..removeLast());
 
 // this should be called at startup
-// void initSegmap(ArgResults options) {
-//   tData['segmap']['PLATFORM'] = Platform.operatingSystem;
-//   tData['segmap']['PKG'] = Config.options['package'];
-//   tData['segmap']['CLASS'] = Config.options['class'];
-//   tData['segmap']['RDOMAINPATH'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
+// void initSeg(ArgResults options) {
+//   tData['seg']['PLATFORM'] = Platform.operatingSystem;
+//   tData['seg']['PKG'] = Config.options['package'];
+//   tData['seg']['CLASS'] = Config.options['class'];
+//   tData['seg']['RDOMAINPATH'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
 //   if (Config.options['relative-root'] == null) {
-//     tData['segmap']['ROOT'] = './';
+//     tData['seg']['ROOT'] = './';
 //   } else {
-//     tData['segmap']['ROOT'] = Config.options['ROOT'];
+//     tData['seg']['ROOT'] = Config.options['ROOT'];
 //   }
 // }
 
 void dartPkgHook(String pkg) {
-  tData['segmap']['DPKG'] = pkg.replaceAll(Config.hereDir, '/');
+  tData['seg']['DPKG'] = pkg.replaceAll(Config.hereDir, '/');
   tData['package']['dart'] = pkg;
 }
 
 void javaPkgHook(String pkg) {
   tData['rdomain'] = pkg;
-  tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
+  tData['seg']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
   tData['package']['java'] = pkg;
 }
 
@@ -251,10 +251,10 @@ void setTemplateArgs(
   }
 
 
-  tData['segmap']['JPKG'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
-  tData['segmap']['RDOMAIN'] = tData['segmap']['JPKG'];
-  tData['segmap']['SUBDOMAIN'] = tData['subdomain'];
-  tData['segmap']['ORG'] = tData['ORG'];
+  tData['seg']['JPKG'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
+  tData['seg']['RDOMAIN'] = tData['seg']['JPKG'];
+  tData['seg']['SUBDOMAIN'] = tData['subdomain'];
+  tData['seg']['ORG'] = tData['ORG'];
 
   if (yaml.meta != null) {
     Config.meta = yaml.meta.meta;
@@ -262,12 +262,12 @@ void setTemplateArgs(
 
   // if (yaml.meta == true) {
   //   Config.meta = true;
-  //   tData['segmap']['YAML'] = '.yaml';
+  //   tData['seg']['YAML'] = '.yaml';
   // }
 
-  // print('RDOM2: ${tData["segmap"]["RDOMAIN"]}');
+  // print('RDOM2: ${tData["seg"]["RDOMAIN"]}');
 
-  // print('subdom2: ${tData["segmap"]["SUBDOMAIN"]}');
+  // print('subdom2: ${tData["seg"]["SUBDOMAIN"]}');
 
   // debug.debugData({});
 
@@ -325,10 +325,10 @@ void setTemplateArgs(
         tData[param.name] = myoptions[option];
         tData['_out_prefix'] = myoptions[option];
       } else if (param.type == '_dart_package') {
-        // tData['segmap']['DPKG'] = myoptions[option](Config.hereDir, '/');
+        // tData['seg']['DPKG'] = myoptions[option](Config.hereDir, '/');
         tData['package']['dart'] = myoptions[option];
         if (param.seg != null) {
-          tData['segmap'][param.seg] = myoptions[option];
+          tData['seg'][param.seg] = myoptions[option];
         }
       } else {
         if (param.seg == null) {
@@ -348,20 +348,20 @@ void setTemplateArgs(
           switch (option) {
             case 'domain':
             tData['domain'] = myoptions[option];
-            tData['segmap']['DOMAIN'] = myoptions[option].replaceAll(Config.hereDir, '/');
+            tData['seg']['DOMAIN'] = myoptions[option].replaceAll(Config.hereDir, '/');
             tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
+            tData['seg']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
             break;
             case 'subdomain':
             tData['subdomain'] = myoptions[option];
-            tData['segmap']['SUBDOMAIN'] =
+            tData['seg']['SUBDOMAIN'] =
             myoptions[option].replaceAll('.', '/');
             break;
             case 'here':
             if (myoptions[option]) {
-              tData['segmap']['TEMPLATES'] = '.templates';
+              tData['seg']['TEMPLATES'] = '.templates';
             } else {
-              tData['segmap']['TEMPLATES'] = 'templates';
+              tData['seg']['TEMPLATES'] = 'templates';
             }
             break;
             default:
@@ -371,14 +371,14 @@ void setTemplateArgs(
           if (param.seg == 'DOMAIN') {
             tData['domain'] = myoptions[option];
             tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-            tData['segmap']['DOMAIN'] = tData['domain'].replaceAll('.', '/');
-            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
+            tData['seg']['DOMAIN'] = tData['domain'].replaceAll('.', '/');
+            tData['seg']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
           } else {
             tData[param.seg.toLowerCase()] = myoptions[option];
-            tData['segmap'][param.seg.toUpperCase()] = myoptions[option];
+            tData['seg'][param.seg.toUpperCase()] = myoptions[option];
             tData[option] = myoptions[option];
             if (Config.meta != null) {
-              tData['segmap']['_META'].add(param.seg);
+              tData['seg']['_META'].add(param.seg);
             }
           }
         }
@@ -451,10 +451,10 @@ Map tData = {
     'dart': '\'>=2.1.0 <3.0.0\'',
     'flutter': flutter_sdk,
   },
-  // segmap keys are segments used in your template dir structure.
+  // seg keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
   'out': './',
-  'segmap': {
+  'seg': {
     // keys are segment placeholders in path templates
     'ROOT': '/',
     // 'HOME': Config.home,

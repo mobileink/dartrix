@@ -23,7 +23,7 @@ String rewritePath(
   String _path)
 {
   // Config.ppLogger.i('rewritePath: $_path');
-  // tData['segmap'].forEach((k,v) {
+  // tData['seg'].forEach((k,v) {
   //     Config.logger.v('seg $k => $v');
   // });
   // List<String> segs = domPath.split(path.separator);
@@ -34,21 +34,21 @@ String rewritePath(
   var thePath = _path.replaceFirst(Directory.current.path + '/', '');
   var segs = thePath.split(path.separator);
   var sm = segs.map((seg) {
-      // Config.ppLogger.i('seg: $seg');
-      if (tData['segmap'][seg] == null) {
+      Config.ppLogger.i('seg: $seg');
+      if (tData['seg'][seg] == null) {
         // not in segment
         if (seg.endsWith('MUSTACHE')) {
           return seg.replaceAll('MUSTACHE', 'mustache');
         } else {
-          // find segmap entry whose key is contained in seg
+          // find seg entry whose key is contained in seg
           var key;
           try {
-            key = tData['segmap'].keys.singleWhere((key) {
+            key = tData['seg'].keys.singleWhere((key) {
                 // print('TEST: $key');
                 return seg.contains(key);
             });
             // print('MATCH: $seg');
-            return seg.replaceAll(key, tData['segmap'][key]);
+            return seg.replaceAll(key, tData['seg'][key]);
           } catch(e) {
             //print(e);
             // print('nomatch: $seg');
@@ -57,59 +57,59 @@ String rewritePath(
 
           // no rewrite for full seg, check for partial match
           // var base = path.basenameWithoutExtension(seg);
-          // if (tData['segmap'][base] == null) {
+          // if (tData['seg'][base] == null) {
           //   // no rewrite for FOO of FOO.bar, check for BAR of foo.BAR
           //   var ext = path.extension(seg);
-          //   if (tData['segmap'][ext] == null) {
+          //   if (tData['seg'][ext] == null) {
           //     return seg;
           //   } else {
-          //     var rw = base + tData['segmap'][ext];
+          //     var rw = base + tData['seg'][ext];
           //     return rw;
           //   }
           // } else {
           //   // e.g. FOO.bar matched FOO
           //   var rw;
           //   if (base == 'DOTDIR_D') {
-          //     rw = tData['segmap'][base]; //  + path.extension(seg) + '.d';
+          //     rw = tData['seg'][base]; //  + path.extension(seg) + '.d';
           //   } else {
-          //     rw = tData['segmap'][base] + path.extension(seg);
+          //     rw = tData['seg'][base] + path.extension(seg);
           //   }
           //   return rw;
           // }
         }
       } else {
-        // in segmap
+        // in seg
         switch (seg) {
           // case 'CWD': return seg; // will be reprocessed below, for metas
           // break;
           // case 'HOME':
-          // // Config.ppLogger.v('segmap HOME: ${tData["segmap"]["HOME"]}');
+          // // Config.ppLogger.v('seg HOME: ${tData["seg"]["HOME"]}');
           // // Config.ppLogger.v('HOME: ${Config.home}');
 
-          // if (tData['segmap']['HOME'] != Config.home) {
-          //   if (path.isRelative(tData['segmap']['HOME'])) {
-          //     tData['segmap']['HOME'] =
-          //     path.canonicalize(Config.home + '/' + tData['segmap']['HOME']);
+          // if (tData['seg']['HOME'] != Config.home) {
+          //   if (path.isRelative(tData['seg']['HOME'])) {
+          //     tData['seg']['HOME'] =
+          //     path.canonicalize(Config.home + '/' + tData['seg']['HOME']);
           //   }
           // }
-          // // Config.ppLogger.v('rewritten segmap HOME: ${tData["segmap"]["HOME"]}');
-          // return tData['segmap'][seg];
+          // // Config.ppLogger.v('rewritten seg HOME: ${tData["seg"]["HOME"]}');
+          // return tData['seg'][seg];
           // break;
           default:
           if (Config.meta != null) {
-            if (tData['segmap']['_META'].contains(seg)) {
-              // print('seg: $seg : ${tData["segmap"][seg]}');
-              return tData['segmap'][seg];
+            if (tData['seg']['_META'].contains(seg)) {
+              // print('seg: $seg : ${tData["seg"][seg]}');
+              return tData['seg'][seg];
             } else {
               return seg;
             }
           } else {
-            return tData['segmap'][seg];
+            return tData['seg'][seg];
           }
         }
       }
   });
-  // print('segmap._META: ${tData["segmap"]["_META"]}');
+  // print('seg._META: ${tData["seg"]["_META"]}');
 
   var result = sm.join('/');
 
@@ -136,7 +136,7 @@ String rewritePath(
    result = result.replaceFirst('YAML', '.yaml');
     // result = result.replaceFirst('NAME', 'appname');
   } else {
-    // result = result.replaceAll('CWD', tData['segmap']['CWD']);
+    // result = result.replaceAll('CWD', tData['seg']['CWD']);
     if (tData['_out_prefix'] != null) {
       result = tData['_out_prefix'] + '/' + result;
     }
