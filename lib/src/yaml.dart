@@ -57,6 +57,11 @@ class MetaParam extends Configuration {
   }
 }
 
+class GenericIndex extends Configuration {
+  GenericIndex() : super();
+  ParamConfig generic;
+}
+
 class TemplateYaml extends Configuration {
   TemplateYaml(String fileName) : super.fromFile(File(fileName));
 
@@ -66,15 +71,17 @@ class TemplateYaml extends Configuration {
   String version;
   @optionalConfiguration
   List<ParamConfig> params;
+
   @optionalConfiguration
   String note;
   // @optionalConfiguration
   String dartrix;
+
   @optionalConfiguration
   MetaParam meta;
 
   @optionalConfiguration
-  String generic;
+  ParamConfig generic;
 }
 
 class LibraryRef extends Configuration {

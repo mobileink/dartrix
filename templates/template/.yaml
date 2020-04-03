@@ -6,8 +6,14 @@ description: Generates a Dartrix template for a programming language.
 dartrix: 0.1.24-alpha
 
 meta: template
-generic: lang  # = param typed _index
-# resources shared across instances in 'lang' subdir
+generic: {
+  name       : lang,
+  abbr       : l,
+  docstring  : Programming language,
+  type       : string,
+  defaultsTo : dart,
+  help       : Generate code for programming language
+}
 
 params:
 
@@ -15,15 +21,15 @@ params:
 - name       : 'name'
   abbr       : 'n'
   docstring  : 'Name of template'
-  type       : '_index'
+  type       : 'string' # '_index'
   defaultsTo : 'mytemplate'
 
-- name       : lang
-  abbr       : l
-  docstring  : Programming language
-  type       : string
-  defaultsTo : dart
-  help       : Generate code for programming language
+# - name       : lang
+#   abbr       : l
+#   docstring  : Programming language
+#   type       : string
+#   defaultsTo : dart
+#   help       : Generate code for programming language
 
 - name       : here
   docstring  : Emit to :here

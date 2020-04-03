@@ -131,22 +131,24 @@ void setTemplateArgs(
   // + '/templates/' + template);
   // Config.logger.i('yaml: ${yaml.params}');
 
+  var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
+
   var allowedVals;
   var genericIndexParam;
   var replaceString;
   if (yaml.generic != null) {
     Config.generic = true;
-    Config.genericIndex = yaml.generic;
+    Config.genericIndex = yaml.generic.name;
     replaceString = '_<' + Config.genericIndex + '>';
 
-    try {
-      genericIndexParam = yaml.params.singleWhere((parm)
-        => parm.name == yaml.generic);
-    } catch(e) {
-      Config.ppLogger.e('Generic index parameter not found: ${yaml.generic}');
-      Config.ppLogger.e(e);
-      exit(1);
-    }
+    // try {
+    //   genericIndexParam = yaml.params.singleWhere((parm)
+    //     => parm.name == yaml.generic);
+    // } catch(e) {
+    //   Config.ppLogger.e('Generic index parameter not found: ${yaml.generic}');
+    //   Config.ppLogger.e(e);
+    //   exit(1);
+    // }
 
     var indexVals = Directory(Config.templateRoot).listSync(recursive: true);
     //FIXME: memoize these so generator need not read again
@@ -161,9 +163,13 @@ void setTemplateArgs(
         return path.split(tpath)[0];
     }).toSet();
     // print('allowedVals: $allowedVals');
-  }
 
-  var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
+    _argParser.addOption(yaml.generic.name,
+      abbr: yaml.generic.abbr,
+      allowed: allowedVals,
+      help: yaml.generic.type,
+      defaultsTo: yaml.generic.defaultsTo);
+  }
 
   yaml.params.forEach((param) {
       // Config.logger.i('param: ${param.name}');
@@ -176,14 +182,6 @@ void setTemplateArgs(
           hide: param.hidden ?? false,
           negatable: param.negatable ?? true,
           defaultsTo: (param.defaultsTo == 'true') ? true : false);
-      } else if (param.name == yaml.generic) {
-        _argParser.addOption(param.name,
-          abbr: param.abbr,
-          allowed: allowedVals,
-          help: (param.type == '_out_prefix')
-          ? 'Output path relative to ./'
-          : param.docstring,
-          defaultsTo: param.defaultsTo);
       } else if (yaml.generic != null && (param.type == '_index')) {
         _argParser.addOption(param.name,
           abbr: param.abbr,
@@ -271,71 +269,93 @@ void setTemplateArgs(
 
   // print('subdom2: ${tData["segmap"]["SUBDOMAIN"]}');
 
+  // debug.debugData({});
 
   // Override with user args
   myoptions.options.forEach((option) {
-    // print('option: ${option} = ${myoptions[option]}');
-    // print('params rtt: ${yaml.params.runtimeType}');
-    var param;
-    // get the yaml param matching the option
+      // print('''3728ec79-30ee-4fac-abb5-da49998ef2fc:  ''');
+      // print('option: ${option} = ${myoptions[option]}');
+      // print('params rtt: ${yaml.params.runtimeType}');
+      var param;
+      // get the yaml param matching the option
+      if (option == yaml.generic.name) {
+        param = yaml.generic;
+      } else {
+        try {
+          param = yaml.params.firstWhere((param) {
+              return param.name == option;
+          });
+        } catch (e) {
+          // this will happen for e.g. the help option that was not specified in
+          // the yaml file.
+          if (option == 'help') return;
+          Config.ppLogger.e('option: $option');
+          Config.ppLogger.e(e);
+          return;
+        }
+      }
 
-    try {
-      param = yaml.params.firstWhere((param) {
-        return param.name == option;
-      });
-    } catch (e) {
-      // this will happen for e.g. the help option that was not specified in
-      // the yaml file.
-      if (option == 'help') return;
-      Config.ppLogger.e('option: $option');
-      Config.ppLogger.e(e);
-      return;
-    }
+      if (param.type == '_plugin_name') {
+        tData['_plugin_name'] = myoptions[option];
+      }
 
-    if (param.type == '_plugin_name') {
-      tData['_plugin_name'] = myoptions[option];
-    }
-
-    if (param.type == '_template_name') {
-      tData['_template_name'] = myoptions[option];
-    }
-
-    // print('yaml: ${param.name} : ${param.defaultsTo}');
-    if (param.hook != null) {
-      switch (param.hook) {
-        case 'dpkg-hook':
+      // print('yaml: ${param.name} : ${param.defaultsTo}');
+      if (param.hook != null) {
+        switch (param.hook) {
+          case 'dpkg-hook':
           dartPkgHook(myoptions[option]);
           break;
-        case 'jpkg':
-        case 'java-pkg':
+          case 'jpkg':
+          case 'java-pkg':
           javaPkgHook(myoptions[option]);
           tData[option] = myoptions[option];
           break;
-        default:
+          default:
           Config.prodLogger.w('Unknown param hook: ${param.hook}');
-      }
-    } else if (param.type == '_out_prefix') {
-      tData['_out_prefix'] = myoptions[option];
-    } else if (param.type == '_dart_package') {
-      // tData['segmap']['DPKG'] = myoptions[option](Config.hereDir, '/');
-      tData['package']['dart'] = myoptions[option];
-      if (param.seg != null) {
-        tData['segmap'][param.seg] = myoptions[option];
-      }
-    } else {
-      if (param.seg == null) {
-        tData[option] = myoptions[option];
-        switch (option) {
-          case 'domain':
+        }
+      } else if (param.name == yaml.generic.name) {
+        tData[param.name] = myoptions[option];
+        // print('''5b714874-3b83-4d24-b31b-4b7879e6a8ca:  PARAM.NAME ${param.name}''');
+        // print('''a2db91f6-aae3-4eea-90c8-727e9111399b:  OPTION: $option''');
+        //FIXME:  use yaml.generic.name instead of '_index'
+        tData['_index'] = myoptions[option]
+        .replaceAll(replaceString, '_' + Config.genericSelection);
+        tData[option] = tData['_index'];
+      } else if (param.type == '_out_prefix') {
+        tData[param.name] = myoptions[option];
+        tData['_out_prefix'] = myoptions[option];
+      } else if (param.type == '_dart_package') {
+        // tData['segmap']['DPKG'] = myoptions[option](Config.hereDir, '/');
+        tData['package']['dart'] = myoptions[option];
+        if (param.seg != null) {
+          tData['segmap'][param.seg] = myoptions[option];
+        }
+      } else {
+        if (param.seg == null) {
+          if (param.type == '_index') {
+            if (Config.generic) {
+              //FIXME: don't hardcode <lang> - < + genericIndexParam.name + >
+              tData['_index'] = myoptions[option]
+              .replaceAll(replaceString, '_' + Config.genericSelection);
+              tData[option] = tData['_index'];
+            } else {
+              tData[option] = myoptions[option];
+              tData['_index'] = myoptions[option];
+            }
+          } else {
+            tData[option] = myoptions[option];
+          }
+          switch (option) {
+            case 'domain':
             tData['domain'] = myoptions[option];
             tData['segmap']['DOMAIN'] = myoptions[option].replaceAll(Config.hereDir, '/');
             tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
             tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
             break;
-          case 'subdomain':
+            case 'subdomain':
             tData['subdomain'] = myoptions[option];
             tData['segmap']['SUBDOMAIN'] =
-                myoptions[option].replaceAll('.', '/');
+            myoptions[option].replaceAll('.', '/');
             break;
             case 'here':
             if (myoptions[option]) {

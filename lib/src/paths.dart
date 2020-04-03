@@ -127,7 +127,8 @@ String rewritePath(
    // if --here
    // print('Config.meta: ${Config.meta}');
    if (Config.meta == Meta.template) {
-     result = 'templates/' + tData['_template_name'] + '/' + result;
+     result = 'templates/' + tData['_index'] + '/' + result;
+     // result = 'templates/' + tData['_index'] + '/' + result;
    } else if (Config.meta == Meta.plugin) {
      //FIXME: insert name param with _dartrix
      result = tData['_plugin_name'] + '/' + result;
