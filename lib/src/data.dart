@@ -364,27 +364,28 @@ void setTemplateArgs(
               tData['segmap']['TEMPLATES'] = 'templates';
             }
             break;
-          default:
-        }
-      } else {
-        // seg params
-        if (param.seg == 'DOMAIN') {
-          tData['domain'] = myoptions[option];
-          tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-          tData['segmap']['DOMAIN'] = tData['domain'].replaceAll('.', '/');
-          tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
+            default:
+          }
         } else {
-          tData[param.seg.toLowerCase()] = myoptions[option];
-          tData['segmap'][param.seg.toUpperCase()] = myoptions[option];
-          tData[option] = myoptions[option];
-          if (Config.meta != null) {
-            tData['segmap']['_META'].add(param.seg);
+          // seg params
+          if (param.seg == 'DOMAIN') {
+            tData['domain'] = myoptions[option];
+            tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
+            tData['segmap']['DOMAIN'] = tData['domain'].replaceAll('.', '/');
+            tData['segmap']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
+          } else {
+            tData[param.seg.toLowerCase()] = myoptions[option];
+            tData['segmap'][param.seg.toUpperCase()] = myoptions[option];
+            tData[option] = myoptions[option];
+            if (Config.meta != null) {
+              tData['segmap']['_META'].add(param.seg);
+            }
           }
         }
       }
-    }
-    // print('looping');
+      // print('looping');
   });
+  // debug.debugData({});
 }
 
 Map tData = {
