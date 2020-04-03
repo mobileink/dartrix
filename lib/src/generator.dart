@@ -133,7 +133,7 @@ void processTemplate() async {
     }
     // then remove mustache extension
     outSubpath = outSubpath.replaceFirst(RegExp('\.mustache\$'), '');
-    
+
     // result is canonicalized absolute path
     // outSubpath = path.canonicalize(rewritePath(outSubpath));
     outSubpath = rewritePath(outSubpath);

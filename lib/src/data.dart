@@ -116,7 +116,7 @@ void javaPkgHook(String pkg) {
 
 //FIXME: put this in template.dart?
 void setTemplateArgs(
-    String templateRoot, List<String> libArgs, List<String> tArgs) async {
+  String templateRoot, List<String> libArgs, List<String> tArgs) async {
   // Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
 
   // debug.debugData({});
