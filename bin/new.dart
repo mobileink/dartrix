@@ -177,10 +177,10 @@ void main(List<String> args) async {
   }
 
   if (Config.options['force'] ||
-      optionsRest.contains('-f') ||
+      // optionsRest.contains('-f') ||
       optionsRest.contains('--force')) {
     tData['dartrix']['force'] = true;
-    optionsRest.remove('-f');
+    // optionsRest.remove('-f');
     optionsRest.remove('--force');
   }
 
