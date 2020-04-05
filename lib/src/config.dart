@@ -41,6 +41,7 @@ class Config {
   static bool generic = false;
   static String genericIndex;
   static String genericSelection;
+  static String genericRewrite; // selection rewritten as output seg
 
   static String sysCache = getSysCache();
 
