@@ -189,6 +189,7 @@ void main(List<String> args) async {
   if (Config.options['help']) {
     await printUsage(Config.argParser);
     optionsRest.add('-h');
+    optionsRest.add('--help');
   } else {
     if (optionsRest.contains('-h') || optionsRest.contains('--help')) {
       await printUsage(Config.argParser);
