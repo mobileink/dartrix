@@ -17,9 +17,9 @@ import 'package:dartrix/src/yaml.dart';
 // HOME : $HOME
 // CWD  : Current Working Directory = Directory.current
 
-@exdefn(returns: "rewritten path")
+@defn(returns: "rewritten path")
 String rewritePath(
-  @exparam("file system path for template component")
+  @param("file system path for template component")
   String _path)
 {
   // Config.ppLogger.i('rewritePath: $_path');
