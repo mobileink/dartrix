@@ -131,7 +131,7 @@ void main(List<String> args) async {
   Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
   Config.argParser
-      .addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
+      .addFlag('help', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('debug', defaultsTo: false, negatable: false);
