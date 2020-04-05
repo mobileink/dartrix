@@ -34,7 +34,7 @@ String rewritePath(
   var thePath = _path.replaceFirst(Directory.current.path + '/', '');
   var segs = thePath.split(path.separator);
   var sm = segs.map((seg) {
-      Config.ppLogger.i('seg: $seg');
+      // Config.ppLogger.i('seg: $seg');
       if (tData['seg'][seg] == null) {
         // not in segment
         if (seg.endsWith('MUSTACHE')) {
@@ -104,7 +104,8 @@ String rewritePath(
               return seg;
             }
           } else {
-            return tData['seg'][seg];
+            print('''5f32b37c-0e5b-4c84-82fa-dd0d3d6beb0d:  seg: ${seg}: ${tData['seg'][seg]}''');
+            return (tData['seg'][seg] == false) ? '' : tData['seg'][seg];
           }
         }
       }

@@ -278,7 +278,7 @@ TemplateYaml getTemplateYaml(String templateRoot) {
   //FIXME: memoize
   TemplateYaml config;
   var yamlFile = path.canonicalize(templateRoot + '/.yaml');
-  // print('yamlFile $yamlFile');
+  // print('''a2ecca5c-6d24-4dc4-9aca-7738a2421a12: yamlFile $yamlFile'''');
   try {
     config = TemplateYaml(yamlFile);
   } catch (e) {

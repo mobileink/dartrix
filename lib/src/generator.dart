@@ -10,7 +10,7 @@ import 'package:dartrix/src/paths.dart';
 
 /// Run builtin template. The template is stored in Config.templateRoot.
 void processTemplate() async {
-  // Config.prodLogger.v('generateFromBuiltin entry');
+  // Config.prodLogger.v('processTemplate entry');
   if (Config.debug) {
     debug.debugData({});
   }
@@ -106,20 +106,19 @@ void processTemplate() async {
     overWrites.forEach((f) {
       Config.prodLogger.w('\t${path.canonicalize(f)}');
     });
-    Config.ppLogger.i('Rerun with flag -f or --force to force overwrite.');
+    Config.ppLogger.i('Rerun with --force to force overwrite.');
     exit(0);
   }
 
   var writtenFiles = [];
 
   tFileList.forEach((tfile) {
-    // _log.finer('tfile: $tfile');
+      // print('''65dc3ff0-f236-493e-b189-2f3b1c5c0735:  $tfile''');
 
     // first remove template name prefix path
     var outSubpath = path.canonicalize(// tData['out'] +
         tfile.path.replaceFirst(Config.templateRoot + '/', ''));
-    // tfile.path.replaceFirst(templatesRoot + '/' + template, ''));
-    // templatesRoot + '/' + Config.options['template'], ''));
+      // print('''0491394c-3f0c-4726-a2ee-9717767280bd:  $outSubpath''');
 
     if (Config.generic) {
       outSubpath = outSubpath
@@ -129,6 +128,7 @@ void processTemplate() async {
     }
 
     if (Config.debug) {
+      // print('''bc425375-685c-45b1-bd39-a539cf6ad739:  ''');
       Config.ppLogger.v('outSubpath template: $outSubpath');
     }
     // then remove mustache extension
@@ -168,6 +168,7 @@ void processTemplate() async {
       try {
         newContents = template.renderString(tData);
       } catch (e) {
+        print('''7b838d7f-de1b-47de-9f62-dc4ec00312d2:  ''');
         Config.debugLogger.e(e);
         exit(0);
       }

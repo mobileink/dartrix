@@ -55,7 +55,7 @@ void debugPathRewriting(Map xData) {
 }
 
 void debugOptions() {
-  Config.logger.d('Options:');
+  Config.debugLogger.d('Options:');
   // Config.logger.d('\targs: ${Config.options.arguments}');
   Config.logger.d('\toptions: ${Config.options.options}');
   Config.options.options.forEach((o) {
