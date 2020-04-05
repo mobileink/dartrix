@@ -6,39 +6,26 @@ description    : Writes bashrc containing bash alias directives suitable for `so
 dartrix        : 0.1.24-alpha
 
 params:
-
-- name         : name
-  abbr         : n
-  docstring    : Name of output file.
-  help         : Name of output file containing bash alias definitions.
-  type         : string
-  defaultsTo   : bashrc
-  seg          : BASHRC
-
-- name         : prefix
-  abbr         : p
-  docstring    : Cmd prefix.
-  help         : String prefixed to each command name.
-  type         : string
-  defaultsTo   : dev
-
-- name         : out
-  abbr         : o
-  docstring    : Output directory.
-  help         : Output directory, relative to current working directory.
-  type         : _out_prefix
-  defaultsTo   : ./
-
-- name         : enable-asserts
-  abbr         : e
-  docstring    : Enable asserts
-  help         : Pass flag --enable-asserts to "pub global run".
-  type         : bool
-  defaultsTo   : 'true'
-
-- name         : verbose
-  abbr         : v
-  docstring    : Verbose output
-  help         : A longer, more detailed description.
-  type         : bool
-  defaultsTo   : 'false'
+  sys:
+    - id: out
+    - id: verbose
+  user:
+    - name         : name
+      abbr         : n
+      docstring    : Name of output file.
+      help         : Name of output file containing bash alias definitions.
+      typeHint     : string
+      defaultsTo   : bashrc
+      seg          : BASHRC
+    - name         : prefix
+      abbr         : p
+      docstring    : Cmd prefix.
+      help         : String prefixed to each command name.
+      typeHint     : string
+      defaultsTo   : dev
+    - name         : enable-asserts
+      abbr         : e
+      docstring    : Enable asserts
+      help         : Pass flag --enable-asserts to "pub global run".
+      typeHint     : bool
+      defaultsTo   : 'true'
