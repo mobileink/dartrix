@@ -8,21 +8,42 @@ import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/resolver.dart';
 import 'package:dartrix/src/utils.dart';
 
-// safe_config yaml classes
-class ParamConfig extends Configuration {
-  ParamConfig() : super();
-  ParamConfig.fromFile(String fileName) : super.fromFile(File(fileName));
-  ParamConfig.fromMap(Map m) : super.fromMap(m);
 
+// safe_config yaml classes
+class Params extends Configuration {
+  // Params() : super() {
+  @optionalConfiguration
+  List<UserParam> user;
+  @optionalConfiguration
+  // List<Map<String,SysParam>> sys;
+  List<SysParam> sys;
+}
+
+class Param extends Configuration {
+  // Param() : super();
+  // Param.fromFile(String fileName) : super.fromFile(File(fileName));
+  Param({this.id,
+      this.name,
+      this.abbr,
+      this.docstring,
+      this.help,
+      this.typeHint,
+      this.negatable,
+      this.defaultsTo});
+
+  @optionalConfiguration
+  String id;
+  @optionalConfiguration
   String name;
   @optionalConfiguration
   String abbr;
+  @optionalConfiguration
   String docstring;
   @optionalConfiguration
   String help;
   // String typeHelp; // parser 'valueHelp'
-  // @optionalConfiguration
-  String type; // _plugin, _template, _out_prefix
+  @optionalConfiguration
+  String typeHint; // _plugin, _template, _out
   @optionalConfiguration
   String defaultsTo;
   @optionalConfiguration
@@ -36,6 +57,118 @@ class ParamConfig extends Configuration {
   @optionalConfiguration
   String hook;
 }
+
+class UserParam extends Param {
+  // Param() : super();
+  // Param.fromFile(String fileName) : super.fromFile(File(fileName));
+  UserParam({this.name,
+      this.abbr,
+      this.docstring,
+      this.help,
+      this.typeHint,
+      this.negatable,
+      this.defaultsTo});
+
+  String name;
+  @optionalConfiguration
+  String abbr;
+  String docstring;
+  @optionalConfiguration
+  String help;
+  // String typeHelp; // parser 'valueHelp'
+  // @optionalConfiguration
+  String typeHint; // _plugin, _template, _out
+  @optionalConfiguration
+  String defaultsTo;
+  @optionalConfiguration
+  bool negatable;
+  @optionalConfiguration
+  bool hidden = false;
+  @optionalConfiguration
+  bool private = false;
+  @optionalConfiguration
+  String seg;
+  @optionalConfiguration
+  String hook;
+}
+
+class SysParam extends Param {
+  // SysParam(this.param) : super();
+  SysParam({this.id,
+      this.name,
+      this.abbr,
+      docstring,
+      help,
+      typeHint,
+      negatable,
+      defaultsTo})
+  : super(
+    name: name,
+    abbr: abbr,
+    docstring: docstring,
+    help: help,
+    typeHint: typeHint,
+    negatable: negatable,
+    defaultsTo: defaultsTo);
+  String id;
+  // Overrides
+  @optionalConfiguration
+  String name;
+  @optionalConfiguration
+  String abbr;
+  // @optionalConfiguration
+  // String defaultsTo;
+  @optionalConfiguration
+  bool private = false;
+  @optionalConfiguration
+  bool hidden = false;
+
+  List<String> validate () {
+    // print('''407d6bf9-fd10-482b-b235-abc8bb04195c:  validate $param''');
+    if (!sysParams.keys.contains(id)) {
+      return ['Unrecognized param: $id. Allowed values: ${sysParams.keys}'];
+    }
+    return [];
+  }
+}
+
+Map<String,SysParam> sysParams = {
+  'out': SysParam( // {{dartrix.out}}
+    name       : 'out',
+    abbr       : 'o',
+    docstring  : 'Output directory.',
+    help       : 'Output directory, relative to current working directory.',
+    typeHint       : 'path',
+    defaultsTo : './'),
+  'package': SysParam(  // {{dartrix.package}}
+    name       : 'package',
+    abbr       : 'p',
+    docstring  : 'pkg_name',
+    help       : 'Dart package name.',
+    typeHint   : '[_a-z][a-zA-Z0-9_]',
+    defaultsTo : 'mypkg'),
+  'ns': SysParam(  // {{dartrix.ns}}
+    name       : 'ns',
+    // abbr       : 's',
+    docstring  : 'Namespace',
+    help       : 'Namespace.',
+    typeHint   : 'segmented.string',
+    defaultsTo : 'org.example'),
+  'nsx': SysParam(
+    name       : 'nsx', // {{dartrix.nsx}}
+    // abbr       : 'x',
+    docstring  : 'Namespace extension',
+    help       : 'Namespace extension; a namespace fragment to complement --ns.',
+    typeHint       : 'segmented.string'),
+  'verbose': SysParam(
+    name         : 'verbose',
+    abbr         : 'v',
+    docstring    : 'Verbose output',
+    help         : 'Verbose output.',
+    typeHint     : 'bool',
+    negatable    : false,
+    defaultsTo   : 'false')
+};
 
 enum Meta {template, plugin}
 class MetaParam extends Configuration {
@@ -57,9 +190,10 @@ class MetaParam extends Configuration {
   }
 }
 
-class GenericIndex extends Configuration {
-  GenericIndex() : super();
-  ParamConfig generic;
+class Generic extends Configuration {
+  Generic() : super();
+  Param index;
+  String rewrite;
 }
 
 class TemplateYaml extends Configuration {
@@ -70,7 +204,7 @@ class TemplateYaml extends Configuration {
   String docstring;
   String version;
   @optionalConfiguration
-  List<ParamConfig> params;
+  Params params;
 
   @optionalConfiguration
   String note;
@@ -81,7 +215,7 @@ class TemplateYaml extends Configuration {
   MetaParam meta;
 
   @optionalConfiguration
-  ParamConfig generic;
+  Generic generic;
 }
 
 class LibraryRef extends Configuration {

@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:process_run/which.dart';
+import 'package:safe_config/safe_config.dart';
 
 // import 'package:args/args.dart';
 // import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 
+import 'package:dartrix/src/annotations.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/yaml.dart';
@@ -103,15 +105,140 @@ var flutter_sdk =
 //   }
 // }
 
-void dartPkgHook(String pkg) {
-  tData['seg']['DPKG'] = pkg.replaceAll(Config.hereDir, '/');
-  tData['package']['dart'] = pkg;
+// void dartPkgHook(String pkg) {
+//   tData['seg']['DPKG'] = pkg.replaceAll(Config.hereDir, '/');
+//   tData['package']['dart'] = pkg;
+// }
+
+// void javaPkgHook(String pkg) {
+//   tData['rdomain'] = pkg;
+//   tData['seg']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
+//   tData['package']['java'] = pkg;
+// }
+
+/// add parameters to argparser
+void processParam(ArgParser _argParser, Param param) {
+  // print('''198df396-bdb2-486e-b2e3-b7b5bef56219: user param:  ${param.name}''');
+  if (param.private) {
+    // do not expose private params
+  // } else if (param.typeHint == '_here') {
+  //   _argParser.addFlag(param.name,
+  //     abbr: param.abbr,
+  //     help: param.help,
+  //     hide: param.hidden ?? false,
+  //     negatable: param.negatable ?? true,
+  //     defaultsTo: param.defaultsTo ?? false);// == 'true') ? true : false);
+  } else if (param.typeHint == 'bool') {
+    _argParser.addFlag(param.name,
+      abbr: param.abbr,
+      help: param.help,
+      hide: param.hidden ?? false,
+      negatable: param.negatable ?? true,
+      defaultsTo: (param.defaultsTo == 'true') ? true : false);
+  } else if (param.id == 'package') {
+    _argParser.addOption(param.name,
+      abbr: param.abbr,
+      valueHelp: param.typeHint,
+      help: param.help,
+      hide: param.hidden ?? false,
+      defaultsTo: param.defaultsTo ?? '');
+    // } else if (yaml.generic.index != null && (param.typeHint == Config.genericIndex)) {
+    //   _argParser.addOption(param.name,
+    //     abbr: param.abbr,
+    //     valueHelp: (param.typeHint == '_out')
+    //     ? 'path'
+    //     : (param.typeHint == Config.genericIndex)
+    //     ? 'String'
+    //     : param.typeHint,
+    //     // allowed: allowedVals,
+    //     help: (param.typeHint == '_out')
+    //     ? 'Output path relative to ./'
+    //     : param.docstring,
+    //     defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
+  } else {
+    _argParser.addOption(param.name,
+      abbr: param.abbr,
+      // valueHelp: param.docstring,
+      valueHelp: param.typeHint,
+      // valueHelp: (param.typeHint == '_out')
+      // ? param.docstring : param.typeHint,
+      // help: (param.typeHint == '_out')
+      // ? 'Output path relative to ./'
+      // : param.docstring,
+      help: param.help,
+      defaultsTo: param.defaultsTo ?? '');
+  }
 }
 
-void javaPkgHook(String pkg) {
-  tData['rdomain'] = pkg;
-  tData['seg']['RDOMAIN'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
-  tData['package']['java'] = pkg;
+// void processSysParam(ArgParser _argParser, SysParam param) {
+//   print('''9562702f-b8a1-4fc4-b3fe-813c26c26149: sys param: ${param.param}''');
+//   var sysP = sysParams[param.param];
+//   print('''8be367af-a775-496d-b863-ab98c02661b5:  sysP: ${sysP.name}''');
+//   if (param.private) {
+//     print('''fb830524-b7ca-4e34-89c6-3f26e8e935a2:  omitting private: ${param.param}''');
+//     // do not expose private params
+//   } else if (sysP.typeHint == '_here') {
+//     _argParser.addFlag(param.name,
+//       abbr: param.abbr ?? sysP.abbr,
+//       help: sysP.help,
+//       hide: param.hidden ?? sysP.hidden ?? false,
+//       negatable: sysP.negatable ?? true,
+//       defaultsTo: param.defaultsTo ?? sysP.defaultsTo ?? false);
+//   } else if (sysP.typeHint == 'bool') {
+//     _argParser.addFlag(param.param,
+//       abbr: param.abbr ?? sysP.abbr,
+//       help: sysP.help,
+//       hide: param.hidden ?? sysP.hidden ?? false,
+//       negatable: sysP.negatable ?? false,
+//       defaultsTo: (param.defaultsTo == 'true') ? true
+//       : false);
+//       // defaultsTo: param.defaultsTo ?? sysP.defaultsTo);
+//     // } else if (yaml.generic.index != null && (param.typeHint == Config.genericIndex)) {
+//     //   _argParser.addOption(param.name,
+//     //     abbr: param.abbr,
+//     //     valueHelp: (param.typeHint == '_out')
+//     //     ? 'path'
+//     //     : (param.typeHint == Config.genericIndex)
+//     //     ? 'String'
+//     //     : param.typeHint,
+//     //     // allowed: allowedVals,
+//     //     help: (param.typeHint == '_out')
+//     //     ? 'Output path relative to ./'
+//     //     : param.docstring,
+//     //     defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
+//   } else {
+//     print('''01943703-da53-423c-8c6c-7fe01af4254c: adding p: ${param.param}''');
+//     _argParser.addOption(param.name ?? sysP.name,
+//       abbr: param.abbr ?? sysP.abbr,
+//       valueHelp: sysP.typeHint, // param.typeHint ?? sysP.typeHint,
+//       // help: (param.typeHint == '_out')
+//       // ? 'Output path relative to ./'
+//       // : param.docstring,
+//       help: sysP.help,
+//       defaultsTo: param.defaultsTo ?? sysP.defaultsTo);
+//   }
+// }
+
+/// User-specified sys params override default sys params
+/// 'forget' the param field
+List _resolveSysParams(List<SysParam> _sysParams) {
+  List result = [];
+  _sysParams.forEach((sys) {
+      SysParam defaultParam = sysParams[sys.id];
+      // now override fields
+      defaultParam.id = sys.id;
+      defaultParam.name = sys.name ?? defaultParam.name;
+      defaultParam.abbr = sys.abbr ?? defaultParam.abbr;
+      defaultParam.typeHint = sys.typeHint ?? defaultParam.typeHint;
+      defaultParam.defaultsTo = sys.defaultsTo ?? defaultParam.defaultsTo;
+      defaultParam.private = sys.private ?? defaultParam.private;
+      result.add(defaultParam);
+  });
+  return result;
+}
+
+void processOption(ArgResults myoptions, String option) {
+  print('''97ebea73-d564-483a-86e4-6759fdb17780:  processOption $option''');
 }
 
 //FIXME: put this in template.dart?
@@ -136,97 +263,72 @@ void setTemplateArgs(
   var allowedVals;
   var genericIndexParam;
   var replaceString;
+
   if (yaml.generic != null) {
-    Config.generic = true;
-    Config.genericIndex = yaml.generic.name;
-    replaceString = '_<' + Config.genericIndex + '>';
 
-    // try {
-    //   genericIndexParam = yaml.params.singleWhere((parm)
-    //     => parm.name == yaml.generic);
-    // } catch(e) {
-    //   Config.ppLogger.e('Generic index parameter not found: ${yaml.generic}');
-    //   Config.ppLogger.e(e);
-    //   exit(1);
-    // }
+    @block("Analyze params for generic templates and add to arg parser.")
+    var _prepGeneric = () {
+      Config.generic = true;
+      Config.genericIndex = yaml.generic.index.name;
+      Config.genericRewrite = yaml.generic.rewrite;
+      replaceString = '_<' + Config.genericIndex + '>';
 
-    var indexVals = Directory(Config.templateRoot).listSync(recursive: true);
-    //FIXME: memoize these so generator need not read again
-    indexVals.removeWhere((f) => f.path.endsWith('~'));
-    indexVals.removeWhere((f) => f.path.contains('/.'));
-    indexVals.removeWhere((f) => f.path.endsWith(Config.genericIndex));
-    indexVals.retainWhere((f) => f is Directory);
+      var indexVals = Directory(Config.templateRoot).listSync(recursive: true);
+      //FIXME: memoize these so generator need not read again
+      indexVals.removeWhere((f) => f.path.endsWith('~'));
+      indexVals.removeWhere((f) => f.path.contains('/.'));
+      indexVals.removeWhere((f) => f.path.endsWith(Config.genericIndex));
+      indexVals.retainWhere((f) => f is Directory);
 
-    // print('indexVals $indexVals');
-    allowedVals = indexVals.map((dir) {
-        var tpath = dir.path.replaceFirst(Config.templateRoot + '/', '');
-        return path.split(tpath)[0];
-    }).toSet();
-    // print('allowedVals: $allowedVals');
+      // print('indexVals $indexVals');
+      allowedVals = indexVals.map((dir) {
+          var tpath = dir.path.replaceFirst(Config.templateRoot + '/', '');
+          return path.split(tpath)[0];
+      }).toSet();
+      // print('allowedVals: $allowedVals');
 
-    _argParser.addOption(yaml.generic.name,
-      abbr: yaml.generic.abbr,
-      allowed: allowedVals,
-      help: yaml.generic.type,
-      defaultsTo: yaml.generic.defaultsTo);
+      _argParser.addOption(Config.genericIndex,
+        abbr: yaml.generic.index.abbr,
+        allowed: allowedVals,
+        help: yaml.generic.index.typeHint,
+        defaultsTo: yaml.generic.index.defaultsTo);
+      // defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
+    };
+    _prepGeneric();
   }
 
-  yaml.params.forEach((param) {
-      // Config.logger.i('param: ${param.name}');
-      if (param.private) {
-        // do not expose private params
-      } else if (param.type == 'bool') {
-        _argParser.addFlag(param.name,
-          abbr: param.abbr,
-          help: param.help,
-          hide: param.hidden ?? false,
-          negatable: param.negatable ?? true,
-          defaultsTo: (param.defaultsTo == 'true') ? true : false);
-      } else if (yaml.generic != null && (param.type == '_index')) {
-        _argParser.addOption(param.name,
-          abbr: param.abbr,
-          valueHelp: (param.type == '_out_prefix')
-          ? 'path'
-          : (param.type == '_index')
-          ? 'String'
-          : param.type,
-          // allowed: allowedVals,
-          help: (param.type == '_out_prefix')
-          ? 'Output path relative to ./'
-          : param.docstring,
-          defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
-      } else {
-        _argParser.addOption(param.name,
-          abbr: param.abbr,
-          valueHelp: (param.type == '_out_prefix')
-          ? param.docstring : param.type,
-          // help: (param.type == '_out_prefix')
-          // ? 'Output path relative to ./'
-          // : param.docstring,
-          help: param.help,
-          defaultsTo: param.defaultsTo);
-      }
+  List _sysParams = _resolveSysParams(yaml.params.sys);
+  List allParams = [];
+  if (yaml.params.user != null) {
+    allParams.addAll(yaml.params.user);
+  }
+  if (_sysParams != null) {
+    allParams.addAll(_sysParams);
+  }
+  allParams.forEach((param) {
+      processParam(_argParser, param);
   });
+
   // always add --help
-  _argParser.addFlag('help', abbr: 'h', defaultsTo: false, negatable: false);
+  _argParser.addFlag('help', defaultsTo: false, negatable: false,
+  help: 'Print this message');
 
   if (Config.debug) {
     Config.ppLogger.i('Params for template $template: ${_argParser.options}');
   }
 
-  // print(_argParser.usage);
-  // exit(0);
-
-  // first arg is 'dartrix', omit
-  // var myargs = _options.rest.sublist(1);
-  // print('tArgs: $tArgs');
   var myoptions;
-  try {
-    myoptions = _argParser.parse(tArgs);
-  } catch (e) {
-    Config.ppLogger.e(e);
-    exit(0);
-  }
+  @block("Parse the args")
+  var _parseOptions = () {
+    try {
+      myoptions = _argParser.parse(tArgs);
+    } catch (e) {
+      print('''ff2ac114-1a10-454a-a9c4-657e74411d98:  ''');
+      Config.ppLogger.e(e);
+      exit(0);
+    }
+  };
+  _parseOptions();
   // print('myoptions: ${myoptions.options}');
   // print('args: ${myoptions.arguments}');
 
@@ -250,146 +352,176 @@ void setTemplateArgs(
     exit(0);
   }
 
-
   tData['seg']['JPKG'] = tData['rdomain'].replaceAll(Config.hereDir, '/');
-  tData['seg']['RDOMAIN'] = tData['seg']['JPKG'];
-  tData['seg']['SUBDOMAIN'] = tData['subdomain'];
-  tData['seg']['ORG'] = tData['ORG'];
+  tData['seg']['_NS'] = tData['seg']['JPKG'];
+  tData['seg']['_NSX'] = tData['subdomain'];
+  // tData['seg']['ORG'] = tData['ORG'];
 
   if (yaml.meta != null) {
     Config.meta = yaml.meta.meta;
   }
 
-  // if (yaml.meta == true) {
-  //   Config.meta = true;
-  //   tData['seg']['YAML'] = '.yaml';
-  // }
+  // print('''364bb527-b92d-4951-98eb-3e3b78d8447c:  debug options:''');
+  // if (debug.debug) debug.debugOptions();
 
-  // print('RDOM2: ${tData["seg"]["RDOMAIN"]}');
+  @block("Process each option, updating template data map")
+  var _processEachOption = () {
+    myoptions.options.forEach((option) {
+        // print('''3728ec79-30ee-4fac-abb5-da49998ef2fc: option: ${option} = ${myoptions[option]}''');
+        // print('params rtt: ${yaml.params.runtimeType}');
 
-  // print('subdom2: ${tData["seg"]["SUBDOMAIN"]}');
-
-  // debug.debugData({});
-
-  // Override with user args
-  myoptions.options.forEach((option) {
-      // print('''3728ec79-30ee-4fac-abb5-da49998ef2fc:  ''');
-      // print('option: ${option} = ${myoptions[option]}');
-      // print('params rtt: ${yaml.params.runtimeType}');
-      var param;
-      // get the yaml param matching the option
-      if (option == yaml.generic.name) {
-        param = yaml.generic;
-      } else {
-        try {
-          param = yaml.params.firstWhere((param) {
-              return param.name == option;
-          });
-        } catch (e) {
-          // this will happen for e.g. the help option that was not specified in
-          // the yaml file.
-          if (option == 'help') return;
-          Config.ppLogger.e('option: $option');
-          Config.ppLogger.e(e);
-          return;
-        }
-      }
-
-      if (param.type == '_plugin_name') {
-        tData['_plugin_name'] = myoptions[option];
-      }
-
-      // print('yaml: ${param.name} : ${param.defaultsTo}');
-      if (param.hook != null) {
-        switch (param.hook) {
-          case 'dpkg-hook':
-          dartPkgHook(myoptions[option]);
-          break;
-          case 'jpkg':
-          case 'java-pkg':
-          javaPkgHook(myoptions[option]);
-          tData[option] = myoptions[option];
-          break;
-          default:
-          Config.prodLogger.w('Unknown param hook: ${param.hook}');
-        }
-      } else if (param.name == yaml.generic.name) {
-        tData[param.name] = myoptions[option];
-        // print('''5b714874-3b83-4d24-b31b-4b7879e6a8ca:  PARAM.NAME ${param.name}''');
-        // print('''a2db91f6-aae3-4eea-90c8-727e9111399b:  OPTION: $option''');
-        //FIXME:  use yaml.generic.name instead of '_index'
-        tData['_index'] = myoptions[option]
-        .replaceAll(replaceString, '_' + Config.genericSelection);
-        tData[option] = tData['_index'];
-      } else if (param.type == '_out_prefix') {
-        tData[param.name] = myoptions[option];
-        tData['_out_prefix'] = myoptions[option];
-      } else if (param.type == '_dart_package') {
-        // tData['seg']['DPKG'] = myoptions[option](Config.hereDir, '/');
-        tData['package']['dart'] = myoptions[option];
-        if (param.seg != null) {
-          tData['seg'][param.seg] = myoptions[option];
-        }
-      } else {
-        if (param.seg == null) {
-          if (param.type == '_index') {
-            if (Config.generic) {
-              //FIXME: don't hardcode <lang> - < + genericIndexParam.name + >
-              tData['_index'] = myoptions[option]
-              .replaceAll(replaceString, '_' + Config.genericSelection);
-              tData[option] = tData['_index'];
-            } else {
-              tData[option] = myoptions[option];
-              tData['_index'] = myoptions[option];
-            }
-          } else {
-            tData[option] = myoptions[option];
+        @block('''Find the yaml param matching the option. It will be used to
+        control processing.''')
+        var param;
+        if (option == Config.genericIndex) {
+          param = yaml.generic.index;
+        } else {
+          try {
+            // param = yaml.params.user.firstWhere((param) {
+            param = allParams.firstWhere((param) {
+                return param.name == option;
+            });
+          } catch (e) {
+            if (option == 'help') return; // expected
+            if (option == 'force') return; // expected
+            Config.ppLogger.e(
+              '''e28d8a20-2010-4d0c-8675-31c571d8760c: option: $option
+              $e''');
+            // Config.ppLogger.e(e);
+            return;
           }
-          switch (option) {
-            case 'domain':
-            tData['domain'] = myoptions[option];
-            tData['seg']['DOMAIN'] = myoptions[option].replaceAll(Config.hereDir, '/');
-            tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-            tData['seg']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
-            break;
-            case 'subdomain':
-            tData['subdomain'] = myoptions[option];
-            tData['seg']['SUBDOMAIN'] =
-            myoptions[option].replaceAll('.', '/');
-            break;
-            case 'here':
-            if (myoptions[option]) {
-              tData['seg']['TEMPLATES'] = '.templates';
-            } else {
-              tData['seg']['TEMPLATES'] = 'templates';
-            }
-            break;
-            default:
+        }
+
+        // processOption(myoptions, option);
+
+        if (param.typeHint == '_plugin_name') {
+          tData['_plugin_name'] = myoptions[option];
+        }
+
+        if (param.name == Config.genericIndex) {
+          // print('''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
+          tData[param.name] = myoptions[option];
+          tData[Config.genericIndex] = myoptions[option]
+          .replaceAll(replaceString, '_' + Config.genericSelection);
+          tData[option] = tData[Config.genericIndex];
+        } else if (param.name == Config.genericRewrite) {
+          // print('''e3645586-5bb3-4190-a836-011ec064a913:  rewrite ${Config.genericRewrite}''');
+          Config.genericRewrite = myoptions[option]
+          .replaceAll(Config.genericIndex, Config.genericSelection);
+          tData[option] = myoptions[option];
+          // now check for reserved param types
+        } else if ((param.defaultsTo != null)
+          && (param.defaultsTo.contains('<<'))) {
+          print('''1a8dbcdd-62dd-4e38-8e8e-f049311568cb:  XXXXXXXXXXXXXXXX''');
+          tData[param.name] = myoptions[option];
+          tData['_out'] = myoptions[option];
+        } else if (param.seg != null) {
+          tData[param.seg.toLowerCase()] = myoptions[option];
+          tData['seg'][param.seg.toUpperCase()] = myoptions[option];
+          tData[option] = myoptions[option];
+          if (Config.meta != null) {
+            tData['seg']['_META'].add(param.seg);
           }
         } else {
-          // seg params
-          if (param.seg == 'DOMAIN') {
-            tData['domain'] = myoptions[option];
-            tData['rdomain'] = tData['domain'].split('.').reversed.join('.');
-            tData['seg']['DOMAIN'] = tData['domain'].replaceAll('.', '/');
-            tData['seg']['RDOMAIN'] = tData['rdomain'].replaceAll('.', '/');
-          } else {
-            tData[param.seg.toLowerCase()] = myoptions[option];
-            tData['seg'][param.seg.toUpperCase()] = myoptions[option];
-            tData[option] = myoptions[option];
-            if (Config.meta != null) {
-              tData['seg']['_META'].add(param.seg);
+          // print('''8d6fe169-bb1d-41e3-91f0-a0348d138b40:  ELSE: $option''');
+          tData[option] = myoptions[option];
+        }
+
+        if (param is SysParam) {
+          switch (param.id) {
+            case 'out':
+            if (param.defaultsTo != null) {
+              if (param.defaultsTo.contains('<<')) {
+                // if (param.defaultsTo == myoptions[param.name]) {
+                  // no user override
+                  RegExp regExp = RegExp(r'<<([^>]*)>>');
+                  var match = regExp.firstMatch(param.defaultsTo).group(1);
+                  print('''7709702d-a6ad-4fd5-87d4-071f5045e2a1:  match: ${match}''');
+                  var def = myoptions[match];
+                  var defaultVal = myoptions[option].replaceFirst('<<' + match + '>>', def);
+                  // var defaultVal = param.defaultsTo.replaceFirst('<<' + match + '>>', def);
+                  print('''8b32734b-0e4f-4906-ba64-0a6ccba0a910:  default: ${defaultVal}''');
+                  tData[param.name] = defaultVal;
+                  tData['dartrix']['out'] = defaultVal;
+                // } else {
+                //   // user passed defaultsTo, overriding default << >>
+                //   tData[param.name] = myoptions[option];
+                //   tData['dartrix']['out'] = myoptions[option];
+                // }
+              } else {
+                tData[param.name] = myoptions[option];
+                tData['dartrix']['out'] = myoptions[option];
+              }
+            } else {
+              tData[param.name] = './';
+              tData['dartrix']['out'] = './';
             }
+            break;
+            case 'package': // dart package name
+            tData['dartrix']['package']
+            = (myoptions[option] == '') ? false : myoptions[option];
+            tData['seg']['_PACKAGE']
+            = (myoptions[option] == '')
+            ? false
+            : myoptions[option];
+            break;
+            case 'ns':
+            print('''96e446ff-2d9e-464a-8938-1d3a75ce774f:  NS''');
+            tData['dartrix']['ns'] = myoptions[option];
+            tData['seg']['_NS'] = tData['dartrix']['ns'].replaceAll('.', '/');
+            tData['dartrix']['rns'] = tData['dartrix']['ns']
+            .split('.').reversed.join('.');
+            tData['seg']['_RNS'] = tData['dartrix']['rns'].replaceAll('.', '/');
+            break;
+            // } else if (param.typeHint == '_here') {
+            //   if (myoptions[option]) { // --here = true
+            //     tData['seg']['TEMPLATES'] = '.templates';
+            //   } else {
+            //     tData['seg']['TEMPLATES'] = 'templates';
+            //   }
+            case 'nsx': // ns extension
+            print('''bc14bbce-bdee-4959-9274-8da7dd8c0163:  NSX''');
+            tData['dartrix']['nsx']
+            = (myoptions[option] == '') ? false : myoptions[option];
+            tData['seg']['_NSX']
+            = (myoptions[option] == '')
+            ? false
+            : myoptions[option].replaceAll('.', '/');
+            break;
+            case '_name':
+            tData[param.name] = myoptions[option];
+            tData['dartrix']['name'] = myoptions[option];
+            break;
+            // } else if (param.typeHint == '_dart_package') {
+//   tData['seg']['DPKG'] = pkg.replaceAll(Config.hereDir, '/');
+//   tData['package']['dart'] = pkg;
+
+            //   // tData['seg']['DPKG'] = myoptions[option](Config.hereDir, '/');
+            //   tData['package']['dart'] = myoptions[option];
+            //   if (param.seg != null) {
+            //     tData['seg'][param.seg] = myoptions[option];
+            //   }
+            default:
+            print('''fc52af93-79a3-4ffe-8268-b5be7f7437de:  DEFAULT''');
           }
         }
-      }
-      // print('looping');
+    });
+  }; _processEachOption();
+
+  @block("Now process private params.")
+  var _processPrivateParams = () {
+    allParams.forEach((param) {
+        if (param.private) {
+          print('''673bc742-8056-4033-ad6a-0534e490674d:  PRIVATE: ${param.name}''');
+        }
   });
+
+  };  _processPrivateParams();
   // debug.debugData({});
 }
 
 Map tData = {
-  'dartrix': {'force': false},
+  'dartrix': {'out': './', 'force': false},
   'now': '${DateTime.now()}',
   'today':
       '${DateTime.now().year}, ${DateTime.now().month}, ${DateTime.now().day}',
@@ -453,7 +585,7 @@ Map tData = {
   },
   // seg keys are segments used in your template dir structure.
   // Vals are default output values. Use cmd args to expose to user.
-  'out': './',
+  // 'out': './',
   'seg': {
     // keys are segment placeholders in path templates
     'ROOT': '/',
@@ -462,9 +594,9 @@ Map tData = {
     'SYSTEMP': Directory.systemTemp.path,
     'DOT': '.', // rewrite DOTfoo as .foo
     // 'DOTDIR_D': '',
-    'DOMAIN': 'example/org',
-    'RDOMAIN': 'org/example',
-    'SUBDOMAIN': 'hello',
+    // 'DOMAIN': 'example/org',
+    // 'RDOMAIN': 'org/example',
+    // 'SUBDOMAIN': 'hello',
     'CLASS': 'Hello',
     'JPKG': 'org/example',
     // 'ORG' : 'org/example',  // reverse-domain notation

@@ -122,24 +122,26 @@ String rewritePath(
   // print('''8d4898e3-3931-4c52-b837-73e068f78ab9:  result $result''');
 
   // meta: insert path prefix
- if (Config.meta != null) {
+  if (Config.meta == null) { // not a template or plugin template
+    if (tData['_name'] != null) {
+      result = tData['_name'] + '/' + result;
+    }
+    if (tData['dartrix']['out'] != null) {
+      result = tData['dartrix']['out'] + '/' + result;
+    }
+  } else { // ie it's a template or a plugin
    // result = result.replaceFirst('_CWD', '.');
    // if --here
    // print('Config.meta: ${Config.meta}');
    if (Config.meta == Meta.template) {
-     result = 'templates/' + tData['_index'] + '/' + result;
-     // result = 'templates/' + tData['_index'] + '/' + result;
+     result = 'templates/' + Config.genericRewrite + '/' + result;
+     // result = 'templates/' + tData[Config.genericIndex] + '/' + result;
    } else if (Config.meta == Meta.plugin) {
      //FIXME: insert name param with _dartrix
      result = tData['_plugin_name'] + '/' + result;
    }
    result = result.replaceFirst('YAML', '.yaml');
     // result = result.replaceFirst('NAME', 'appname');
-  } else {
-    // result = result.replaceAll('CWD', tData['seg']['CWD']);
-    if (tData['_out_prefix'] != null) {
-      result = tData['_out_prefix'] + '/' + result;
-    }
   }
 
   // --here passed. for :dartrix/template only, but we have to check every time
