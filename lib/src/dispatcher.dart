@@ -72,7 +72,7 @@ void processArgs(String tLib, String template, ArgResults _options,
 
 // FIXME: _options == Config.options
 void dispatchBuiltin(String template, ArgResults _options,
-    List<String> dartrixArgs, List<String> tArgs) async {
+    List dartrixArgs, List tArgs) async {
   // Config.debugLogger.d('dispatchBuiltin $template');
   // print('option args: ${_options.arguments}');
   // print('option rest: ${_options.rest}');
