@@ -452,7 +452,7 @@ void setTemplateArgs(
 
   if (myoptions.wasParsed('help')) {
     // printUsage(_argParser);
-    print('\nTemplate \'${tLib} $template\': ${yaml.description}\n');
+    print('\nTemplate ${tLib} $template (v${yaml.version}): ${yaml.description}\n');
     print('Options:');
     print(_argParser.usage);
     if (yaml.note != null) {
