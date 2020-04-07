@@ -35,5 +35,4 @@ executables:
   dtsman: man
   dtsnew: new
   dtsupdate: update
-  dtsversion: version
 
