@@ -1,3 +1,7 @@
+## 0.2.1
+
+- fix breakages introduced by following dartanalyzer recommendations
+
 ## 0.2.0
 
 - many changes
