@@ -10,15 +10,15 @@ import 'package:dartrix/dartrix.dart';
 
 import 'package:dartrix/src/config.dart';
 import 'package:dartrix/src/data.dart';
-import 'package:dartrix/src/debug.dart' as debug;
+// import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/generator.dart';
 import 'package:dartrix/src/lister.dart';
 import 'package:dartrix/src/plugins.dart';
 // import 'package:dartrix/src/paths.dart';
 // import 'package:dartrix/src/utils.dart';
 
-import 'package:dartrix/src/handlers/dart_cmdsuite.dart';
-import 'package:dartrix/src/handlers/bashrc.dart';
+// import 'package:dartrix/src/handlers/dart_cmdsuite.dart';
+// import 'package:dartrix/src/handlers/bashrc.dart';
 
 // void dispatchPlugin(String pkg, String template, List<String> args) async {
 //   // Config.debugLogger.v('dispatchPlugin: $pkg, $template, $args');
@@ -27,22 +27,22 @@ import 'package:dartrix/src/handlers/bashrc.dart';
 void printLibOptions(String tlib) {
   switch (tlib) {
     case ':dartrix':
-    print('Library :dartrix options:');
-    print('--here\tPut output in ./.templates');
-    break;
+      print('Library :dartrix options:');
+      print('--here\tPut output in ./.templates');
+      break;
     case ':here':
-    break;
+      break;
     case ':user':
-    break;
+      break;
     case ':lib':
-    break;
+      break;
     default:
   }
 }
 
 // FIXME: _options == Config.options
 void processArgs(String tLib, String template, ArgResults _options,
-    List<String> libArgs, List<String> tArgs) async {
+    List libArgs, List tArgs) async {
   // Config.debugLogger.v('processArgs $tLib, $template, $_options, $libArgs, $tArgs');
   // debug.debugArgResults(_options);
   if (_options.wasParsed('help') ||
@@ -80,10 +80,10 @@ void dispatchBuiltin(String template, ArgResults _options,
   await processArgs(':dartrix', template, _options, dartrixArgs, tArgs);
 
   await processTemplate();
-
 }
 
-void dispatchHere(String template, ArgResults _options, List<String> userArgs,    List<String> tArgs) async {
+void dispatchHere(String template, ArgResults _options, List<String> userArgs,
+    List<String> tArgs) async {
   // Config.ppLogger.v('dispatchHere $template, $_options, $userArgs, $tArgs');
 
   await processArgs(':here', template, _options, userArgs, tArgs);
@@ -114,7 +114,7 @@ void dispatchLocal(String template, ArgResults _options, List<String> userArgs,
 
 // FIXME: _options == Config.options
 void dispatchPlugin(String tLib, String template, ArgResults _options,
-    List<String> pluginArgs, List<String> tArgs) async {
+    List pluginArgs, List<String> tArgs) async {
   // Config.ppLogger.v('dispatchPlugin $tLib, $template, $_options, $pluginArgs, $tArgs');
 
   await processArgs(tLib, template, _options, pluginArgs, tArgs);
@@ -139,5 +139,4 @@ void dispatchUser(String template, ArgResults _options, List<String> userArgs,
   await processArgs(':home', template, _options, userArgs, tArgs);
 
   await processTemplate();
-
 }

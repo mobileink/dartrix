@@ -24,20 +24,20 @@ void processTemplate() async {
     // print('''f91cfca5-76da-45de-a141-00e7efd29682:  ''');
     // print('gen index: ${Config.genericIndex}');
     tFileList.retainWhere((f) {
-        var tpath = f.path.replaceFirst(Config.templateRoot + '/', '');
-        // print('''1d99de6b-6648-4c9f-b1ec-33db63854fa7:  ''');
-        // print('tpath: $tpath');
-        return (tpath.startsWith(Config.genericSelection)
-          || tpath.startsWith(Config.genericIndex));
+      var tpath = f.path.replaceFirst(Config.templateRoot + '/', '');
+      // print('''1d99de6b-6648-4c9f-b1ec-33db63854fa7:  ''');
+      // print('tpath: $tpath');
+      return (tpath.startsWith(Config.genericSelection) ||
+          tpath.startsWith(Config.genericIndex));
     });
   }
 
   tFileList.removeWhere((f) => f.path.endsWith('~'));
   // remove all dotfiles - users must use e.g. DOTgitignore
   tFileList.removeWhere((f) {
-      var tpath = f.path.replaceFirst(Config.templateRoot + '/', '');
-      // print('tpath: $tpath');
-      return tpath.startsWith('.');
+    var tpath = f.path.replaceFirst(Config.templateRoot + '/', '');
+    // print('tpath: $tpath');
+    return tpath.startsWith('.');
   });
   tFileList.retainWhere((f) => f is File);
 
@@ -57,15 +57,15 @@ void processTemplate() async {
       // Config.logger.v('cwd: ${Directory.current.path}');
       // print('''6b29edec-6503-4ca6-8a7b-b639efd50085:  tfile: $tfile''');
       // Config.logger.v('tData[\'out\']: ${tData['out']}');
-      var templateOutPath = tfile.path.replaceFirst(
-        Config.templateRoot + '/', '');
+      var templateOutPath =
+          tfile.path.replaceFirst(Config.templateRoot + '/', '');
       // print('''ea344d35-e2a9-444c-9316-0b68a52f33cc: tout: $templateOutPath''');
 
       if (Config.generic) {
-        templateOutPath = templateOutPath
-        .replaceFirst(Config.genericSelection + '/', '');
-        templateOutPath = templateOutPath
-        .replaceFirst(Config.genericIndex + '/', '');
+        templateOutPath =
+            templateOutPath.replaceFirst(Config.genericSelection + '/', '');
+        templateOutPath =
+            templateOutPath.replaceFirst(Config.genericIndex + '/', '');
       }
 
       // print('''67089817-65a9-4816-badc-d31a794133a7:  top $templateOutPath''');
@@ -119,12 +119,12 @@ void processTemplate() async {
 
   // print('''bb0cb6ae-c8a5-443a-85d8-62fab16495b4:  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX''');
   tFileList.forEach((tfile) {
-      // print('''65dc3ff0-f236-493e-b189-2f3b1c5c0735:  tfile: $tfile''');
-      // print('''9aa446a9-5ff3-4cad-b9f1-3787f57d58c6:  templateRoot ${Config.templateRoot}''');
+    // print('''65dc3ff0-f236-493e-b189-2f3b1c5c0735:  tfile: $tfile''');
+    // print('''9aa446a9-5ff3-4cad-b9f1-3787f57d58c6:  templateRoot ${Config.templateRoot}''');
 
     // first remove template name prefix path
     var outSubpath = // path.canonicalize(// tData['out'] +
-      tfile.path.replaceFirst(Config.templateRoot + '/', '');
+        tfile.path.replaceFirst(Config.templateRoot + '/', '');
     // print('''7569853d-bb21-4a44-b2c9-65da3a529288:  outSubpath1: $outSubpath''');
     // ditto if this is a generic
     if (Config.generic) {
@@ -254,37 +254,39 @@ void fixpoint(bool here) async {
   if (!Config.force) {
     // print('''7a13735c-a850-4572-8ea8-7d57d54be993:  Overwrite check ================''');
     tFileList.forEach((tfile) {
-        // Config.logger.v('cwd: ${Directory.current.path}');
-        // Config.ppLogger.i('''6b29edec-6503-4ca6-8a7b-b639efd50085:  infile: $tfile''');
-        var outSubpath = tfile.path.replaceFirst(Config.templateRoot + '/', '');
-        // print('''ea344d35-e2a9-444c-9316-0b68a52f33cc: outSubpath: $outSubpath''');
+      // Config.logger.v('cwd: ${Directory.current.path}');
+      // Config.ppLogger.i('''6b29edec-6503-4ca6-8a7b-b639efd50085:  infile: $tfile''');
+      var outSubpath = tfile.path.replaceFirst(Config.templateRoot + '/', '');
+      // print('''ea344d35-e2a9-444c-9316-0b68a52f33cc: outSubpath: $outSubpath''');
 
-        // No rewriting for Fixpoints
-        // outSubpath = rewritePath(outSubpath);
-        // print('''af36839b-3909-4bac-8f78-308b9015b68c: rewritten: $outSubpath''');
+      // No rewriting for Fixpoints
+      // outSubpath = rewritePath(outSubpath);
+      // print('''af36839b-3909-4bac-8f78-308b9015b68c: rewritten: $outSubpath''');
 
-        // print('''a4781e5e-bae9-4611-b765-4149496a44fc:  here? ${here}''');
-        // outSubpath = (here ? '.templates/' : 'templates/')
-        outSubpath = (here ? Config.hereDir + '/templates/' : 'templates/')
-        + template + '/' + outSubpath;
-        // print('''561f1948-5678-4fbf-99f1-66dff773706a:  prefixed: $outSubpath''');
+      // print('''a4781e5e-bae9-4611-b765-4149496a44fc:  here? ${here}''');
+      // outSubpath = (here ? '.templates/' : 'templates/')
+      outSubpath = (here ? Config.hereDir + '/templates/' : 'templates/') +
+          template +
+          '/' +
+          outSubpath;
+      // print('''561f1948-5678-4fbf-99f1-66dff773706a:  prefixed: $outSubpath''');
 
-        outSubpath = path.canonicalize(outSubpath);
-        // print('''af36839b-3909-4bac-8f78-308b9015b68c: canonicalized: $outSubpath''');
+      outSubpath = path.canonicalize(outSubpath);
+      // print('''af36839b-3909-4bac-8f78-308b9015b68c: canonicalized: $outSubpath''');
 
-        exists = FileSystemEntity.typeSync(outSubpath);
-        if (exists == FileSystemEntityType.notFound) {
-          // print('''2a9bcb4b-a951-4173-8693-62c400602ec7:  not found''');
-        } else if (exists != FileSystemEntityType.notFound) {
-          // print('''2a9bcb4b-a951-4173-8693-62c400602ec7:  exists''');
-          overWrites.add(outSubpath);
-          // } else {
-          // if ((Config.verbose) || Config.dryRun) {
-          //   Config.prodLogger.i('Over-writing $outSubpath');
-          // }
-        }
+      exists = FileSystemEntity.typeSync(outSubpath);
+      if (exists == FileSystemEntityType.notFound) {
+        // print('''2a9bcb4b-a951-4173-8693-62c400602ec7:  not found''');
+      } else if (exists != FileSystemEntityType.notFound) {
+        // print('''2a9bcb4b-a951-4173-8693-62c400602ec7:  exists''');
+        overWrites.add(outSubpath);
+        // } else {
+        // if ((Config.verbose) || Config.dryRun) {
+        //   Config.prodLogger.i('Over-writing $outSubpath');
+        // }
+      }
     });
-  // print('''eef8935a-a56d-4cee-8715-611e7196726c: Overwrite check complete ================''');
+    // print('''eef8935a-a56d-4cee-8715-611e7196726c: Overwrite check complete ================''');
   } //  if (!Config.force)
 
   if (overWrites.isNotEmpty) {
@@ -301,10 +303,10 @@ void fixpoint(bool here) async {
 
   // print('''bb0cb6ae-c8a5-443a-85d8-62fab16495b4:  writing files ================''');
   tFileList.forEach((tfile) {
-      // print('''65dc3ff0-f236-493e-b189-2f3b1c5c0735:  infile: $tfile''');
+    // print('''65dc3ff0-f236-493e-b189-2f3b1c5c0735:  infile: $tfile''');
 
     // first remove template name prefix path
-    var outSubpath =tfile.path.replaceFirst(Config.templateRoot + '/', '');
+    var outSubpath = tfile.path.replaceFirst(Config.templateRoot + '/', '');
     // print('''7569853d-bb21-4a44-b2c9-65da3a529288:  outSubpath: $outSubpath''');
 
     if (Config.debug) {
@@ -315,8 +317,10 @@ void fixpoint(bool here) async {
     //FIXME: support --name
     // print('''4f9ee631-160b-4daa-9f07-165066033cda:  NAME: ${tData["name"]}''');
 
-    outSubpath = (here ? Config.hereDir + '/templates/' : 'templates/')
-    + template + '/' + outSubpath;
+    outSubpath = (here ? Config.hereDir + '/templates/' : 'templates/') +
+        template +
+        '/' +
+        outSubpath;
     // print('''561f1948-5678-4fbf-99f1-66dff773706a:  prefixed: $outSubpath''');
 
     outSubpath = path.canonicalize(outSubpath);
@@ -337,16 +341,16 @@ void fixpoint(bool here) async {
       }
     }
 
-      if ((Config.verbose) || Config.dryRun) {
-        if (debug.debug) {
-          Config.debugLogger.v('   ' + tfile.path);
-        }
-        Config.prodLogger.v('=> $outSubpath');
+    if ((Config.verbose) || Config.dryRun) {
+      if (debug.debug) {
+        Config.debugLogger.v('   ' + tfile.path);
       }
-      if (!Config.dryRun) {
-        tfile.copySync(outSubpath);
-        writtenFiles.add(outSubpath);
-      }
+      Config.prodLogger.v('=> $outSubpath');
+    }
+    if (!Config.dryRun) {
+      tfile.copySync(outSubpath);
+      writtenFiles.add(outSubpath);
+    }
   });
 
   //List<String>

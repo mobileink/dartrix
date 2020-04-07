@@ -2,18 +2,18 @@
 import 'dart:io';
 import 'dart:isolate';
 
-import 'package:args/args.dart';
-import 'package:mustache_template/mustache_template.dart';
+// import 'package:args/args.dart';
+// import 'package:mustache_template/mustache_template.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:dartrix/dartrix.dart';
 
 import 'package:dartrix/src/config.dart';
-import 'package:dartrix/src/data.dart';
-import 'package:dartrix/src/debug.dart' as debug;
-import 'package:dartrix/src/dispatcher.dart';
-import 'package:dartrix/src/generator.dart';
-import 'package:dartrix/src/paths.dart';
+// import 'package:dartrix/src/data.dart';
+// import 'package:dartrix/src/debug.dart' as debug;
+// import 'package:dartrix/src/dispatcher.dart';
+// import 'package:dartrix/src/generator.dart';
+// import 'package:dartrix/src/paths.dart';
 import 'package:dartrix/src/utils.dart';
 
 // Terminology:
@@ -197,6 +197,7 @@ bool findLibMain(String pkg) {
   var mainPath =
       Config.libPkgRoot + '/' + Config.libName + Config.appSfx + '.dart';
   // print('mainPath $mainPath');
-  FileSystemEntityType libScript = FileSystemEntity.typeSync(mainPath);
+  //FileSystemEntityType
+  var libScript = FileSystemEntity.typeSync(mainPath);
   return !(libScript == FileSystemEntityType.notFound);
 }

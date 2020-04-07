@@ -54,12 +54,23 @@ void sanityCheck() {
 
 String canonicalizeLibName(String libName) {
   switch (libName) {
-    case ':.': return ':here'; break;
-    case ':h': return ':here'; break;
-    case ':u': return ':user'; break;
-    case ':l': return ':local'; break;
-    case ':d': return ':dartrix'; break;
-    default: return libName;
+    case ':.':
+      return ':here';
+      break;
+    case ':h':
+      return ':here';
+      break;
+    case ':u':
+      return ':user';
+      break;
+    case ':l':
+      return ':local';
+      break;
+    case ':d':
+      return ':dartrix';
+      break;
+    default:
+      return libName;
   }
 }
 
@@ -74,21 +85,22 @@ bool stdTLibExists(String scope) {
   var fse;
   switch (scope) {
     case ':here':
-    path = '${Config.hereDir}/templates';
-    fse = FileSystemEntity.typeSync(path);
-    return (fse != FileSystemEntityType.notFound);
-    break;
+      path = '${Config.hereDir}/templates';
+      fse = FileSystemEntity.typeSync(path);
+      return (fse != FileSystemEntityType.notFound);
+      break;
     case ':user':
-    path = Config.dartrixHome + '/templates';
-    fse = FileSystemEntity.typeSync(path);
-    return (fse != FileSystemEntityType.notFound);
-    break;
+      path = Config.dartrixHome + '/templates';
+      fse = FileSystemEntity.typeSync(path);
+      return (fse != FileSystemEntityType.notFound);
+      break;
     case ':local':
-    path = Config.local + '/templates';
-    fse = FileSystemEntity.typeSync(path);
-    return (fse != FileSystemEntityType.notFound);
-    break;
+      path = Config.local + '/templates';
+      fse = FileSystemEntity.typeSync(path);
+      return (fse != FileSystemEntityType.notFound);
+      break;
     default:
-    Config.debugLogger.e('stdLibExists unknown scope: $scope');
+      Config.debugLogger.e('stdLibExists unknown scope: $scope');
+      return false;
   }
 }

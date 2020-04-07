@@ -6,7 +6,7 @@ import 'package:args/args.dart';
 // import 'package:dartrix/src/config.dart';
 // import 'package:dartrix/src/data.dart';
 
-import 'package:dartrix/src/builtins.dart';
+// import 'package:dartrix/src/builtins.dart';
 import 'package:dartrix/src/generator.dart';
 
 void printUsage(ArgParser argParser) async {

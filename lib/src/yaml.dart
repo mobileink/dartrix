@@ -5,9 +5,8 @@ import 'package:safe_config/safe_config.dart';
 import 'package:yaml/yaml.dart';
 
 import 'package:dartrix/src/config.dart';
-import 'package:dartrix/src/resolver.dart';
+// import 'package:dartrix/src/resolver.dart';
 import 'package:dartrix/src/utils.dart';
-
 
 // safe_config yaml classes
 class Params extends Configuration {
@@ -22,7 +21,8 @@ class Params extends Configuration {
 class Param extends Configuration {
   // Param() : super();
   // Param.fromFile(String fileName) : super.fromFile(File(fileName));
-  Param({this.id,
+  Param(
+      {this.id,
       this.name,
       this.abbr,
       this.docstring,
@@ -61,7 +61,8 @@ class Param extends Configuration {
 class UserParam extends Param {
   // Param() : super();
   // Param.fromFile(String fileName) : super.fromFile(File(fileName));
-  UserParam({this.name,
+  UserParam(
+      {this.name,
       this.abbr,
       this.docstring,
       this.help,
@@ -69,32 +70,44 @@ class UserParam extends Param {
       this.negatable,
       this.defaultsTo});
 
+  @override
   String name;
   @optionalConfiguration
+  @override
   String abbr;
+  @override
   String docstring;
   @optionalConfiguration
+  @override
   String help;
   // String typeHelp; // parser 'valueHelp'
   // @optionalConfiguration
+  @override
   String typeHint; // _plugin, _template, _out
   @optionalConfiguration
+  @override
   String defaultsTo;
   @optionalConfiguration
+  @override
   bool negatable;
   @optionalConfiguration
+  @override
   bool hidden = false;
   @optionalConfiguration
+  @override
   bool private = false;
   @optionalConfiguration
+  @override
   String seg;
   @optionalConfiguration
+  @override
   String hook;
 }
 
 class SysParam extends Param {
   // SysParam(this.param) : super();
-  SysParam({this.id,
+  SysParam(
+      {this.id,
       this.name,
       this.abbr,
       docstring,
@@ -102,28 +115,34 @@ class SysParam extends Param {
       typeHint,
       negatable,
       defaultsTo})
-  : super(
-    name: name,
-    abbr: abbr,
-    docstring: docstring,
-    help: help,
-    typeHint: typeHint,
-    negatable: negatable,
-    defaultsTo: defaultsTo);
+      : super(
+            name: name,
+            abbr: abbr,
+            docstring: docstring,
+            help: help,
+            typeHint: typeHint,
+            negatable: negatable,
+            defaultsTo: defaultsTo);
+  @override
   String id;
   // Overrides
   @optionalConfiguration
+  @override
   String name;
   @optionalConfiguration
+  @override
   String abbr;
   // @optionalConfiguration
   // String defaultsTo;
   @optionalConfiguration
+  @override
   bool private = false;
   @optionalConfiguration
+  @override
   bool hidden = false;
 
-  List<String> validate () {
+  @override
+  List<String> validate() {
     // print('''407d6bf9-fd10-482b-b235-abc8bb04195c:  validate $param''');
     if (!sysParams.keys.contains(id)) {
       return ['Unrecognized param: $id. Allowed values: ${sysParams.keys}'];
@@ -132,42 +151,45 @@ class SysParam extends Param {
   }
 }
 
-Map<String,SysParam> sysParams = {
-  'out': SysParam( // {{dartrix.out}}
-    name       : 'out',
-    abbr       : 'o',
-    docstring  : 'Output directory.',
-    help       : 'Output directory, relative to current working directory.',
-    typeHint       : 'path',
-    defaultsTo : './'),
-  'package': SysParam(  // {{dartrix.package}}
-    name       : 'package',
-    abbr       : 'p',
-    docstring  : 'pkg_name',
-    help       : 'Dart package name.',
-    typeHint   : '[_a-z][a-zA-Z0-9_]',
-    defaultsTo : 'mypkg'),
-  'ns': SysParam(  // {{dartrix.ns}}
-    name       : 'ns',
-    // abbr       : 's',
-    docstring  : 'Namespace',
-    help       : 'Namespace.',
-    typeHint   : 'segmented.string',
-    defaultsTo : 'org.example'),
+Map<String, SysParam> sysParams = {
+  'out': SysParam(
+      // {{dartrix.out}}
+      name: 'out',
+      abbr: 'o',
+      docstring: 'Output directory.',
+      help: 'Output directory, relative to current working directory.',
+      typeHint: 'path',
+      defaultsTo: './'),
+  'package': SysParam(
+      // {{dartrix.package}}
+      name: 'package',
+      abbr: 'p',
+      docstring: 'pkg_name',
+      help: 'Dart package name.',
+      typeHint: '[_a-z][a-zA-Z0-9_]',
+      defaultsTo: 'mypkg'),
+  'ns': SysParam(
+      // {{dartrix.ns}}
+      name: 'ns',
+      // abbr       : 's',
+      docstring: 'Namespace',
+      help: 'Namespace.',
+      typeHint: 'segmented.string',
+      defaultsTo: 'org.example'),
   'nsx': SysParam(
-    name       : 'nsx', // {{dartrix.nsx}}
-    // abbr       : 'x',
-    docstring  : 'Namespace extension',
-    help       : 'Namespace extension; a namespace fragment to complement --ns.',
-    typeHint       : 'segmented.string'),
+      name: 'nsx', // {{dartrix.nsx}}
+      // abbr       : 'x',
+      docstring: 'Namespace extension',
+      help: 'Namespace extension; a namespace fragment to complement --ns.',
+      typeHint: 'segmented.string'),
   'verbose': SysParam(
-    name         : 'verbose',
-    abbr         : 'v',
-    docstring    : 'Verbose output',
-    help         : 'Verbose output.',
-    typeHint     : 'bool',
-    negatable    : false,
-    defaultsTo   : 'false')
+      name: 'verbose',
+      abbr: 'v',
+      docstring: 'Verbose output',
+      help: 'Verbose output.',
+      typeHint: 'bool',
+      negatable: false,
+      defaultsTo: 'false')
 };
 
 // enum Meta {template, plugin}
@@ -176,9 +198,10 @@ class MetaParam extends Configuration {
   final _types = ['template', 'plugin'];
   String type;
   String name;
-  List<String> validate () {
+  @override
+  List<String> validate() {
     // print('''7f430023-a18f-4a3b-8439-8c865d911608:  validate meta: $type''');
-    if (!(_types.contains(type)) ) {
+    if (!(_types.contains(type))) {
       return ['Unrecognized type: $type. Allowed values: ${_types}'];
     }
     return [];
@@ -226,7 +249,6 @@ class TemplateYaml extends Configuration {
 
   @optionalConfiguration
   Generic generic;
-
 }
 
 class LibraryRef extends Configuration {
@@ -295,10 +317,12 @@ TemplateYaml getTemplateYaml(String tLib, String templateRoot) {
   } catch (e) {
     if (e.message.startsWith('Cannot open file')) {
       print('''fb4f67f6-8035-486c-b94e-407cf7e85af0:  ''');
-      Config.prodLogger.e('Yaml file for template ${path.basename(templateRoot)} in lib $tLib not found. Each template must include a valid .yaml file.');
+      Config.prodLogger.e(
+          'Yaml file for template ${path.basename(templateRoot)} in lib $tLib not found. Each template must include a valid .yaml file.');
       return null;
     } else if (e.toString().startsWith('Invalid configuration data')) {
-      Config.prodLogger.e('getTemplateYaml: The .yaml file for template \'${path.basename(templateRoot)}\' in lib ${tLib} is corrupt: ${e.message}');
+      Config.prodLogger.e(
+          'getTemplateYaml: The .yaml file for template \'${path.basename(templateRoot)}\' in lib ${tLib} is corrupt: ${e.message}');
       return null;
     } else {
       if (Config.debug) {
@@ -331,7 +355,7 @@ UserYaml getUserYaml() {
     if (e.message.startsWith('Cannot open file')) {
       if (Config.verbose) {
         Config.prodLogger
-        .i(infoPen(':user config file: not found (${userYamlPath})'));
+            .i(infoPen(':user config file: not found (${userYamlPath})'));
       }
       return null;
     } else {
@@ -371,7 +395,7 @@ UserYaml getLocalYaml() {
     if (e.message.startsWith('Cannot open file')) {
       if (Config.verbose) {
         Config.prodLogger
-        .i(infoPen(':local config file: not found (${localYamlPath})'));
+            .i(infoPen(':local config file: not found (${localYamlPath})'));
       }
       return null;
     } else {

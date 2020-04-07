@@ -9,7 +9,6 @@ import 'package:dartrix/src/data.dart';
 import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/paths.dart';
 
-
 typedef onData = void Function(dynamic msg);
 typedef onDone = void Function();
 

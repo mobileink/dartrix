@@ -11,22 +11,22 @@ import 'package:dartrix/src/yaml.dart';
 Map listTemplate(String tLib, String tlibRoot, String template) {
   // Config.ppLogger.d('listTemplate $tLib, $tlibRoot, $template');
   if (!verifyExists(tlibRoot)) {
-      if (Config.verbose) {
-        Config.prodLogger.v('template lib root: not found ($tlibRoot)');
-      }
-      return {};
+    if (Config.verbose) {
+      Config.prodLogger.v('template lib root: not found ($tlibRoot)');
+    }
+    return {};
   }
   if (tLib == ':dartrix') {
   } else if (tLib == ':here') {
   } else if (tLib == ':user') {
   } else if (tLib == ':local') {
-  } else {
-  }
+  } else {}
 
   var tPath = path.canonicalize(tlibRoot + '/templates/' + template);
-  TemplateYaml yaml = getTemplateYaml(tLib, tPath);
+  //TemplateYaml
+  var yaml = getTemplateYaml(tLib, tPath);
   if (yaml == null) {
-      exit(1);
+    exit(1);
   }
   var templateSpec = {
     'name': path.basename(tPath),
@@ -44,33 +44,35 @@ List<Map> listTemplates(String tLibKey) {
   var templatesRoot;
   switch (tLibKey) {
     case ':here':
-    templatesRoot = '${Config.hereDir}/templates';
-    break;
+      templatesRoot = '${Config.hereDir}/templates';
+      break;
     case ':user':
-    break;
+      break;
     case ':local':
-    break;
+      break;
     case ':dartrix':
-    templatesRoot = Config.dartrixHome;
-    break;
+      templatesRoot = Config.dartrixHome;
+      break;
     default: // plugin tlib
   }
   if (!verifyExists(templatesRoot)) {
-      if (Config.verbose) {
-        Config.prodLogger.v('${tLibKey} templates: not found ($templatesRoot)');
-      }
+    if (Config.verbose) {
+      Config.prodLogger.v('${tLibKey} templates: not found ($templatesRoot)');
+    }
     return [];
   }
   var templates = Directory(templatesRoot).listSync();
   templates.retainWhere((f) => f is Directory);
 
-  TemplateYaml yaml;
-  List<Map> templateSpecs = [];
+  //TemplateYaml
+  var yaml;
+  //List<Map>
+  var templateSpecs = [];
   templates.forEach((t) {
     yaml = getTemplateYaml(tLibKey, t.path);
-  if (yaml == null) {
+    if (yaml == null) {
       exit(1);
-  }
+    }
     templateSpecs.add({
       'name': path.basename(t.path),
       'version': yaml.version,
@@ -87,16 +89,18 @@ List<Map> listHereTemplates() {
   // var hereHome = Config.home + '/.dartrix.d';
   var hereTemplatesRoot = '${Config.hereDir}/templates';
   if (!verifyExists(hereTemplatesRoot)) {
-      if (Config.verbose) {
-        Config.prodLogger.v(':here templates: not found ($hereTemplatesRoot)');
-      }
+    if (Config.verbose) {
+      Config.prodLogger.v(':here templates: not found ($hereTemplatesRoot)');
+    }
     return [];
   }
   var hereTemplates = Directory(hereTemplatesRoot).listSync();
   hereTemplates.retainWhere((f) => f is Directory);
 
-  TemplateYaml yaml;
-  List<Map> hereTemplateSpecs = [];
+  //TemplateYaml
+  var yaml;
+  //List<Map>
+  var hereTemplateSpecs = [];
   hereTemplates.forEach((t) {
     yaml = getTemplateYaml(':here', t.path);
     if (yaml == null) {
@@ -123,7 +127,7 @@ List<Map> listHereLib() {
       {
         'name': ':.', //'dartrix',
         'version': null,
-        'docstring' : 'Here templates',
+        'docstring': 'Here templates',
         'scope': 'here',
         'rootUri': path.canonicalize(Config.hereDir)
       }
@@ -155,8 +159,10 @@ List<Map> listUserTemplates() {
   var userTemplates = Directory(userTemplatesRoot).listSync();
   userTemplates.retainWhere((f) => f is Directory);
 
-  TemplateYaml yaml;
-  List<Map> userTemplateSpecs = [];
+  //TemplateYaml
+  var yaml;
+  //List<Map>
+  var userTemplateSpecs = [];
   userTemplates.forEach((t) {
     yaml = getTemplateYaml(':user', t.path);
     if (yaml == null) {
@@ -183,7 +189,7 @@ List<Map> listUserLib() {
       {
         'name': ':user', //'dartrix',
         'version': null,
-        'docstring' : 'User templates',
+        'docstring': 'User templates',
         'scope': 'home',
         'rootUri': userHome
       }
@@ -205,7 +211,8 @@ List<Map> listUserLib() {
 List<Map> listUserLibs() {
   // Config.debugLogger.d('listUserLibs');
   List<Map> userLibs = [];
-  UserYaml userYaml = getUserYaml();
+  //UserYaml
+  var userYaml = getUserYaml();
   if (userYaml != null) {
     userYaml.libraries.forEach((lib) {
       // var libPath = //path.canonicalize(userHome + '/' + lib.path);
@@ -235,7 +242,8 @@ List<Map> listLocalTemplates() {
   localTemplates.retainWhere((f) => f is Directory);
 
   TemplateYaml yaml;
-  List<Map> localTemplateSpecs = [];
+  //List<Map>
+  var localTemplateSpecs = [];
   localTemplates.forEach((t) {
     // print('template path: ${t.path}');
     yaml = getTemplateYaml(':local', t.path);
@@ -262,7 +270,7 @@ List<Map> listLocalLib() {
       {
         'name': ':local', //'dartrix',
         'version': null,
-        'docstring' : 'Local templates',
+        'docstring': 'Local templates',
         'scope': 'home',
         'rootUri': localHome
       }
@@ -270,7 +278,8 @@ List<Map> listLocalLib() {
   } else {
     if (verifyExists(localHome)) {
       if (Config.verbose) {
-        Config.prodLogger.v(':local templates: not found ($localTemplatesRoot)');
+        Config.prodLogger
+            .v(':local templates: not found ($localTemplatesRoot)');
       }
     } else {
       if (Config.verbose) {
@@ -284,7 +293,8 @@ List<Map> listLocalLib() {
 List<Map> listLocalLibs() {
   // Config.debugLogger.d('listLocalLibs');
   List<Map> localLibs = [];
-  UserYaml localYaml = getLocalYaml();
+  //UserYaml
+  var localYaml = getLocalYaml();
   // print('YAML: $localYaml');
   if (localYaml != null) {
     localYaml.libraries.forEach((lib) {
@@ -315,7 +325,7 @@ Future<List<Map>> listTLibs(String suffix) async {
   // Config.ppLogger.d('userLibs: $userLibs');
   // return userLibs;
 
-  var localLibs;
+  List<Map> localLibs;
   if (Config.searchLocal) {
     localLibs = listLocalLibs();
   }
@@ -339,6 +349,7 @@ Future<List<Map>> listTLibs(String suffix) async {
   //   userPkgs.addAll(sysPkgs);
   // }
 
+  // DO NOT remove type annotation
   List<Map> pubDevPlugins = [];
   if (Config.searchPubDev) {
     pubDevPlugins = await getPubDevPlugins(null);
@@ -346,6 +357,7 @@ Future<List<Map>> listTLibs(String suffix) async {
 
   // Config.ppLogger.v('userPkgs: $userPkgs');
   // Config.ppLogger.v('pubDevPlugins: $pubDevPlugins');
+  // DO NOT remove type annotation
   List<Map> allPlugins = List.from(pubDevPlugins);
   // print('allPlugins: $allPlugins');
   allPlugins.addAll(userLibs);
@@ -415,7 +427,8 @@ List<Map> listBuiltinTemplates() {
   if (!verifyExists(builtinsTemplatesRoot)) {
     if (verifyExists(builtinsTemplatesRoot)) {
       if (Config.verbose) {
-        Config.prodLogger.v(':dartrix templates: not found ($builtinsTemplatesRoot)');
+        Config.prodLogger
+            .v(':dartrix templates: not found ($builtinsTemplatesRoot)');
       }
     } else {
       if (Config.verbose) {
@@ -428,28 +441,28 @@ List<Map> listBuiltinTemplates() {
   builtinsTemplates.retainWhere((f) => f is Directory);
 
   TemplateYaml yaml;
-  List<Map> builtinsTemplateSpecs = [];
+  // List<Map>
+  var builtinsTemplateSpecs = [];
   builtinsTemplates.forEach((t) {
-      // print(t);
-      yaml = getTemplateYaml(':dartrix', t.path);
-      // if (yaml == null) {
-      //   exit(1);
-      // }
-      // if (yaml != null) {
-        builtinsTemplateSpecs.add({
-            'name': path.basename(t.path),
-            'version': yaml.version,
-            'docstring': yaml.docstring,
-            'scope': 'dartrix',
-            'rootUri': Uri.parse(t.path)
-        });
-      // } else {
-      //   if (Config.debug) {
-      //   Config.ppLogger.w(':dartrix template ${path.basename(t.path)} lacks .yaml file; ignoring.');
-      // }
-      // }
+    // print(t);
+    yaml = getTemplateYaml(':dartrix', t.path);
+    // if (yaml == null) {
+    //   exit(1);
+    // }
+    // if (yaml != null) {
+    builtinsTemplateSpecs.add({
+      'name': path.basename(t.path),
+      'version': yaml.version,
+      'docstring': yaml.docstring,
+      'scope': 'dartrix',
+      'rootUri': Uri.parse(t.path)
+    });
+    // } else {
+    //   if (Config.debug) {
+    //   Config.ppLogger.w(':dartrix template ${path.basename(t.path)} lacks .yaml file; ignoring.');
+    // }
+    // }
   });
 
   return builtinsTemplateSpecs;
 }
-

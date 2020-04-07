@@ -217,7 +217,7 @@ Future<List<Map>> resolvePkg(String templateLibName) async {
         {
           'name': Config.appName,
           'version': Config.appVersion,
-          'docstring' : 'Builtin templates',
+          'docstring': 'Builtin templates',
           'scope': 'builtin',
           'rootUri': path.canonicalize(Config.appPkgRoot)
         }
@@ -236,17 +236,19 @@ Future<List<Map>> resolvePkg(String templateLibName) async {
         {
           'name': ':local', //'dartrix',
           'version': null,
-          'docstring' : 'Local template library',
+          'docstring': 'Local template library',
           'scope': 'local',
           'rootUri': '/usr/local/share/dartrix'
         }
       ];
     default:
-    if (templateLibName.startsWith(':')) {
-      return await resolvePluginPkg(templateLibName.substring(1));
-    } else {
-      Config.prodLogger.e('Invalid library name ${templateLibName}. Library names must be passed with leading \':\'. Try \':${templateLibName}\'');
-    }
+      if (templateLibName.startsWith(':')) {
+        return await resolvePluginPkg(templateLibName.substring(1));
+      } else {
+        Config.prodLogger.e(
+            'Invalid library name ${templateLibName}. Library names must be passed with leading \':\'. Try \':${templateLibName}\'');
+        return null;
+      }
   }
 }
 
@@ -324,8 +326,9 @@ Future<List<Map>> resolvePluginPkg(String templateLibName) async {
     if (sysPkgList.isEmpty) {
       Config.prodLogger.i('Plugin package \'$templatePkgName\' not found.');
       if (templatePkgName.startsWith('dartrix')) {
-        Config.prodLogger.i('Did you forget a semi-colon? Try \':dartrix\' (or just \':d\').');
-    }
+        Config.prodLogger.i(
+            'Did you forget a semi-colon? Try \':dartrix\' (or just \':d\').');
+      }
     }
     // Config.ppLogger.d('fetchPackage: $sysPkgList');
     // return sysPkgList.first; //['uri']; //.path;
@@ -387,6 +390,7 @@ Future<List<Map>> searchSysCache(String uri) async {
   // Config.ppLogger.d('searchSysCache $uri');
   var syscacheRoot = Config.home + '/.pub-cache/hosted/pub.dartlang.org';
   var syscache = Directory(syscacheRoot).listSync();
+  // DO NOT omit this type annotation, doing so breaks the code
   List<Map> syscachePkgs = [];
   if (uri == null) {
     // null uri means get all
@@ -394,67 +398,67 @@ Future<List<Map>> searchSysCache(String uri) async {
     var parts;
     // var version;
     syscache.retainWhere((pkg) {
-        parts = path.basename(pkg.path).split('-');
-        base = parts[0];
-        // Config.logger.v(base);
-        return base.endsWith(Config.appSfx);
+      parts = path.basename(pkg.path).split('-');
+      base = parts[0];
+      // Config.logger.v(base);
+      return base.endsWith(Config.appSfx);
     });
     if (Config.debug) {
       Config.logger
-      .d('found ${syscache.length} plugins in syscache ($syscacheRoot).');
+          .d('found ${syscache.length} plugins in syscache ($syscacheRoot).');
     }
   } else {
     syscache.retainWhere((pkg) => path.basename(pkg.path).startsWith(uri));
   }
   var ty;
   syscache.forEach((pkg) async {
-      // print('plugin path: ${pkg.path}');
-      ty = loadYamlFileSync(pkg.path + '/pubspec.yaml');
-      var pspec = {
-        'name': path.basename(pkg.path).split('-')[0],
-        'version': path.basename(pkg.path).split('-')[1],
-        'docstring': ty['description'], //FIXME
-        'rootUri': path.canonicalize(pkg.path),
-        'scope': 'sys'
-      };
-      syscachePkgs.add(pspec);
+    // print('plugin path: ${pkg.path}');
+    ty = loadYamlFileSync(pkg.path + '/pubspec.yaml');
+    var pspec = {
+      'name': path.basename(pkg.path).split('-')[0],
+      'version': path.basename(pkg.path).split('-')[1],
+      'docstring': ty['description'], //FIXME
+      'rootUri': path.canonicalize(pkg.path),
+      'scope': 'sys'
+    };
+    syscachePkgs.add(pspec);
   });
-    // Config.ppLogger.d('syscachePkgs: $syscachePkgs');
-    // return syscachePkgs.toList();
+  // Config.ppLogger.d('syscachePkgs: $syscachePkgs');
+  // return syscachePkgs.toList();
 
-    // var ty;
-    // syscache.forEach((pkg) async {
-    //   // print('plugin path: ${pkg.path}');
-    //   ty = loadYamlFileSync(pkg.path + '/pubspec.yaml');
-    //   var pspec = {
-    //     'name': path.basename(pkg.path).split('-')[0],
-    //     'version': path.basename(pkg.path).split('-')[1],
-    //     'docstring': ty['description'], //FIXME
-    //     'rootUri': pkg.path,
-    //     'scope': 'sys'
-    //   };
-    //   syscachePkgs.add(pspec);
-    // });
-    // syscachePkgs = [
-    //   for (var pkg in syscache)
+  // var ty;
+  // syscache.forEach((pkg) async {
+  //   // print('plugin path: ${pkg.path}');
+  //   ty = loadYamlFileSync(pkg.path + '/pubspec.yaml');
+  //   var pspec = {
+  //     'name': path.basename(pkg.path).split('-')[0],
+  //     'version': path.basename(pkg.path).split('-')[1],
+  //     'docstring': ty['description'], //FIXME
+  //     'rootUri': pkg.path,
+  //     'scope': 'sys'
+  //   };
+  //   syscachePkgs.add(pspec);
+  // });
+  // syscachePkgs = [
+  //   for (var pkg in syscache)
 
-    //     {
-    //       'name': path.basename(pkg.path).split('-')[0],
-    //       'version': path.basename(pkg.path).split('-')[1],
-    //       // 'docstring' : '
+  //     {
+  //       'name': path.basename(pkg.path).split('-')[0],
+  //       'version': path.basename(pkg.path).split('-')[1],
+  //       // 'docstring' : '
 
-    //       'rootUri': pkg.path,
-    //       'scope': 'sys'
-    //     }
-    // ];
+  //       'rootUri': pkg.path,
+  //       'scope': 'sys'
+  //     }
+  // ];
   // }
   // Config.debugLogger.d('SYSCACHE: $syscachePkgs');
   return syscachePkgs; //.toList();
 }
 
 Future<List<Map<String, String>>> downloadPkgSpecs(Set pset) async {
-  List<Map<String, String>> // omitting this type decl breaks the code
-      devPubPlugins = [];
+  // omitting this type decl breaks the code
+  var devPubPlugins = List<Map<String, String>>();
   // var fn = () async {
   for (var pkg in pset) {
     var url = 'https://pub.dartlang.org/api/packages/' + pkg + '_dartrix';
@@ -465,7 +469,7 @@ Future<List<Map<String, String>>> downloadPkgSpecs(Set pset) async {
     devPubPlugins.add({
       'name': body['name'],
       'version': body['latest']['pubspec']['version'],
-      'docstring' : body['latest']['pubspec']['docstring'],
+      'docstring': body['latest']['pubspec']['docstring'],
       'scope': 'pubdev',
       'docstring': body['latest']['pubspec']['description']
     });

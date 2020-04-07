@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:process_run/which.dart';
-import 'package:safe_config/safe_config.dart';
+// import 'package:safe_config/safe_config.dart';
 
 // import 'package:args/args.dart';
 // import 'package:logger/logger.dart';
@@ -10,7 +10,7 @@ import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/annotations.dart';
 import 'package:dartrix/src/config.dart';
-import 'package:dartrix/src/debug.dart' as debug;
+// import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/generator.dart';
 import 'package:dartrix/src/yaml.dart';
 
@@ -19,7 +19,6 @@ import 'package:dartrix/src/yaml.dart';
 // tlib spec: map with properties:
 // name, version, docstring, rootUri (= pkg root, not :package root)
 // scope: builtin, here, home (user?), local, sys, pub.dev
-
 
 /// Builtin templates.
 Map<String, String> builtinTemplates = {};
@@ -68,8 +67,7 @@ Map mergeExternalData(Map _data, Map xData) {
     tData['seg']['ROOTPATH'] = xData['root'];
   }
   if (xData['domain'] != null) {
-    tData['seg']['RDOMAINPATH'] =
-        xData['domain'].split('.').reversed.join('/');
+    tData['seg']['RDOMAINPATH'] = xData['domain'].split('.').reversed.join('/');
   }
   if (xData['class'] != null) {
     tData['seg']['CLASS'] = xData['class'];
@@ -124,18 +122,18 @@ void processParam(ArgParser _argParser, Param param) {
     // do not expose private params
   } else if (param.typeHint == 'bool') {
     _argParser.addFlag(param.name,
-      abbr: param.abbr,
-      help: param.help,
-      hide: param.hidden ?? false,
-      negatable: param.negatable ?? true,
-      defaultsTo: (param.defaultsTo == 'true') ? true : false);
+        abbr: param.abbr,
+        help: param.help,
+        hide: param.hidden ?? false,
+        negatable: param.negatable ?? true,
+        defaultsTo: (param.defaultsTo == 'true') ? true : false);
   } else if (param.id == 'package') {
     _argParser.addOption(param.name,
-      abbr: param.abbr,
-      valueHelp: param.typeHint,
-      help: param.help,
-      hide: param.hidden ?? false,
-      defaultsTo: param.defaultsTo ?? '');
+        abbr: param.abbr,
+        valueHelp: param.typeHint,
+        help: param.help,
+        hide: param.hidden ?? false,
+        defaultsTo: param.defaultsTo ?? '');
     // } else if (yaml.generic.index != null && (param.typeHint == Config.genericIndex)) {
     //   _argParser.addOption(param.name,
     //     abbr: param.abbr,
@@ -151,16 +149,16 @@ void processParam(ArgParser _argParser, Param param) {
     //     defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
   } else {
     _argParser.addOption(param.name,
-      abbr: param.abbr,
-      // valueHelp: param.docstring,
-      valueHelp: param.typeHint,
-      // valueHelp: (param.typeHint == '_out')
-      // ? param.docstring : param.typeHint,
-      // help: (param.typeHint == '_out')
-      // ? 'Output path relative to ./'
-      // : param.docstring,
-      help: param.help,
-      defaultsTo: param.defaultsTo ?? '');
+        abbr: param.abbr,
+        // valueHelp: param.docstring,
+        valueHelp: param.typeHint,
+        // valueHelp: (param.typeHint == '_out')
+        // ? param.docstring : param.typeHint,
+        // help: (param.typeHint == '_out')
+        // ? 'Output path relative to ./'
+        // : param.docstring,
+        help: param.help,
+        defaultsTo: param.defaultsTo ?? '');
   }
 }
 
@@ -216,17 +214,19 @@ void processParam(ArgParser _argParser, Param param) {
 /// User-specified sys params override default sys params
 /// 'forget' the param field
 List _resolveSysParams(List<SysParam> _sysParams) {
-  List result = [];
+  //List
+  var result = [];
   _sysParams.forEach((sys) {
-      SysParam defaultParam = sysParams[sys.id];
-      // now override fields
-      defaultParam.id = sys.id;
-      defaultParam.name = sys.name ?? defaultParam.name;
-      defaultParam.abbr = sys.abbr ?? defaultParam.abbr;
-      defaultParam.typeHint = sys.typeHint ?? defaultParam.typeHint;
-      defaultParam.defaultsTo = sys.defaultsTo ?? defaultParam.defaultsTo;
-      defaultParam.private = sys.private ?? defaultParam.private;
-      result.add(defaultParam);
+    //SysParam
+    var defaultParam = sysParams[sys.id];
+    // now override fields
+    defaultParam.id = sys.id;
+    defaultParam.name = sys.name ?? defaultParam.name;
+    defaultParam.abbr = sys.abbr ?? defaultParam.abbr;
+    defaultParam.typeHint = sys.typeHint ?? defaultParam.typeHint;
+    defaultParam.defaultsTo = sys.defaultsTo ?? defaultParam.defaultsTo;
+    defaultParam.private = sys.private ?? defaultParam.private;
+    result.add(defaultParam);
   });
   return result;
 }
@@ -237,8 +237,7 @@ void processOption(ArgResults myoptions, String option) {
 
 //FIXME: put this in template.dart?
 void setTemplateArgs(
-  String tLib,
-  String templateRoot, List<String> libArgs, List<String> tArgs) async {
+    String tLib, String templateRoot, List libArgs, List tArgs) async {
   // print('''6ebbfe57-7245-480c-bb7f-d7c399bc26a1:  ''');
   // Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
 
@@ -264,23 +263,24 @@ void setTemplateArgs(
       if (Config.Y) {
         Config.here = true;
       } else {
-        Config.ppLogger.w('''269b4f26-fb87-49dc-bbf8-7cf8987eacc4:  WARNING: ignoring --here''');
+        Config.ppLogger.w(
+            '''269b4f26-fb87-49dc-bbf8-7cf8987eacc4:  WARNING: ignoring --here''');
         optionsRest.remove('--here');
       }
     } else {
       Config.here = Config.options['here'];
     }
-  // } else {
-  //   print('''df3715e7-134c-47e3-8698-6a633d6c8e7c:  no HERE option''');
+    // } else {
+    //   print('''df3715e7-134c-47e3-8698-6a633d6c8e7c:  no HERE option''');
   }
 
   var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
 
   var allowedVals;
-  var genericIndexParam;
+  // var genericIndexParam;
 
   if (yaml.generic != null) {
-    @block("Analyze params for generic templates and add to arg parser.")
+    @block('Analyze params for generic templates and add to arg parser.')
     var _prepGeneric = () {
       Config.generic = true;
       Config.genericIndex = yaml.generic.index.name;
@@ -297,27 +297,29 @@ void setTemplateArgs(
 
       // print('indexVals $indexVals');
       allowedVals = indexVals.map((dir) {
-          var tpath = dir.path.replaceFirst(Config.templateRoot + '/', '');
-          return path.split(tpath)[0];
+        var tpath = dir.path.replaceFirst(Config.templateRoot + '/', '');
+        return path.split(tpath)[0];
       }).toSet();
       // print('allowedVals: $allowedVals');
 
       _argParser.addOption(Config.genericIndex,
-        abbr: yaml.generic.index.abbr,
-        allowed: allowedVals,
-        help: yaml.generic.index.docstring,
-        valueHelp: yaml.generic.index.typeHint,
-        defaultsTo: yaml.generic.index.defaultsTo);
+          abbr: yaml.generic.index.abbr,
+          allowed: allowedVals,
+          help: yaml.generic.index.docstring,
+          valueHelp: yaml.generic.index.typeHint,
+          defaultsTo: yaml.generic.index.defaultsTo);
       // defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
     };
     _prepGeneric();
   }
 
-  List _sysParams;
-  List allParams = [];
+  //List
+  var _sysParams;
+  //List
+  var allParams = [];
   if (yaml.params != null) {
     if (yaml.params.sys != null) {
-      _sysParams= _resolveSysParams(yaml.params.sys);
+      _sysParams = _resolveSysParams(yaml.params.sys);
     }
     if (yaml.params.user != null) {
       allParams.addAll(yaml.params.user);
@@ -327,7 +329,7 @@ void setTemplateArgs(
     allParams.addAll(_sysParams);
   }
   allParams.forEach((param) {
-      processParam(_argParser, param);
+    processParam(_argParser, param);
   });
 
   if (yaml.meta != null) {
@@ -336,14 +338,15 @@ void setTemplateArgs(
     // print('''fed66a5b-be0d-4a6b-b733-3e47174d1613:  name: ${yaml.meta.name}''');
     Config.meta = yaml.meta.type;
     Config.metaName = yaml.meta.name;
-    RegExp regExp = RegExp(r'<<([^>]*)>>');
+    //RegExp
+    var regExp = RegExp(r'<<([^>]*)>>');
     var match = regExp.firstMatch(yaml.meta.name);
     Config.replaceParam = match.group(1);
     _argParser.addOption('name',
-      abbr: 'n',
-      valueHelp: 'string',
-      help: 'Name for generated template',
-      defaultsTo: yaml.meta.name);
+        abbr: 'n',
+        valueHelp: 'string',
+        help: 'Name for generated template',
+        defaultsTo: yaml.meta.name);
 
     // _argParser.addFlag('here',
     //   help     : 'Emit to :here dir (./.dartrix.d/templates)',
@@ -353,8 +356,8 @@ void setTemplateArgs(
   }
 
   // always add --help
-  _argParser.addFlag('help', defaultsTo: false, negatable: false,
-  help: 'Print this message');
+  _argParser.addFlag('help',
+      defaultsTo: false, negatable: false, help: 'Print this message');
 
   // // always add --fixpoint
   // _argParser.addFlag('Y', defaultsTo: false, negatable: false,
@@ -370,16 +373,16 @@ void setTemplateArgs(
   //   hide: true,
   //   help: 'Output to :here');
 
-
   if (Config.debug) {
-    Config.ppLogger.i('Available params for template $template: ${_argParser.options}');
+    Config.ppLogger
+        .i('Available params for template $template: ${_argParser.options}');
   }
 
   var myoptions;
-  @block("Parse the args")
+  @block('Parse the args')
   var _parseOptions = () {
     try {
-      myoptions = _argParser.parse(tArgs);
+      myoptions = _argParser.parse(tArgs as List<String>);
     } catch (e) {
       print('''ff2ac114-1a10-454a-a9c4-657e74411d98:  ''');
       Config.ppLogger.e(e);
@@ -393,7 +396,7 @@ void setTemplateArgs(
 
   var xtras = myoptions.arguments.toList();
   xtras.removeWhere((o) {
-      return (o == '--Y' || o == '--here');
+    return (o == '--Y' || o == '--here');
   });
   // print('''ee7f4571-3a5b-4225-82ef-2cc0a9b2004f:  xtras: $xtras''');
 
@@ -409,14 +412,14 @@ void setTemplateArgs(
   // if (myoptions['Y']) {
   if (Config.Y) {
     if (xtras.isNotEmpty) {
-      Config.prodLogger.e('Option --Y may not be combined with other options, except --here.');
+      Config.prodLogger.e(
+          'Option --Y may not be combined with other options, except --here.');
       exit(1);
     }
     // print('''27a75e91-fc0d-4adb-a222-5934a6e6214a:  FIXPOINT, here: ${Config.here}''');
     fixpoint(Config.here);
     exit(0);
   }
-
 
   if (yaml.generic != null) {
     Config.genericSelection = myoptions[Config.genericIndex];
@@ -425,8 +428,9 @@ void setTemplateArgs(
   // print('''b026b16d-5c2f-4013-9755-c7d5621fcf52x:  Config.replaceText: ${Config.replaceText}''');
   if (yaml.meta != null) {
     // print('''0f5d7cb6-70b6-4727-91e1-2d2a85b2cbea:  REPLACTEXT: ${Config.replaceText}''');
-    var replace = '<<' + Config.replaceParam  + '>>';
-    if (myoptions['name'] == Config.metaName) { // == yaml.meta.name
+    var replace = '<<' + Config.replaceParam + '>>';
+    if (myoptions['name'] == Config.metaName) {
+      // == yaml.meta.name
       // user accepted default name
       // Config.metaName = yaml.meta.name;
       tData['name'] = Config.metaName.replaceFirst(replace, Config.replaceText);
@@ -465,58 +469,66 @@ void setTemplateArgs(
   // print('''364bb527-b92d-4951-98eb-3e3b78d8447c:  debug options:''');
   // if (debug.debug) debug.debugOptions();
 
-  @block("Process each option, updating template data map")
+  @block('Process each option, updating template data map')
   var _processEachOption = () {
     myoptions.options.forEach((option) {
-        // print('''3728ec79-30ee-4fac-abb5-da49998ef2fc: option: ${option} = ${myoptions[option]}''');
-        // print('params rtt: ${yaml.params.runtimeType}');
+      // print('''3728ec79-30ee-4fac-abb5-da49998ef2fc: option: ${option} = ${myoptions[option]}''');
+      // print('params rtt: ${yaml.params.runtimeType}');
 
-        @block('''Find the yaml param matching the option. It will be used to
+      @block('''Find the yaml param matching the option. It will be used to
         control processing.''')
-        var param;
-        if (option == Config.genericIndex) {
-          param = yaml.generic.index;
-        } else {
-          // print('''e993715a-fc13-4d46-86de-500b59ae2e56:  TOL''');
-          try {
-            // param = yaml.params.user.firstWhere((param) {
-            param = allParams.firstWhere((param) {
-                return param.name == option;
-            });
-          } catch (e) {
-            switch (option) {
-              case 'Y' : return; break; // expected
-              // case 'force': return; break; // expected
-              case 'help' : return; break; // expected
-              case 'here' : return; break; // expected
-              case 'name' :
+      var param;
+      if (option == Config.genericIndex) {
+        param = yaml.generic.index;
+      } else {
+        // print('''e993715a-fc13-4d46-86de-500b59ae2e56:  TOL''');
+        try {
+          // param = yaml.params.user.firstWhere((param) {
+          param = allParams.firstWhere((param) {
+            return param.name == option;
+          });
+        } catch (e) {
+          switch (option) {
+            case 'Y':
+              return;
+              break; // expected
+            // case 'force': return; break; // expected
+            case 'help':
+              return;
+              break; // expected
+            case 'here':
+              return;
+              break; // expected
+            case 'name':
               if (Config.meta != null) {
-                print('''c4eaecae-6274-4fac-8000-bc2831b07829:  NAME: ${myoptions[option]}''');
+                print(
+                    '''c4eaecae-6274-4fac-8000-bc2831b07829:  NAME: ${myoptions[option]}''');
                 // tData['name'] = myoptions[option];
                 return;
               }
               break;
-              default:
-              Config.ppLogger.e(
-                '''e28d8a20-2010-4d0c-8675-31c571d8760c: option: $option
+            default:
+              Config.ppLogger
+                  .e('''e28d8a20-2010-4d0c-8675-31c571d8760c: option: $option
                 $e''');
               Config.ppLogger.e(e);
               return;
-            }
           }
         }
+      }
 
-        // processOption(myoptions, option);
+      // processOption(myoptions, option);
 
-        // if (param.typeHint == '_plugin_name') {
-        //   tData['_plugin_name'] = myoptions[option];
-        // }
-        if (param.name == Config.genericIndex) {
-          print('''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
-          tData[param.name] = myoptions[option];
-          tData[Config.genericIndex] = myoptions[option]
-          .replaceAll('<<' + Config.replaceParam + '>>', '_' + Config.replaceText);
-          tData[option] = tData[Config.genericIndex];
+      // if (param.typeHint == '_plugin_name') {
+      //   tData['_plugin_name'] = myoptions[option];
+      // }
+      if (param.name == Config.genericIndex) {
+        print(
+            '''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
+        tData[param.name] = myoptions[option];
+        tData[Config.genericIndex] = myoptions[option].replaceAll(
+            '<<' + Config.replaceParam + '>>', '_' + Config.replaceText);
+        tData[option] = tData[Config.genericIndex];
         // } else if (param.name == Config.genericRewrite) {
         //   print('''e3645586-5bb3-4190-a836-011ec064a913:  rewrite ${Config.genericRewrite}''');
         //   print('''f15ac308-f755-444f-a598-3b6d88ae719e:  ${myoptions[option]}''');
@@ -528,36 +540,38 @@ void setTemplateArgs(
         //   // .replaceAll(Config.genericIndex, Config.genericSelection);
         //   tData[option] = myoptions[option];
         //   // now check for reserved param types
-      } else if ((param.defaultsTo != null)
-          && (param.defaultsTo.contains('<<'))) {
-          tData[param.name] = myoptions[option];
-          tData['_out'] = myoptions[option];
-        } else if (param.seg != null) {
-          tData[param.seg.toLowerCase()] = myoptions[option];
-          tData['seg'][param.seg.toUpperCase()] = myoptions[option];
-          tData[option] = myoptions[option];
-          if (Config.meta != null) {
-            tData['seg']['_META'].add(param.seg);
-          }
-        } else {
-          tData[option] = myoptions[option];
+      } else if ((param.defaultsTo != null) &&
+          (param.defaultsTo.contains('<<'))) {
+        tData[param.name] = myoptions[option];
+        tData['_out'] = myoptions[option];
+      } else if (param.seg != null) {
+        tData[param.seg.toLowerCase()] = myoptions[option];
+        tData['seg'][param.seg.toUpperCase()] = myoptions[option];
+        tData[option] = myoptions[option];
+        if (Config.meta != null) {
+          tData['seg']['_META'].add(param.seg);
         }
-        if (param is SysParam) {
-          switch (param.id) {
-            case 'out':
+      } else {
+        tData[option] = myoptions[option];
+      }
+      if (param is SysParam) {
+        switch (param.id) {
+          case 'out':
             if (param.defaultsTo != null) {
               if (param.defaultsTo.contains('<<')) {
                 // if (param.defaultsTo == myoptions[param.name]) {
-                  // no user override
-                  RegExp regExp = RegExp(r'<<([^>]*)>>');
-                  var match = regExp.firstMatch(param.defaultsTo).group(1);
-                  // print('''7709702d-a6ad-4fd5-87d4-071f5045e2a1:  match: ${match}''');
-                  var def = myoptions[match];
-                  var defaultVal = myoptions[option].replaceFirst('<<' + match + '>>', def);
-                  // var defaultVal = param.defaultsTo.replaceFirst('<<' + match + '>>', def);
-                  // print('''8b32734b-0e4f-4906-ba64-0a6ccba0a910:  default: ${defaultVal}''');
-                  tData[param.name] = defaultVal;
-                  tData['dartrix']['out'] = defaultVal;
+                // no user override
+                //RegExp
+                var regExp = RegExp(r'<<([^>]*)>>');
+                var match = regExp.firstMatch(param.defaultsTo).group(1);
+                // print('''7709702d-a6ad-4fd5-87d4-071f5045e2a1:  match: ${match}''');
+                var def = myoptions[match];
+                var defaultVal =
+                    myoptions[option].replaceFirst('<<' + match + '>>', def);
+                // var defaultVal = param.defaultsTo.replaceFirst('<<' + match + '>>', def);
+                // print('''8b32734b-0e4f-4906-ba64-0a6ccba0a910:  default: ${defaultVal}''');
+                tData[param.name] = defaultVal;
+                tData['dartrix']['out'] = defaultVal;
                 // } else {
                 //   // user passed defaultsTo, overriding default << >>
                 //   tData[param.name] = myoptions[option];
@@ -572,66 +586,65 @@ void setTemplateArgs(
               tData['dartrix']['out'] = './';
             }
             break;
-            case 'package': // dart package name
-            tData['dartrix']['package']
-            = (myoptions[option] == '') ? false : myoptions[option];
-            tData['seg']['_PACKAGE']
-            = (myoptions[option] == '')
-            ? false
-            : myoptions[option];
+          case 'package': // dart package name
+            tData['dartrix']['package'] =
+                (myoptions[option] == '') ? false : myoptions[option];
+            tData['seg']['_PACKAGE'] =
+                (myoptions[option] == '') ? false : myoptions[option];
             break;
-            case 'ns':
+          case 'ns':
             // print('''96e446ff-2d9e-464a-8938-1d3a75ce774f:  NS''');
             tData['dartrix']['ns'] = myoptions[option];
             tData['seg']['_NS'] = tData['dartrix']['ns'].replaceAll('.', '/');
-            tData['dartrix']['rns'] = tData['dartrix']['ns']
-            .split('.').reversed.join('.');
+            tData['dartrix']['rns'] =
+                tData['dartrix']['ns'].split('.').reversed.join('.');
             tData['seg']['_RNS'] = tData['dartrix']['rns'].replaceAll('.', '/');
             break;
-            // } else if (param.typeHint == '_here') {
-            //   if (myoptions[option]) { // --here = true
-            //     tData['seg']['TEMPLATES'] = '.templates';
-            //   } else {
-            //     tData['seg']['TEMPLATES'] = 'templates';
-            //   }
-            case 'nsx': // ns extension
+          // } else if (param.typeHint == '_here') {
+          //   if (myoptions[option]) { // --here = true
+          //     tData['seg']['TEMPLATES'] = '.templates';
+          //   } else {
+          //     tData['seg']['TEMPLATES'] = 'templates';
+          //   }
+          case 'nsx': // ns extension
             // print('''bc14bbce-bdee-4959-9274-8da7dd8c0163:  NSX''');
-            tData['dartrix']['nsx']
-            = (myoptions[option] == '') ? false : myoptions[option];
-            tData['seg']['_NSX']
-            = (myoptions[option] == '')
-            ? false
-            : myoptions[option].replaceAll('.', '/');
+            tData['dartrix']['nsx'] =
+                (myoptions[option] == '') ? false : myoptions[option];
+            tData['seg']['_NSX'] = (myoptions[option] == '')
+                ? false
+                : myoptions[option].replaceAll('.', '/');
             break;
-            case '_name':
+          case '_name':
             tData[param.name] = myoptions[option];
             tData['dartrix']['name'] = myoptions[option];
             break;
-            // } else if (param.typeHint == '_dart_package') {
+          // } else if (param.typeHint == '_dart_package') {
 //   tData['seg']['DPKG'] = pkg.replaceAll(Config.hereDir, '/');
 //   tData['package']['dart'] = pkg;
 
-            //   // tData['seg']['DPKG'] = myoptions[option](Config.hereDir, '/');
-            //   tData['package']['dart'] = myoptions[option];
-            //   if (param.seg != null) {
-            //     tData['seg'][param.seg] = myoptions[option];
-            //   }
-            default:
-            // print('''fc52af93-79a3-4ffe-8268-b5be7f7437de:  DEFAULT''');
-          }
+          //   // tData['seg']['DPKG'] = myoptions[option](Config.hereDir, '/');
+          //   tData['package']['dart'] = myoptions[option];
+          //   if (param.seg != null) {
+          //     tData['seg'][param.seg] = myoptions[option];
+          //   }
+          default:
+          // print('''fc52af93-79a3-4ffe-8268-b5be7f7437de:  DEFAULT''');
         }
+      }
     });
-  }; _processEachOption();
+  };
+  _processEachOption();
 
-  @block("Now process private params.")
+  @block('Now process private params.')
   var _processPrivateParams = () {
     allParams.forEach((param) {
-        if (param.private) {
-          print('''673bc742-8056-4033-ad6a-0534e490674d:  PRIVATE: ${param.name}''');
-        }
-  });
-
-  };  _processPrivateParams();
+      if (param.private) {
+        print(
+            '''673bc742-8056-4033-ad6a-0534e490674d:  PRIVATE: ${param.name}''');
+      }
+    });
+  };
+  _processPrivateParams();
   // debug.debugData({});
 }
 
@@ -651,7 +664,7 @@ Map tData = {
     'app': '0.1.0',
     'args': '^1.6.0',
     'cupertino_icons': '\'^0.1.3\'',
-    'dartrix' : Config.appVersion,
+    'dartrix': Config.appVersion,
     'e2e': '^0.2.0',
     'flutter': '\'>=1.12.8 <2.0.0\'',
     'gradle': '3.5.0',

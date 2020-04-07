@@ -33,9 +33,9 @@ class Config {
       filter: ProductionFilter(), printer: PrettyPrinter(methodCount: 0));
 
   static String hereDir = '.dartrix.d/';
-  static bool   here    = false;
+  static bool here = false;
 
-  static bool   Y       = false; // --Y == fixpoint, identity xform
+  static bool Y = false; // --Y == fixpoint, identity xform
 
   static String userCache = home + '/.dart.d'; //FIXME: rename dartrixHome?
   static String dartrixDir = '.dartrix.d';
@@ -147,7 +147,8 @@ Future<String> verifyAppVersion(String libPkgRoot) async {
     return null;
   }
   if (Config.version) {
-    Config.prodLogger.v('Plugin ${path.basename(libPkgRoot)} built for dartrix version: $appVersionStr');
+    Config.prodLogger.v(
+        'Plugin ${path.basename(libPkgRoot)} built for dartrix version: $appVersionStr');
   }
 
   var appVersion = Version.parse(appVersionStr);
