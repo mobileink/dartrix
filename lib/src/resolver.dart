@@ -246,7 +246,7 @@ Future<List<Map>> resolvePkg(String templateLibName) async {
         return await resolvePluginPkg(templateLibName.substring(1));
       } else {
         Config.prodLogger.e(
-            'Invalid library name ${templateLibName}. Library names must be passed with leading \':\'. Try \':${templateLibName}\'');
+            'Invalid library tag: ${templateLibName}. Library begin with \':\'. Did you mean \':${templateLibName}\'?');
         return null;
       }
   }

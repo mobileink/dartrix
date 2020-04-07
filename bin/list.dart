@@ -92,7 +92,7 @@ void printPluginTemplates(String libName, ArgResults options) async {
   var userLibs = await resolvePkg(libName);
   // Config.ppLogger.d('userLibs: $userLibs');
 
-  if (userLibs.isEmpty) return;
+  if ((userLibs == null) || userLibs.isEmpty) return;
 
   // userLibs may contain many versions.  find the most recent.
   // i.e. sort by version in descending order
