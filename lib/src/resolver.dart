@@ -242,7 +242,11 @@ Future<List<Map>> resolvePkg(String templateLibName) async {
         }
       ];
     default:
-      return await resolvePluginPkg(templateLibName);
+    if (templateLibName.startsWith(':')) {
+      return await resolvePluginPkg(templateLibName.substring(1));
+    } else {
+      Config.prodLogger.e('Invalid library name ${templateLibName}. Library names must be passed with leading \':\'. Try \':${templateLibName}\'');
+    }
   }
 }
 
@@ -558,15 +562,15 @@ String getPluginVersion(String rootPath) {
 //   return docString;
 // }
 
-String getTemplateDocString(Directory tdir) {
-  // Config.debugLogger.d('getTemplateDocString, $tdir');
-  if (Config.tLibDocString != null) {
-    return Config.tLibDocString;
-  }
-  var templateYaml = getTemplateYaml(tdir.path);
-  // Config.ppLogger.d('t docstring: ${templateYaml.docstring}');
-  return templateYaml.docstring;
-}
+// String getTemplateDocString(Directory tdir) {
+//   // Config.debugLogger.d('getTemplateDocString, $tdir');
+//   if (Config.tLibDocString != null) {
+//     return Config.tLibDocString;
+//   }
+//   var templateYaml = getTemplateYaml(tdir.path);
+//   // Config.ppLogger.d('t docstring: ${templateYaml.docstring}');
+//   return templateYaml.docstring;
+// }
 
 //FIXME: which file does this belong in?
 // void printAvailableLibs() async {

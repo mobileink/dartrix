@@ -170,30 +170,40 @@ Map<String,SysParam> sysParams = {
     defaultsTo   : 'false')
 };
 
-enum Meta {template, plugin}
+// enum Meta {template, plugin}
 class MetaParam extends Configuration {
   // LibraryRef() : super.fromFile(File(fileName));
-  Meta meta;
-  void decode(dynamic anyValue) {
-    if (anyValue is! String) {
-      throw ConfigurationException(MetaParam, 'Param meta must be one of plugin or template');
+  final _types = ['template', 'plugin'];
+  String type;
+  String name;
+  List<String> validate () {
+    // print('''7f430023-a18f-4a3b-8439-8c865d911608:  validate meta: $type''');
+    if (!(_types.contains(type)) ) {
+      return ['Unrecognized type: $type. Allowed values: ${_types}'];
     }
-
-    try {
-      meta = Meta.values.firstWhere((e) => e.toString() == 'Meta.' + anyValue);
-    } catch(e) {
-      if (e.message.startsWith('No element')) {
-        Config.prodLogger.e('Invalid value for parameter meta: ${anyValue}.  Must be either \'template\' or \'plugin\'.');
-      } else {
-      }
-    }
+    return [];
   }
+
+  // void decode(dynamic anyValue) {
+  //   if (anyValue is! String) {
+  //     throw ConfigurationException(MetaParam, 'Param meta must be one of plugin or template');
+  //   }
+
+  //   try {
+  //     meta = Meta.values.firstWhere((e) => e.toString() == 'Meta.' + anyValue);
+  //   } catch(e) {
+  //     if (e.message.startsWith('No element')) {
+  //       Config.prodLogger.e('Invalid value for parameter meta: ${anyValue}.  Must be either \'template\' or \'plugin\'.');
+  //     } else {
+  //     }
+  //   }
+  // }
 }
 
 class Generic extends Configuration {
   Generic() : super();
   Param index;
-  String rewrite;
+  // String rewrite; // ?
 }
 
 class TemplateYaml extends Configuration {
@@ -216,6 +226,7 @@ class TemplateYaml extends Configuration {
 
   @optionalConfiguration
   Generic generic;
+
 }
 
 class LibraryRef extends Configuration {
@@ -273,7 +284,7 @@ TemplateYaml getLibYaml(String templateRoot) {
   return config;
 }
 
-TemplateYaml getTemplateYaml(String templateRoot) {
+TemplateYaml getTemplateYaml(String tLib, String templateRoot) {
   // Config.debugLogger.d('getTemplateYaml $templateRoot');
   //FIXME: memoize
   TemplateYaml config;
@@ -282,14 +293,22 @@ TemplateYaml getTemplateYaml(String templateRoot) {
   try {
     config = TemplateYaml(yamlFile);
   } catch (e) {
-    if (Config.debug) {
-      Config.debugLogger.e(e);
-      // exit(1);
+    if (e.message.startsWith('Cannot open file')) {
+      print('''fb4f67f6-8035-486c-b94e-407cf7e85af0:  ''');
+      Config.prodLogger.e('Yaml file for template ${path.basename(templateRoot)} in lib $tLib not found. Each template must include a valid .yaml file.');
+      return null;
+    } else if (e.toString().startsWith('Invalid configuration data')) {
+      Config.prodLogger.e('getTemplateYaml: The .yaml file for template \'${path.basename(templateRoot)}\' in lib ${tLib} is corrupt: ${e.message}');
       return null;
     } else {
-      print('''fb4f67f6-8035-486c-b94e-407cf7e85af0:  ''');
-      Config.prodLogger.e('$e ${yamlFile}');
-      return null;
+      if (Config.debug) {
+        Config.debugLogger.e(e);
+        // exit(1);
+        return null;
+      } else {
+        Config.prodLogger.e('$e ${yamlFile}');
+        return null;
+      }
     }
   }
   Config.templateYaml = config; // memoize it

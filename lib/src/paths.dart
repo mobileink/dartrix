@@ -17,12 +17,12 @@ import 'package:dartrix/src/yaml.dart';
 // HOME : $HOME
 // CWD  : Current Working Directory = Directory.current
 
-@defn(returns: "rewritten path")
+@defn(returns: "Rewritten path.")
 String rewritePath(
-  @param("file system path for template component")
+  @param("File system path for template component, relative to CWD.")
   String _path)
 {
-  // Config.ppLogger.i('rewritePath: $_path');
+  // Config.ppLogger.i('rewritePath entry: $_path');
   // tData['seg'].forEach((k,v) {
   //     Config.logger.v('seg $k => $v');
   // });
@@ -33,6 +33,7 @@ String rewritePath(
   //List<String>
   var thePath = _path.replaceFirst(Directory.current.path + '/', '');
   var segs = thePath.split(path.separator);
+  // print('''833396aa-0887-4b9f-9ccb-163f60c70b07:  segs: $segs''');
   var sm = segs.map((seg) {
       // Config.ppLogger.i('seg: $seg');
       if (tData['seg'][seg] == null) {
@@ -104,7 +105,7 @@ String rewritePath(
               return seg;
             }
           } else {
-            print('''5f32b37c-0e5b-4c84-82fa-dd0d3d6beb0d:  seg: ${seg}: ${tData['seg'][seg]}''');
+            // print('''5f32b37c-0e5b-4c84-82fa-dd0d3d6beb0d:  seg: ${seg}: ${tData['seg'][seg]}''');
             return (tData['seg'][seg] == false) ? '' : tData['seg'][seg];
           }
         }
@@ -112,11 +113,12 @@ String rewritePath(
   });
   // print('seg._META: ${tData["seg"]["_META"]}');
 
+  // print('''c8eb726a-f9dc-448d-a279-0e1dd82cd4b3:  segs2: $sm''');
   var result = sm.join('/');
 
   // disallow writing outside of CWD
   if (result.startsWith('/')) {
-    Config.ppLogger.w('Templates may not write outside of current working directory and below. Stripping initial \'/\' from output path.');
+    Config.ppLogger.w('Templates may not write outside of current working directory and below. Stripping initial \'/\' from output path: $result');
     result = result.substring(1);
   }
 
@@ -133,11 +135,16 @@ String rewritePath(
   } else { // ie it's a template or a plugin
    // result = result.replaceFirst('_CWD', '.');
    // if --here
-   // print('Config.meta: ${Config.meta}');
-   if (Config.meta == Meta.template) {
-     result = 'templates/' + Config.genericRewrite + '/' + result;
+   // print('''b9f13648-ce66-453d-9834-40f41b53402f:  Config.meta: ${Config.meta}''');
+   if (Config.meta == 'template') {
+     // print('''27206544-17e8-48bb-9b2f-eeb4392d1a07:  Config.replaceParam ${Config.replaceParam}''');
+     // print('''27206544-17e8-48bb-9b2f-eeb4392d1a07:  Config.replaceText ${Config.replaceText}''');
+     var replace = '<<' + Config.replaceParam  + '>>';
+     var t = Config.metaName.replaceFirst(replace, Config.replaceText);
+     result = 'templates/' + tData['name'] + '/' + result;
+     // result = 'templates/' + Config.genericRewrite + '/' + result;
      // result = 'templates/' + tData[Config.genericIndex] + '/' + result;
-   } else if (Config.meta == Meta.plugin) {
+   } else if (Config.meta == 'plugin') {
      //FIXME: insert name param with _dartrix
      result = tData['_plugin_name'] + '/' + result;
    }
@@ -151,7 +158,7 @@ String rewritePath(
   }
 
   result = path.normalize(result);
-  // print('''8af8c273-0e3a-4f4f-bda0-bfad7de91c98:  meta after: $result''');
+  // print('''8af8c273-0e3a-4f4f-bda0-bfad7de91c98: final: $result''');
 
   return result;
 }

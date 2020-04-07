@@ -41,20 +41,20 @@ void printLibOptions(String tlib) {
 }
 
 // FIXME: _options == Config.options
-void processArgs(String pkg, String template, ArgResults _options,
+void processArgs(String tLib, String template, ArgResults _options,
     List<String> libArgs, List<String> tArgs) async {
-  // Config.debugLogger.v('processArgs $pkg, $template, $_options, $libArgs, $tArgs');
+  // Config.debugLogger.v('processArgs $tLib, $template, $_options, $libArgs, $tArgs');
   // debug.debugArgResults(_options);
   if (_options.wasParsed('help') ||
       libArgs.contains('-h') ||
       libArgs.contains('--help') ||
       tArgs.contains('-h') ||
       tArgs.contains('--help')) {
-    // printLibOptions(pkg);
+    // printLibOptions(tLib);
     if (template == null) exit(0);
   }
 
-  var templateSpec = await listTemplate(pkg, Config.libPkgRoot, template);
+  var templateSpec = await listTemplate(tLib, Config.libPkgRoot, template);
   // Config.ppLogger.v('processArgs result: $templateSpec');
 
   Config.templateRoot = Config.libPkgRoot +
@@ -63,7 +63,9 @@ void processArgs(String pkg, String template, ArgResults _options,
       template;
   // Config.debugLogger.v('Config.templateRoot: ${Config.templateRoot}');
 
-  await setTemplateArgs(Config.templateRoot, libArgs, tArgs); // args);
+  await setTemplateArgs(tLib, Config.templateRoot, libArgs, tArgs); // args);
+  // print('''63b63492-88c6-49c5-a223-d619cffb6123:  ''');
+  // debug.debugConfig();
 
   Config.templateRoot = path.canonicalize(templateSpec['rootUri']);
 }
@@ -97,13 +99,13 @@ void dispatchHere(String template, ArgResults _options, List<String> userArgs,  
     // spawnCallback({});
     await processTemplate();
   } else {
-    Config.prodLogger.e('template $template not found in lib :here');
+    Config.prodLogger.e('template \':here $template\' not found.');
   }
 }
 
 void dispatchLocal(String template, ArgResults _options, List<String> userArgs,
     List<String> tArgs) async {
-  Config.ppLogger.v('dispatchLocal $template, $_options, $userArgs, $tArgs');
+  // Config.ppLogger.v('dispatchLocal $template, $_options, $userArgs, $tArgs');
 
   await processArgs(':local', template, _options, userArgs, tArgs);
 
@@ -111,19 +113,19 @@ void dispatchLocal(String template, ArgResults _options, List<String> userArgs,
 }
 
 // FIXME: _options == Config.options
-void dispatchPlugin(String pkg, String template, ArgResults _options,
+void dispatchPlugin(String tLib, String template, ArgResults _options,
     List<String> pluginArgs, List<String> tArgs) async {
-  // Config.ppLogger.v('dispatchPlugin $pkg, $template, $_options, $pluginArgs, $tArgs');
+  // Config.ppLogger.v('dispatchPlugin $tLib, $template, $_options, $pluginArgs, $tArgs');
 
-  await processArgs(pkg, template, _options, pluginArgs, tArgs);
+  await processArgs(tLib, template, _options, pluginArgs, tArgs);
 
   // if (shouldSpawn(template)) { // read spawn: key of yaml
   // } else {
   // }
 
-  if (findLibMain(pkg)) {
+  if (findLibMain(tLib)) {
     await spawnPluginFromPackage(
-        spawnCallback, externalOnDone, pkg, [template, ...?tArgs]);
+        spawnCallback, externalOnDone, tLib, [template, ...?tArgs]);
   } else {
     // spawnCallback({});
     await processTemplate();

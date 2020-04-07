@@ -67,58 +67,77 @@ void printUsage(ArgParser argParser) async {
 }
 
 Map getTemplateArgs(List<String> subArgs) {
-  // print('getTemplate: $subArgs');
+  // Config.ppLogger.i('''1d89f670-38af-4707-82f4-f8a501acac1a: getTemplateArgs: $subArgs''');
   List<String> libArgs = [];
   List<String> tArgs = [];
+  String template;
 
   var ft;
-  var template;
-  ft = subArgs.indexOf('--template');
-  if (ft < 0) {
-    // --template not found
-    ft = subArgs.indexOf('-t');
-    if (ft < 0) {
-      // -t not found
-      if ((subArgs.contains('-h') || subArgs.contains('--help'))) {
-        libArgs = subArgs.sublist(1);
-        tArgs.add('-h');
-      } else {
-        Config.prodLogger.w('Missing required template option: -t | --template');
-        exit(0);
-      }
-    } else {
-      if (ft != subArgs.lastIndexOf('-t')) {
-        Config.prodLogger.e('Multiple --template options not allowed.');
-        exit(0);
-      }
-      if (subArgs.contains('--template')) {
-        Config.prodLogger.e('Only one -t or --template option allowed.');
-        exit(0);
-      }
-      template = subArgs[ft + 1];
-      libArgs = subArgs.sublist(0, ft);
-      // print('libArgs: $libArgs');
-      tArgs = subArgs.sublist(ft + 2);
-      // print('tArgs: $tArgs');
+  var tlib = subArgs[0];
+  if (tlib.startsWith(':')) {
+    libArgs.add(tlib);
+    subArgs = subArgs.sublist(1);
+    template = subArgs[0];
+    if (template == '--help') {
+      // print help for tlib, if any
+      exit(0);
     }
+    if ( !RegExp(r'^[a-z]').hasMatch(template) ) {
+      print('''09b7d2e2-37ea-46c2-b98a-bbd4e2d77a21:  REGEXP fail''');
+      exit(1);
+    }
+    subArgs = subArgs.sublist(1);
+    tArgs = subArgs;
   } else {
-    // Config.logger.e('found --template');
-    if (ft != subArgs.lastIndexOf('--template')) {
-      Config.prodLogger.e('Only one -t or --template option allowed.');
-      exit(0);
-    }
-    if (subArgs.contains('-t')) {
-      Config.prodLogger.e('Only one -t or --template option allowed.');
-      exit(0);
-    }
-    template = subArgs[ft + 1];
-    libArgs = subArgs.sublist(0, ft);
-    tArgs = subArgs.sublist(ft + 2);
+    Config.prodLogger.e('Invalid library tag: $tlib. Library tags start with \':\'; did you mean  \':$tlib\'?');
   }
+
+  // ft = subArgs.indexOf('--template');
+  // if (ft < 0) {
+  //   // --template not found
+  //   ft = subArgs.indexOf('-t');
+  //   if (ft < 0) {
+  //     // -t not found
+  //     if ((subArgs.contains('-h') || subArgs.contains('--help'))) {
+  //       libArgs = subArgs.sublist(1);
+  //       tArgs.add('-h');
+  //     } else {
+  //       Config.prodLogger.w('Missing required template option: -t | --template');
+  //       exit(0);
+  //     }
+  //   } else {
+  //     if (ft != subArgs.lastIndexOf('-t')) {
+  //       Config.prodLogger.e('Multiple --template options not allowed.');
+  //       exit(0);
+  //     }
+  //     if (subArgs.contains('--template')) {
+  //       Config.prodLogger.e('Only one -t or --template option allowed.');
+  //       exit(0);
+  //     }
+  //     template = subArgs[ft + 1];
+  //     libArgs = subArgs.sublist(0, ft);
+  //     // print('libArgs: $libArgs');
+  //     tArgs = subArgs.sublist(ft + 2);
+  //     // print('tArgs: $tArgs');
+  //   }
+  // } else {
+  //   // Config.logger.e('found --template');
+  //   if (ft != subArgs.lastIndexOf('--template')) {
+  //     Config.prodLogger.e('Only one -t or --template option allowed.');
+  //     exit(0);
+  //   }
+  //   if (subArgs.contains('-t')) {
+  //     Config.prodLogger.e('Only one -t or --template option allowed.');
+  //     exit(0);
+  //   }
+  //   template = subArgs[ft + 1];
+  //   libArgs = subArgs.sublist(0, ft);
+  //   tArgs = subArgs.sublist(ft + 2);
+  // }
   // print('template: $template');
   // print('libArgs: $libArgs');
   // print('tArgs: $tArgs');
-  return {'template': template, 'libArgs': libArgs, 'tArgs': tArgs};
+  return {'lib': tlib, 'libArgs': libArgs, 'template': template, 'tArgs': tArgs};
 }
 
 void main(List<String> args) async {
@@ -128,8 +147,10 @@ void main(List<String> args) async {
   Config.argParser = ArgParser(allowTrailingOptions: false);
   // Config.argParser.addOption('config-file',
   //     help: 'Configuration file. Optional.', defaultsTo: './dartrix.yaml');
-  Config.argParser.addFlag('dry-run', defaultsTo: false, negatable: false);
-  Config.argParser.addFlag('force', defaultsTo: false, negatable: false);
+  Config.argParser.addFlag('dry-run', help: 'Print list of outputs but do not actual write any output.', defaultsTo: false, negatable: false);
+  Config.argParser.addFlag('force', help: 'Force over-write of existing files.', defaultsTo: false, negatable: false);
+  Config.argParser.addFlag('here', help: 'Write output to :here (./.dartrix/templates); for use with meta-templates and --Y only.', defaultsTo: false, negatable: false);
+  Config.argParser.addFlag('Y', help: 'Pseudo Y-combinator; causes template to copy itself.', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('help', defaultsTo: false, negatable: false);
   Config.argParser
@@ -150,23 +171,17 @@ void main(List<String> args) async {
     exit(0);
   }
 
-  // if (Config.options['debug']) {
-  //   debug.debug = true;
-  //   Config.debug = true;
-  // }
-
+  // System options: propagate to Config, then remove from args list.
+  // Exception: --here and -Y
   if (Config.options['debug'] || optionsRest.contains('--debug')) {
     debug.debug = true;
     Config.debug = true;
     optionsRest.remove('--debug');
   }
 
-  if (Config.options['verbose'] ||
-      optionsRest.contains('-v') ||
-      optionsRest.contains('--verbose')) {
-    Config.verbose = true;
-    optionsRest.remove('-v');
-    optionsRest.remove('--verbose');
+  if (debug.debug) {
+    debug.debugOptions();
+    debug.debugConfig();
   }
 
   if (Config.options['dry-run'] || optionsRest.contains('--dry-run')) {
@@ -179,19 +194,39 @@ void main(List<String> args) async {
   if (Config.options['force'] ||
       // optionsRest.contains('-f') ||
       optionsRest.contains('--force')) {
-    tData['dartrix']['force'] = true;
+    // tData['dartrix']['force'] = true;
+    Config.force = true;
     // optionsRest.remove('-f');
     optionsRest.remove('--force');
   }
 
-  if (debug.debug) debug.debugOptions();
+  if (Config.options['verbose'] ||
+      optionsRest.contains('-v') ||
+      optionsRest.contains('--verbose')) {
+    Config.verbose = true;
+    optionsRest.remove('-v');
+    optionsRest.remove('--verbose');
+  }
+
+  if (Config.options['here']) {
+    Config.here = true;
+    optionsRest.remove('--here');
+  }
+
+  if (Config.options['Y']) {
+    Config.Y = true;
+    optionsRest.remove('--Y');
+  }
 
   if (Config.options['help']) {
     await printUsage(Config.argParser);
-    optionsRest.add('-h');
-    optionsRest.add('--help');
+    if (optionsRest.isEmpty) {
+      exit(0);
+    } else {
+      optionsRest.add('--help');
+    }
   } else {
-    if (optionsRest.contains('-h') || optionsRest.contains('--help')) {
+    if (optionsRest.contains('--help')) {
       await printUsage(Config.argParser);
     }
   }
@@ -203,9 +238,9 @@ void main(List<String> args) async {
   // Config.logger.d('cmd: $cmd');
 
   var templateArgs = getTemplateArgs(optionsRest); //, libArgs, tArgs);
-  // Config.ppLogger.i('templateArgs: ${templateArgs["template"]}');
-  // Config.logger.i('libArgs: ${templateArgs["libArgs"]}');
-  // Config.logger.i('tArgs: ${templateArgs["tArgs"]}');
+  // print('''7aece02c-e16f-4a2e-b168-23c0a285fd6c: args $templateArgs''');
+  // print('''a5a41171-478c-4a27-8fa7-f2394b7c08aa: libArgs: ${templateArgs["libArgs"]}''');
+  // print('''d3078ca3-db82-4c47-b209-a18c2698413b: tArgs: ${templateArgs["tArgs"]}''');
 
   // FIXME: initializing data to be done by each template
   if (optionsRest.isNotEmpty && (Config.options.command == null)) {
@@ -264,7 +299,7 @@ void main(List<String> args) async {
       // print('t: $t');
       if (!verifyExists(t)) {
         Config.prodLogger.e(
-            'Template ${templateArgs["template"]} (${t}) not found in library ${Config.libName}');
+            'Template \'${Config.libName} ${templateArgs["template"]}\' not found (${t}).');
         exit(0);
       }
     }

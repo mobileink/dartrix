@@ -9,8 +9,9 @@ import 'package:safe_config/safe_config.dart';
 import 'package:path/path.dart' as path;
 
 import 'package:dartrix/src/annotations.dart';
-import 'package:dartrix/src/debug.dart' as debug;
 import 'package:dartrix/src/config.dart';
+import 'package:dartrix/src/debug.dart' as debug;
+import 'package:dartrix/src/generator.dart';
 import 'package:dartrix/src/yaml.dart';
 
 // var _log = Logger('data');
@@ -121,13 +122,6 @@ void processParam(ArgParser _argParser, Param param) {
   // print('''198df396-bdb2-486e-b2e3-b7b5bef56219: user param:  ${param.name}''');
   if (param.private) {
     // do not expose private params
-  // } else if (param.typeHint == '_here') {
-  //   _argParser.addFlag(param.name,
-  //     abbr: param.abbr,
-  //     help: param.help,
-  //     hide: param.hidden ?? false,
-  //     negatable: param.negatable ?? true,
-  //     defaultsTo: param.defaultsTo ?? false);// == 'true') ? true : false);
   } else if (param.typeHint == 'bool') {
     _argParser.addFlag(param.name,
       abbr: param.abbr,
@@ -243,8 +237,12 @@ void processOption(ArgResults myoptions, String option) {
 
 //FIXME: put this in template.dart?
 void setTemplateArgs(
+  String tLib,
   String templateRoot, List<String> libArgs, List<String> tArgs) async {
+  // print('''6ebbfe57-7245-480c-bb7f-d7c399bc26a1:  ''');
   // Config.debugLogger.v('setTemplateArgs: $templateRoot, $libArgs $tArgs');
+
+  // print('''8949f3a1-5300-46dd-9869-6b6279cc1895:  Config.Y: ${Config.Y}''');
 
   // debug.debugData({});
   // 1. construct arg parser from yaml file
@@ -254,31 +252,48 @@ void setTemplateArgs(
   // Config.logger.v('processArgs template: $template');
 
   // ~/.dart.d/.dart_tool/package_config.json
-  var yaml = getTemplateYaml(templateRoot);
+  var yaml = getTemplateYaml(tLib, templateRoot);
   // + '/templates/' + template);
   // Config.logger.i('yaml: ${yaml.params}');
+
+  var optionsRest = Config.options.rest.toList();
+
+  if (Config.options['here']) {
+    // print('''2f478618-a9b7-4e17-9b5a-e383b4d6d05b:  HERE''');
+    if (yaml.meta == null) {
+      if (Config.Y) {
+        Config.here = true;
+      } else {
+        Config.ppLogger.w('''269b4f26-fb87-49dc-bbf8-7cf8987eacc4:  WARNING: ignoring --here''');
+        optionsRest.remove('--here');
+      }
+    } else {
+      Config.here = Config.options['here'];
+    }
+  // } else {
+  //   print('''df3715e7-134c-47e3-8698-6a633d6c8e7c:  no HERE option''');
+  }
 
   var _argParser = ArgParser(allowTrailingOptions: true, usageLineLength: 100);
 
   var allowedVals;
   var genericIndexParam;
-  var replaceString;
 
   if (yaml.generic != null) {
-
     @block("Analyze params for generic templates and add to arg parser.")
     var _prepGeneric = () {
       Config.generic = true;
       Config.genericIndex = yaml.generic.index.name;
-      Config.genericRewrite = yaml.generic.rewrite;
-      replaceString = '_<' + Config.genericIndex + '>';
+      // Config.genericRewrite = yaml.generic.rewrite;
+      Config.replaceParam = Config.genericIndex;
 
       var indexVals = Directory(Config.templateRoot).listSync(recursive: true);
       //FIXME: memoize these so generator need not read again
-      indexVals.removeWhere((f) => f.path.endsWith('~'));
-      indexVals.removeWhere((f) => f.path.contains('/.'));
+      // indexVals.removeWhere((f) => f.path.endsWith('~'));
+      // indexVals.removeWhere((f) => f.path.contains('/.'));
       indexVals.removeWhere((f) => f.path.endsWith(Config.genericIndex));
       indexVals.retainWhere((f) => f is Directory);
+      // indexVals.forEach((d) => print('''73f416d2-2a79-4bbd-bd45-3271cfb09d0f:  d: $d'''));
 
       // print('indexVals $indexVals');
       allowedVals = indexVals.map((dir) {
@@ -290,17 +305,23 @@ void setTemplateArgs(
       _argParser.addOption(Config.genericIndex,
         abbr: yaml.generic.index.abbr,
         allowed: allowedVals,
-        help: yaml.generic.index.typeHint,
+        help: yaml.generic.index.docstring,
+        valueHelp: yaml.generic.index.typeHint,
         defaultsTo: yaml.generic.index.defaultsTo);
       // defaultsTo: param.defaultsTo + '_<' + Config.genericIndex + '>');
     };
     _prepGeneric();
   }
 
-  List _sysParams = _resolveSysParams(yaml.params.sys);
+  List _sysParams;
   List allParams = [];
-  if (yaml.params.user != null) {
-    allParams.addAll(yaml.params.user);
+  if (yaml.params != null) {
+    if (yaml.params.sys != null) {
+      _sysParams= _resolveSysParams(yaml.params.sys);
+    }
+    if (yaml.params.user != null) {
+      allParams.addAll(yaml.params.user);
+    }
   }
   if (_sysParams != null) {
     allParams.addAll(_sysParams);
@@ -309,12 +330,49 @@ void setTemplateArgs(
       processParam(_argParser, param);
   });
 
+  if (yaml.meta != null) {
+    // print('''19abf343-e852-4db8-a378-5028f658dfcc:  META''');
+    // if (yaml.meta.type == 'template') {
+    // print('''fed66a5b-be0d-4a6b-b733-3e47174d1613:  name: ${yaml.meta.name}''');
+    Config.meta = yaml.meta.type;
+    Config.metaName = yaml.meta.name;
+    RegExp regExp = RegExp(r'<<([^>]*)>>');
+    var match = regExp.firstMatch(yaml.meta.name);
+    Config.replaceParam = match.group(1);
+    _argParser.addOption('name',
+      abbr: 'n',
+      valueHelp: 'string',
+      help: 'Name for generated template',
+      defaultsTo: yaml.meta.name);
+
+    // _argParser.addFlag('here',
+    //   help     : 'Emit to :here dir (./.dartrix.d/templates)',
+    //   // docstring: 'Emit to :here',
+    //   negatable: false);
+    // }
+  }
+
   // always add --help
   _argParser.addFlag('help', defaultsTo: false, negatable: false,
   help: 'Print this message');
 
+  // // always add --fixpoint
+  // _argParser.addFlag('Y', defaultsTo: false, negatable: false,
+  //   hide: true,
+  //   help: 'Pseudo-Y-combinator. Finds fixpoint for template, i.e. causes template to copy itself.');
+  // // always allow renaming for fixpoint?
+  // //FIXME: make --fixpoint an option with name arg?
+  // // _argParser.addFlag('rename', defaultsTo: false, negatable: false,
+  // //   hide: true,
+  // //   help: 'Name output');
+  // // --here always an option for fixpoint
+  // _argParser.addFlag('here', defaultsTo: false, negatable: false,
+  //   hide: true,
+  //   help: 'Output to :here');
+
+
   if (Config.debug) {
-    Config.ppLogger.i('Params for template $template: ${_argParser.options}');
+    Config.ppLogger.i('Available params for template $template: ${_argParser.options}');
   }
 
   var myoptions;
@@ -329,12 +387,59 @@ void setTemplateArgs(
     }
   };
   _parseOptions();
-  // print('myoptions: ${myoptions.options}');
-  // print('args: ${myoptions.arguments}');
+  // print('''3b9f769b-4695-4549-b98d-e1f79d0ecc5a: myoptions.options: ${myoptions.options}''');
+  // print('''704be5f9-fab7-4298-b61e-89f09c6ea009: myoptions.args: ${myoptions.arguments}''');
+  // print('''5773fc91-b7b8-4f29-b4b4-f6d073e87e91: myoptions.rest: ${myoptions.rest}''');
+
+  var xtras = myoptions.arguments.toList();
+  xtras.removeWhere((o) {
+      return (o == '--Y' || o == '--here');
+  });
+  // print('''ee7f4571-3a5b-4225-82ef-2cc0a9b2004f:  xtras: $xtras''');
+
+  // if (myoptions['here']) {
+  //   if (Config.meta == null) {
+  //     if (!myoptions['Y']) {
+  //       Config.prodLogger.e('Option --here may only be combined with --Y');
+  //       exit(1);
+  //     }
+  //   }
+  // }
+
+  // if (myoptions['Y']) {
+  if (Config.Y) {
+    if (xtras.isNotEmpty) {
+      Config.prodLogger.e('Option --Y may not be combined with other options, except --here.');
+      exit(1);
+    }
+    // print('''27a75e91-fc0d-4adb-a222-5934a6e6214a:  FIXPOINT, here: ${Config.here}''');
+    fixpoint(Config.here);
+    exit(0);
+  }
+
 
   if (yaml.generic != null) {
     Config.genericSelection = myoptions[Config.genericIndex];
+    Config.replaceText = Config.genericSelection;
   }
+  // print('''b026b16d-5c2f-4013-9755-c7d5621fcf52x:  Config.replaceText: ${Config.replaceText}''');
+  if (yaml.meta != null) {
+    // print('''0f5d7cb6-70b6-4727-91e1-2d2a85b2cbea:  REPLACTEXT: ${Config.replaceText}''');
+    var replace = '<<' + Config.replaceParam  + '>>';
+    if (myoptions['name'] == Config.metaName) { // == yaml.meta.name
+      // user accepted default name
+      // Config.metaName = yaml.meta.name;
+      tData['name'] = Config.metaName.replaceFirst(replace, Config.replaceText);
+      // Config.replaceText = tData['name'];
+    } else {
+      // user overrode default
+      tData['name'] = myoptions['name'];
+      Config.metaName = myoptions['name'];
+      Config.replaceText = myoptions[Config.replaceParam];
+    }
+  }
+  // print('''da93826c-f461-4c87-9a90-0addfdba4d7b:  tData[name]: ${tData["name"]}''');
+  // print('''b026b16d-5c2f-4013-9755-c7d5621fcf52:  Config.replaceText: ${Config.replaceText}''');
 
   if (myoptions.options.contains('here') && myoptions['here'] == true) {
     Config.here = true;
@@ -343,7 +448,7 @@ void setTemplateArgs(
 
   if (myoptions.wasParsed('help')) {
     // printUsage(_argParser);
-    print('\nTemplate \'$template\': ${yaml.description}');
+    print('\nTemplate \'${tLib} $template\': ${yaml.description}\n');
     print('Options:');
     print(_argParser.usage);
     if (yaml.note != null) {
@@ -356,10 +461,6 @@ void setTemplateArgs(
   tData['seg']['_NS'] = tData['seg']['JPKG'];
   tData['seg']['_NSX'] = tData['subdomain'];
   // tData['seg']['ORG'] = tData['ORG'];
-
-  if (yaml.meta != null) {
-    Config.meta = yaml.meta.meta;
-  }
 
   // print('''364bb527-b92d-4951-98eb-3e3b78d8447c:  debug options:''');
   // if (debug.debug) debug.debugOptions();
@@ -376,43 +477,59 @@ void setTemplateArgs(
         if (option == Config.genericIndex) {
           param = yaml.generic.index;
         } else {
+          // print('''e993715a-fc13-4d46-86de-500b59ae2e56:  TOL''');
           try {
             // param = yaml.params.user.firstWhere((param) {
             param = allParams.firstWhere((param) {
                 return param.name == option;
             });
           } catch (e) {
-            if (option == 'help') return; // expected
-            if (option == 'force') return; // expected
-            Config.ppLogger.e(
-              '''e28d8a20-2010-4d0c-8675-31c571d8760c: option: $option
-              $e''');
-            // Config.ppLogger.e(e);
-            return;
+            switch (option) {
+              case 'Y' : return; break; // expected
+              // case 'force': return; break; // expected
+              case 'help' : return; break; // expected
+              case 'here' : return; break; // expected
+              case 'name' :
+              if (Config.meta != null) {
+                print('''c4eaecae-6274-4fac-8000-bc2831b07829:  NAME: ${myoptions[option]}''');
+                // tData['name'] = myoptions[option];
+                return;
+              }
+              break;
+              default:
+              Config.ppLogger.e(
+                '''e28d8a20-2010-4d0c-8675-31c571d8760c: option: $option
+                $e''');
+              Config.ppLogger.e(e);
+              return;
+            }
           }
         }
 
         // processOption(myoptions, option);
 
-        if (param.typeHint == '_plugin_name') {
-          tData['_plugin_name'] = myoptions[option];
-        }
-
+        // if (param.typeHint == '_plugin_name') {
+        //   tData['_plugin_name'] = myoptions[option];
+        // }
         if (param.name == Config.genericIndex) {
-          // print('''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
+          print('''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
           tData[param.name] = myoptions[option];
           tData[Config.genericIndex] = myoptions[option]
-          .replaceAll(replaceString, '_' + Config.genericSelection);
+          .replaceAll('<<' + Config.replaceParam + '>>', '_' + Config.replaceText);
           tData[option] = tData[Config.genericIndex];
-        } else if (param.name == Config.genericRewrite) {
-          // print('''e3645586-5bb3-4190-a836-011ec064a913:  rewrite ${Config.genericRewrite}''');
-          Config.genericRewrite = myoptions[option]
-          .replaceAll(Config.genericIndex, Config.genericSelection);
-          tData[option] = myoptions[option];
-          // now check for reserved param types
-        } else if ((param.defaultsTo != null)
+        // } else if (param.name == Config.genericRewrite) {
+        //   print('''e3645586-5bb3-4190-a836-011ec064a913:  rewrite ${Config.genericRewrite}''');
+        //   print('''f15ac308-f755-444f-a598-3b6d88ae719e:  ${myoptions[option]}''');
+        //   print('''d8c8f4e2-30b9-4e87-ae6d-98e428f0f4cf:  ${Config.genericIndex}''');
+        //   print('''52c91d67-833d-4b83-9eec-e4c02830700a:  ${Config.genericSelection}''');
+        //   print('''0c4a58f9-d4e2-4eb1-a676-6b6ac1b9fdb1:  $Config.replace''');
+        //   Config.genericRewrite = myoptions[option]
+        //   .replaceAll(Config.replace, Config.genericSelection);
+        //   // .replaceAll(Config.genericIndex, Config.genericSelection);
+        //   tData[option] = myoptions[option];
+        //   // now check for reserved param types
+      } else if ((param.defaultsTo != null)
           && (param.defaultsTo.contains('<<'))) {
-          print('''1a8dbcdd-62dd-4e38-8e8e-f049311568cb:  XXXXXXXXXXXXXXXX''');
           tData[param.name] = myoptions[option];
           tData['_out'] = myoptions[option];
         } else if (param.seg != null) {
@@ -423,10 +540,8 @@ void setTemplateArgs(
             tData['seg']['_META'].add(param.seg);
           }
         } else {
-          // print('''8d6fe169-bb1d-41e3-91f0-a0348d138b40:  ELSE: $option''');
           tData[option] = myoptions[option];
         }
-
         if (param is SysParam) {
           switch (param.id) {
             case 'out':
@@ -436,11 +551,11 @@ void setTemplateArgs(
                   // no user override
                   RegExp regExp = RegExp(r'<<([^>]*)>>');
                   var match = regExp.firstMatch(param.defaultsTo).group(1);
-                  print('''7709702d-a6ad-4fd5-87d4-071f5045e2a1:  match: ${match}''');
+                  // print('''7709702d-a6ad-4fd5-87d4-071f5045e2a1:  match: ${match}''');
                   var def = myoptions[match];
                   var defaultVal = myoptions[option].replaceFirst('<<' + match + '>>', def);
                   // var defaultVal = param.defaultsTo.replaceFirst('<<' + match + '>>', def);
-                  print('''8b32734b-0e4f-4906-ba64-0a6ccba0a910:  default: ${defaultVal}''');
+                  // print('''8b32734b-0e4f-4906-ba64-0a6ccba0a910:  default: ${defaultVal}''');
                   tData[param.name] = defaultVal;
                   tData['dartrix']['out'] = defaultVal;
                 // } else {
@@ -466,7 +581,7 @@ void setTemplateArgs(
             : myoptions[option];
             break;
             case 'ns':
-            print('''96e446ff-2d9e-464a-8938-1d3a75ce774f:  NS''');
+            // print('''96e446ff-2d9e-464a-8938-1d3a75ce774f:  NS''');
             tData['dartrix']['ns'] = myoptions[option];
             tData['seg']['_NS'] = tData['dartrix']['ns'].replaceAll('.', '/');
             tData['dartrix']['rns'] = tData['dartrix']['ns']
@@ -480,7 +595,7 @@ void setTemplateArgs(
             //     tData['seg']['TEMPLATES'] = 'templates';
             //   }
             case 'nsx': // ns extension
-            print('''bc14bbce-bdee-4959-9274-8da7dd8c0163:  NSX''');
+            // print('''bc14bbce-bdee-4959-9274-8da7dd8c0163:  NSX''');
             tData['dartrix']['nsx']
             = (myoptions[option] == '') ? false : myoptions[option];
             tData['seg']['_NSX']
@@ -502,7 +617,7 @@ void setTemplateArgs(
             //     tData['seg'][param.seg] = myoptions[option];
             //   }
             default:
-            print('''fc52af93-79a3-4ffe-8268-b5be7f7437de:  DEFAULT''');
+            // print('''fc52af93-79a3-4ffe-8268-b5be7f7437de:  DEFAULT''');
           }
         }
     });
@@ -521,7 +636,7 @@ void setTemplateArgs(
 }
 
 Map tData = {
-  'dartrix': {'out': './', 'force': false},
+  'dartrix': {'out': './', 'nsx': false},
   'now': '${DateTime.now()}',
   'today':
       '${DateTime.now().year}, ${DateTime.now().month}, ${DateTime.now().day}',

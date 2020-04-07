@@ -22,8 +22,21 @@ void debugData(Map xData) async {
   Config.ppLogger.v(j);
 }
 
+void debugOptions() {
+  Config.ppLogger.d('Options:');
+  Config.logger.d('\toptions: ${Config.options.options}');
+  Config.logger.d('\targs: ${Config.options.arguments}');
+  Config.options.options.forEach((o) {
+    if (Config.options.wasParsed(o)) {
+      Config.logger.d('\t$o: ${Config.options[o]}');
+    }
+  });
+  Config.logger.d('\trest: ${Config.options.rest}');
+  // Config.logger.d('\tname: ${Config.options.name}');
+}
+
 void debugConfig() async {
-  Config.logger.d('Config:');
+  Config.ppLogger.d('Config:');
   Config.logger.d('\tverbose: ${Config.verbose}');
   Config.logger.d('\tdebug: ${Config.debug}');
   Config.logger.d('\tdryRun: ${Config.dryRun}');
@@ -37,7 +50,26 @@ void debugConfig() async {
   Config.logger.d('\tappPkgRoot: ${Config.appPkgRoot}');
   Config.logger.d('\tlibPkgRoot: ${Config.libPkgRoot}');
   Config.logger.d('\ttemplateRoot: ${Config.templateRoot}');
-  Config.logger.d('\tappVersion: ${await Config.appVersion}');
+  Config.logger.d('\tappVersion: ${Config.appVersion}');
+
+  Config.logger.d('\tsearchLocal: ${Config.searchLocal}');
+  Config.logger.d('\tsearchPubDev: ${Config.searchPubDev}');
+
+  Config.logger.d('\tforce: ${Config.force}');
+
+  Config.logger.d('\there: ${Config.here}');
+  Config.logger.d('\thereDir: ${Config.hereDir}');
+  Config.logger.d('\tY: ${Config.Y}');
+
+  Config.logger.d('\tmeta: ${Config.meta}');
+  Config.logger.d('\tmetaName: ${Config.metaName}');
+  Config.logger.d('\treplaceParam: ${Config.replaceParam}');
+  Config.logger.d('\treplaceText: ${Config.replaceText}');
+
+  Config.logger.d('\tgeneric: ${Config.generic}');
+  Config.logger.d('\tgenericIndex: ${Config.genericIndex}');
+  Config.logger.d('\tgenericSelection: ${Config.genericSelection}');
+  // Config.logger.d('\tgenericRewrite: ${Config.genericRewrite}');
 }
 
 void debugPathRewriting(Map xData) {
@@ -52,19 +84,6 @@ void debugPathRewriting(Map xData) {
   var to = Config.options['domain'] ?? tData['domain'];
   to = to.split('.').reversed.join('/');
   Config.logger.d('  rewrite rule: RDOMAINPATH => ${to}');
-}
-
-void debugOptions() {
-  Config.debugLogger.d('Options:');
-  // Config.logger.d('\targs: ${Config.options.arguments}');
-  Config.logger.d('\toptions: ${Config.options.options}');
-  Config.options.options.forEach((o) {
-    if (Config.options.wasParsed(o)) {
-      Config.logger.d('\t$o: ${Config.options[o]}');
-    }
-  });
-  Config.logger.d('\trest: ${Config.options.rest}');
-  // Config.logger.d('\tname: ${Config.options.name}');
 }
 
 void debugArgResults(ArgResults results) {

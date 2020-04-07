@@ -34,6 +34,9 @@ class Config {
 
   static String hereDir = '.dartrix.d/';
   static bool   here    = false;
+
+  static bool   Y       = false; // --Y == fixpoint, identity xform
+
   static String userCache = home + '/.dart.d'; //FIXME: rename dartrixHome?
   static String dartrixDir = '.dartrix.d';
   static String dartrixHome = home + '/' + dartrixDir;
@@ -41,7 +44,7 @@ class Config {
   static bool generic = false;
   static String genericIndex;
   static String genericSelection;
-  static String genericRewrite; // selection rewritten as output seg
+  // static String genericRewrite; // selection rewritten as output seg
 
   static String sysCache = getSysCache();
 
@@ -72,8 +75,14 @@ class Config {
   static bool searchPubDev = false; // for list cmd
 
   // memoized metadata stuff from yaml params
-  static Meta meta;
+  static String meta;
+  static String metaName;
   static String outPathPrefix;
+
+  static String replaceParam; // memoize for meta- and generic templates
+  static String replaceText; // memoize for meta- and generic templates
+
+  static bool force = false;
 
   static String _appVersion;
 

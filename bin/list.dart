@@ -130,7 +130,7 @@ void printPluginTemplates(String libName, ArgResults options) async {
       print('package:${libName}_dartrix templates:');
   }
   templates.forEach((t) {
-    TemplateYaml tConfig = getTemplateYaml(t.path);
+    TemplateYaml tConfig = getTemplateYaml(libName, t.path);
     if (tConfig == null) {
       exit(1);
     }
@@ -171,16 +171,16 @@ void printList(ArgParser argParser) async {
   if (!Config.debug) {
     print('dartrix:list, version 0.1.0');
   }
-  final format = '  %-14s%-14s%-70s';
+  final format = '%2s%-14s%-14s%-70s';
   if (!Config.debug) {
     // print('\nAvailable template libraries:\n');
     print('');
     // print header
-    var header = sprintf(format, ['Library', 'Version', 'Description']);
+    var header = sprintf(format, ['', 'Library', 'Version', 'Description']);
     print('${infoPen(header)}');
 
     var line = sprintf(
-        format, [':dartrix', await Config.appVersion, 'builtin templates']);
+        format, ['', ':dartrix', await Config.appVersion, 'builtin templates']);
     print('$line');
 
     String v;
@@ -196,7 +196,7 @@ void printList(ArgParser argParser) async {
       }
     }
     line = sprintf(
-      format, [':here', '$v', 'Here templates (./.dartrix.d/templates)']);
+      format, ['', ':here', '$v', 'Here templates (./.dartrix.d/templates)']);
     print(thePen('$line'));
 
     if (stdTLibExists(':user')) {
@@ -210,7 +210,7 @@ void printList(ArgParser argParser) async {
       }
     }
     line = sprintf(format,
-      [':user', '$v', 'User templates (~/.dartrix.d/templates)']);
+      ['', ':user', '$v', 'User templates (~/.dartrix.d/templates)']);
     print(thePen('$line'));
 
     if (Config.searchLocal) {
@@ -225,7 +225,7 @@ void printList(ArgParser argParser) async {
         }
       }
       var l = sprintf(format,
-        [':local', v, ':local templates (${Config.local}/templates)']);
+        ['', ':local', v, 'Local templates (${Config.local}/templates)']);
       print(thePen('$l'));
     }
   }
@@ -240,7 +240,7 @@ void printList(ArgParser argParser) async {
   var star = ' ';
   plugins.forEach((plugin) {
       // print('PLUGIN: $plugin');
-    libName = plugin['name'].replaceFirst(RegExp('_dartrix\$'), '');
+    libName = ':' + plugin['name'].replaceFirst(RegExp('_dartrix\$'), '');
     switch (plugin['scope']) {
       //FIXME
       case 'user':
@@ -265,17 +265,17 @@ void printList(ArgParser argParser) async {
     // if (plugin['path'] == null) {
     //   libName = '${star}${libName}';
     // } else {
-      libName = '${star}${libName}';
+      // libName = '${star}${libName}';
       // libName = sprintf('%-27s', ['${star}${infoPen(libName)}']);
     // }
     var pluginStr =
-        sprintf(format, [libName, plugin['version'], plugin['docstring']]);
+        sprintf(format, [star, libName, plugin['version'], plugin['docstring']]);
     // var star = (plugin['syscache'] == 'true') ? '*' : ' ';
     if (!Config.debug) {
       print('$pluginStr');
       if ((plugin['scope'] == 'user') || (plugin['scope'] == 'local')) {
         print(sprintf(
-            format, ['', '', '${infoPen("path")}: ${plugin["rootUri"]}']));
+            format, ['', '', '', '${infoPen("path")}: ${plugin["rootUri"]}']));
       }
     }
   });
@@ -345,6 +345,8 @@ void main(List<String> args) async {
     if (Config.debug) {
       Config.debug = false;
       await printUsage(argParser);
+    } else {
+      await printUsage(argParser);
     }
     exit(0);
   }
@@ -359,6 +361,7 @@ void main(List<String> args) async {
   }
 
   // var pkg = await resolvePkg(libName);
+  // print('''c61cf1c0-402e-4025-850e-125e6bb18ffd:  Config.libName: ${Config.libName}''');
 
   if (Config.options.rest.isEmpty) {
     // if Config.debug is set, printUsage will only print debug msgs
@@ -375,6 +378,7 @@ void main(List<String> args) async {
     //{Config.libName);
     switch (Config.libName) { // Config.options.rest[0]) {
       case ':.':
+      case ':h':
       case ':here':
         await printHereTemplates();
         break;
@@ -397,12 +401,12 @@ void main(List<String> args) async {
         exit(0);
         break;
       default:
-      if (Config.libName.startsWith(':')) {
-        print('No template library with key \'${Config.libName}\'. Available keys: :. (:here), :u (:user), :l (:local), :d (:dartrix)');
-      } else {
+      // if (Config.libName.startsWith(':')) {
+      //   print('No template library with key \'${Config.libName}\'. Available keys: :. (:here), :u (:user), :l (:local), :d (:dartrix)');
+      // } else {
         // printPluginTemplates(Config.options.rest[0], Config.options);
         printPluginTemplates(Config.libName, Config.options);
-      }
+      // }
     }
   }
 }
