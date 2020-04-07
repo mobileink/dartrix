@@ -307,7 +307,7 @@ TemplateYaml getLibYaml(String templateRoot) {
 }
 
 TemplateYaml getTemplateYaml(String tLib, String templateRoot) {
-  // Config.debugLogger.d('getTemplateYaml $templateRoot');
+  // Config.debugLogger.d('getTemplateYaml $tLib, $templateRoot');
   //FIXME: memoize
   TemplateYaml config;
   var yamlFile = path.canonicalize(templateRoot + '/.yaml');
