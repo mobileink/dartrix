@@ -99,8 +99,7 @@ List<Map> listHereTemplates() {
 
   //TemplateYaml
   var yaml;
-  //List<Map>
-  var hereTemplateSpecs = [];
+  List<Map> hereTemplateSpecs = [];
   hereTemplates.forEach((t) {
     yaml = getTemplateYaml(':here', t.path);
     if (yaml == null) {
@@ -161,8 +160,7 @@ List<Map> listUserTemplates() {
 
   //TemplateYaml
   var yaml;
-  //List<Map>
-  var userTemplateSpecs = [];
+  List<Map> userTemplateSpecs = [];
   userTemplates.forEach((t) {
     yaml = getTemplateYaml(':user', t.path);
     if (yaml == null) {
@@ -242,8 +240,7 @@ List<Map> listLocalTemplates() {
   localTemplates.retainWhere((f) => f is Directory);
 
   TemplateYaml yaml;
-  //List<Map>
-  var localTemplateSpecs = [];
+  List<Map> localTemplateSpecs = [];
   localTemplates.forEach((t) {
     // print('template path: ${t.path}');
     yaml = getTemplateYaml(':local', t.path);
@@ -441,8 +438,7 @@ List<Map> listBuiltinTemplates() {
   builtinsTemplates.retainWhere((f) => f is Directory);
 
   TemplateYaml yaml;
-  // List<Map>
-  var builtinsTemplateSpecs = [];
+  List<Map> builtinsTemplateSpecs = [];
   builtinsTemplates.forEach((t) {
     // print(t);
     yaml = getTemplateYaml(':dartrix', t.path);
