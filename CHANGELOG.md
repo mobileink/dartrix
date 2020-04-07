@@ -1,3 +1,13 @@
+## 0.2.0
+
+- many changes
+* switch to <template>/.yaml
+* predefined libs: :here, :user, :local, :dartrix
+* metatemplates
+* generic templates
+* --Y quasi-fixpoint param, tells template to copy itself
+* UI arg handling improvements
+
 ## 0.1.23-alpha
 
 - fix bug in template root path
