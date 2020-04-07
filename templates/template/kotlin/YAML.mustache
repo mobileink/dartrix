@@ -6,51 +6,33 @@ description  : Generates a Kotlin app that prints a hello msg.
 dartrix      : {{version.dartrix}}
 
 params:
+  sys:
+    - id : ns
+    - id : nsx
+    - id : out
+      defaultsTo : mykotlin
 
-- name       : greeting
-  abbr       : g
-  docstring  : Greeting
-  type       : string
-  defaultsTo : Hello
-
-- name       : addressee
-  abbr       : a
-  docstring  : Addressee of msg
-  type       : string
-  defaultsTo : World
-
-- name       : out
-  abbr       : o
-  docstring  : Output directory
-  help       : Output path relative to current working directory.
-  type       : _out_prefix
-  defaultsTo : mykotlin
-
-- name       : domain
-  abbr       : d
-  docstring  : Domain.
-  help       : Domain name, used to set Java package.
-  type       : segmented.string
-  defaultsTo : example.org
-
-- name       : subdomain
-  abbr       : s
-  docstring  : Subdomain.
-  help       : Subdomain. Forms part of the package URL/path, e.g. org.example.subdomain
-  type       : segmented.string
-  defaultsTo : greetings
-
-- name       : class
-  abbr       : c
-  docstring  : Class name.
-  help       : Java class name.
-  type       : string
-  defaultsTo : Hello
-  seg        : CLASS
-
-- name       : source
-  docstring  : Source path.
-  type       : subpath
-  defaultsTo : src/main/kotlin
-  help       : The source directory structure for the generated project.
-  seg        : SRC
+  user:
+    - name       : greeting
+      abbr       : g
+      docstring  : Greeting
+      typeHint   : string
+      defaultsTo : Hello
+    - name       : addressee
+      abbr       : a
+      docstring  : Addressee of msg
+      typeHint   : string
+      defaultsTo : World
+    - name       : class
+      abbr       : c
+      docstring  : Class name.
+      help       : Java class name.
+      typeHint   : string
+      defaultsTo : Hello
+      seg        : CLASS
+    - name       : source
+      docstring  : Source path.
+      typeHint   : subpath
+      defaultsTo : src/main/kotlin
+      help       : The source directory structure for the generated project.
+      seg        : SRC

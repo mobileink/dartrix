@@ -1,11 +1,11 @@
-# {{rdomain}}.{{subdomain}}.{{class}}
+# {{dartrix.ns}}{{#dartrix.nsx}}.{{dartrix.nsx}}{{/dartrix.nsx}}.{{class}}
 
 Hello World in Kotlin
 
 ```
-$ pub global run dartrix:new hello -t kotlin -a {{_out_prefix}} -p {{rdomain}} -d {{subdomain}} -c {{class}} -g {{greeting}}
-$ cd {{_out_prefix}}
-$ kotlinc src/main/kotlin/{{segmap.RDOMAIN}}/{{segmap.SUBDOMAIN}}/{{class}}.kt
+$ pub global run dartrix:new hello -t kotlin
+$ cd {{dartrix.out}}
+$ kotlinc src/main/kotlin/{{seg._NS}}{{#seg._NSX}}/{{seg._NSX}}{{/seg._NSX}}/{{class}}.kt
 $ kotlin {{class}}Kt
 {{greeting}}, {{addressee}}
 ```

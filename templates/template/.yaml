@@ -5,35 +5,27 @@ description: Generates a Dartrix template for a programming language.
 
 dartrix: 0.1.24-alpha
 
-meta: template
-generic: {
-  name       : lang,
-  abbr       : l,
-  docstring  : Programming language,
-  type       : string,
-  defaultsTo : dart,
-  help       : Generate code for programming language
-}
+meta: {
+  type: template,
+  name: mytemplate_<<lang>>
+  }
+
+generic:
+  index: {
+    name       : lang,
+    abbr       : l,
+    docstring  : Programming language,
+    typeHint   : string,
+    defaultsTo : dart,
+    help       : Generate code for programming language
+    }
+#     {
+#     name       : name
+#     abbr       : n
+#     docstring  : Name of template
+#     typeHint   : string # _index
+#     defaultsTo : mytemplate_<<lang>>
+#     }
 
 params:
-
-
-- name       : 'name'
-  abbr       : 'n'
-  docstring  : 'Name of template'
-  type       : 'string' # '_index'
-  defaultsTo : 'mytemplate'
-
-# - name       : lang
-#   abbr       : l
-#   docstring  : Programming language
-#   type       : string
-#   defaultsTo : dart
-#   help       : Generate code for programming language
-
-- name       : here
-  docstring  : Emit to :here
-  help       : Emit to :here dir (./.dartrix.d/templates)
-  type       : bool
-  defaultsTo : 'false'
-  negatable  : 'false'
+#   user:
