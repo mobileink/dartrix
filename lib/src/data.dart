@@ -501,8 +501,8 @@ void setTemplateArgs(
               break; // expected
             case 'name':
               if (Config.meta != null) {
-                print(
-                    '''c4eaecae-6274-4fac-8000-bc2831b07829:  NAME: ${myoptions[option]}''');
+                // print(
+                //     '''c4eaecae-6274-4fac-8000-bc2831b07829:  NAME: ${myoptions[option]}''');
                 // tData['name'] = myoptions[option];
                 return;
               }
@@ -523,8 +523,8 @@ void setTemplateArgs(
       //   tData['_plugin_name'] = myoptions[option];
       // }
       if (param.name == Config.genericIndex) {
-        print(
-            '''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
+        // print(
+            // '''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
         tData[param.name] = myoptions[option];
         tData[Config.genericIndex] = myoptions[option].replaceAll(
             '<<' + Config.replaceParam + '>>', '_' + Config.replaceText);
