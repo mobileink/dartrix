@@ -1,0 +1,30 @@
+.Dd March 18, 2020
+.Dt DARTRIX
+.Sh NAME
+.Nm dartrix
+.Nd Dartrix templating system
+.Sh DESCRIPTION
+Dartrix is a ...
+
+Each command has its own syntax but they all start with:
+
+.Nm pub global run dartrix:<cmd>
+
+If you list the
+.Em dartrix
+package as a dependency in your pubspec.yaml, then you can also use local syntax:
+
+.Nm pub run dartrix:<cmd>
+
+You can easily make this less clunky by writing a shell script or defining a shell function to run the tool; or you could use the builtin
+.Em bashrc
+template to generate one for you.
+.Sh RETURN VALUES
+.Sh ERRORS
+.Sh SEE ALSO
+.Xr list ,
+.Xr man ,
+.Xr new ,
+.Xr sanity ,
+.Xr update
+.Sh HISTORY
