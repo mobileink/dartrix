@@ -293,9 +293,9 @@ void printList(ArgParser argParser) async {
     // print('\n${infoPen("path")}: active library');
     // print('\n* User (~/.dartrix.d/user.yaml)   + Local (${Config.local})');
     // print('> System (~/.pub-cache)');
-    print('\n*:user  ' +
+    print('\n*User  ' +
         ((Config.searchLocal) ? '+Local' : '') +
-        '  >:sys' +
+        '  >Sys' +
         ((Config.searchPubDev) ? '  ^pub.dev' : ''));
   }
 }
