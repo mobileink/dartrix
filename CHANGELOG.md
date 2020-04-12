@@ -1,3 +1,7 @@
+## 0.2.2
+
+- fix another dartanalyzer subtyping bug: type 'List<dynamic>' is not a subtype of type 'List<String>'
+
 ## 0.2.1
 
 - fix breakages introduced by following dartanalyzer recommendations
