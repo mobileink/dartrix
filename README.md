@@ -78,7 +78,8 @@ At time of writing there are three libraries available on pub.dev:
 
 * [dart_dartrix](https://pub.dev/packages/dart_dartrix) is a library of templates that generate Dart code.
 
-* [flutter_dartrix](https://pub.dev/packages/flutter_dartrix) is a library of teplates the generate Flutter code.
+* [flutter_dartrix](https://pub.dev/packages/flutter_dartrix) is a
+  library of templates that generate Flutter code.
 
 At the moment these libraries only contain a few simple templates;
 more will be added in coming weeks.  If you develop a template that
