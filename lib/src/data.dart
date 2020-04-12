@@ -462,6 +462,7 @@ void setTemplateArgs(
     if (yaml.note != null) {
       print('\nNote: ${yaml.note}');
     }
+    print('');
     exit(0);
   }
 
