@@ -84,14 +84,15 @@ Map getTemplateArgs(List<String> subArgs) {
       // print help for tlib, if any
       exit(0);
     }
-    if ( !RegExp(r'^[a-z]').hasMatch(template) ) {
+    if (!RegExp(r'^[a-z]').hasMatch(template)) {
       print('''09b7d2e2-37ea-46c2-b98a-bbd4e2d77a21:  REGEXP fail''');
       exit(1);
     }
     subArgs = subArgs.sublist(1);
     tArgs = subArgs;
   } else {
-    Config.prodLogger.e('Invalid library tag: $tlib. Library tags start with \':\'; did you mean  \':$tlib\'?');
+    Config.prodLogger.e(
+        'Invalid library tag: $tlib. Library tags start with \':\'; did you mean  \':$tlib\'?');
   }
 
   // ft = subArgs.indexOf('--template');
@@ -139,7 +140,12 @@ Map getTemplateArgs(List<String> subArgs) {
   // print('template: $template');
   // print('libArgs: $libArgs');
   // print('tArgs: $tArgs');
-  return {'lib': tlib, 'libArgs': libArgs, 'template': template, 'tArgs': tArgs};
+  return {
+    'lib': tlib,
+    'libArgs': libArgs,
+    'template': template,
+    'tArgs': tArgs
+  };
 }
 
 void main(List<String> args) async {
@@ -149,12 +155,24 @@ void main(List<String> args) async {
   Config.argParser = ArgParser(allowTrailingOptions: false);
   // Config.argParser.addOption('config-file',
   //     help: 'Configuration file. Optional.', defaultsTo: './dartrix.yaml');
-  Config.argParser.addFlag('dry-run', help: 'Print list of outputs but do not actual write any output.', defaultsTo: false, negatable: false);
-  Config.argParser.addFlag('force', help: 'Force over-write of existing files.', defaultsTo: false, negatable: false);
-  Config.argParser.addFlag('here', help: 'Write output to :here (./.dartrix/templates); for use with meta-templates and --Y only.', defaultsTo: false, negatable: false);
-  Config.argParser.addFlag('Y', help: 'Pseudo Y-combinator; causes template to copy itself.', defaultsTo: false, negatable: false);
-  Config.argParser
-      .addFlag('help', defaultsTo: false, negatable: false);
+  Config.argParser.addFlag('dry-run',
+      help: 'Print list of outputs but do not actual write any output.',
+      defaultsTo: false,
+      negatable: false);
+  Config.argParser.addFlag('force',
+      help: 'Force over-write of existing files.',
+      defaultsTo: false,
+      negatable: false);
+  Config.argParser.addFlag('here',
+      help:
+          'Write output to :here (./.dartrix/templates); for use with meta-templates and --Y only.',
+      defaultsTo: false,
+      negatable: false);
+  Config.argParser.addFlag('Y',
+      help: 'Pseudo Y-combinator; causes template to copy itself.',
+      defaultsTo: false,
+      negatable: false);
+  Config.argParser.addFlag('help', defaultsTo: false, negatable: false);
   Config.argParser
       .addFlag('verbose', abbr: 'v', defaultsTo: false, negatable: false);
   Config.argParser.addFlag('debug', defaultsTo: false, negatable: false);
@@ -274,16 +292,16 @@ void main(List<String> args) async {
       // no need to verify app version for builtins, home, here, local
       case ':d':
       case ':dartrix': // Config.appName:
-      break;
+        break;
       case ':.':
       case ':here':
       case ':h':
-      break;
+        break;
       case ':user':
-      break;
+        break;
       case ':l':
       case ':local':
-      break;
+        break;
       default: // nop
         var requiredVersion = await verifyAppVersion(Config.libPkgRoot);
         if (requiredVersion != null) {
@@ -295,9 +313,7 @@ void main(List<String> args) async {
     // print('libpkgroot: ${Config.libPkgRoot}');
     // print('libName: ${Config.libName}');
     if (!(optionsRest.contains('-h') || optionsRest.contains('--help'))) {
-      var t = Config.libPkgRoot
-          + '/templates/'
-          + templateArgs['template'];
+      var t = Config.libPkgRoot + '/templates/' + templateArgs['template'];
       // print('t: $t');
       if (!verifyExists(t)) {
         Config.prodLogger.e(

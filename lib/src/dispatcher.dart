@@ -71,8 +71,8 @@ void processArgs(String tLib, String template, ArgResults _options,
 }
 
 // FIXME: _options == Config.options
-void dispatchBuiltin(String template, ArgResults _options,
-    List dartrixArgs, List tArgs) async {
+void dispatchBuiltin(
+    String template, ArgResults _options, List dartrixArgs, List tArgs) async {
   // Config.debugLogger.d('dispatchBuiltin $template');
   // print('option args: ${_options.arguments}');
   // print('option rest: ${_options.rest}');
@@ -82,8 +82,8 @@ void dispatchBuiltin(String template, ArgResults _options,
   await processTemplate();
 }
 
-void dispatchHere(String template, ArgResults _options, List userArgs,
-    List tArgs) async {
+void dispatchHere(
+    String template, ArgResults _options, List userArgs, List tArgs) async {
   // Config.ppLogger.v('dispatchHere $template, $_options, $userArgs, $tArgs');
 
   await processArgs(':here', template, _options, userArgs, tArgs);

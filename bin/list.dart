@@ -72,9 +72,9 @@ void printBuiltins() async {
   var templates = await listBuiltinTemplates();
   var tName;
   templates.forEach((t) {
-      tName = sprintf('%-12s%-10s%-80s',
-        [t['name'], t['version'], t['docstring']]);
-      print('\t${tName}');
+    tName =
+        sprintf('%-12s%-10s%-80s', [t['name'], t['version'], t['docstring']]);
+    print('\t${tName}');
   });
 }
 

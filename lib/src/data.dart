@@ -526,7 +526,7 @@ void setTemplateArgs(
       // }
       if (param.name == Config.genericIndex) {
         // print(
-            // '''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
+        // '''f083e6f9-d58e-449a-b86f-cc0b15bd378b: opt genericIndex: ${param.name}''');
         tData[param.name] = myoptions[option];
         tData[Config.genericIndex] = myoptions[option].replaceAll(
             '<<' + Config.replaceParam + '>>', '_' + Config.replaceText);
