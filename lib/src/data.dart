@@ -341,7 +341,9 @@ void setTemplateArgs(
     //RegExp
     var regExp = RegExp(r'<<([^>]*)>>');
     var match = regExp.firstMatch(yaml.meta.name);
-    Config.replaceParam = match.group(1);
+    if (match != null) {
+      Config.replaceParam = match.group(1);
+    }
     _argParser.addOption('name',
         abbr: 'n',
         valueHelp: 'string',
