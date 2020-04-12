@@ -357,9 +357,9 @@ void setTemplateArgs(
     // }
   }
 
-  // always add --help
+  // always add --help for parsing, but hide it - already printed as sysparam
   _argParser.addFlag('help',
-      defaultsTo: false, negatable: false, help: 'Print this message');
+      defaultsTo: false, hide: true, negatable: false, help: 'Print this message');
 
   // // always add --fixpoint
   // _argParser.addFlag('Y', defaultsTo: false, negatable: false,
