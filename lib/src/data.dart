@@ -661,9 +661,14 @@ Map tData = {
       // androidx.test:runner:1.1.1
       // androidx.test.espresso:espresso-core:3.1.1'
     },
+    'analyzer': '\'>=0.39.0 <0.40.0\'',
     'app': '0.1.0',
     'args': '^1.6.0',
+    'build': '^1.2.2',
+    'build_runner': '^1.8.1',
+    'build_verify': '^1.1.1',
     'cupertino_icons': '\'^0.1.3\'',
+    'dart': '2.5.0',
     'dartrix': Config.appVersion,
     'e2e': '^0.2.0',
     'flutter': '\'>=1.12.8 <2.0.0\'',
@@ -679,8 +684,10 @@ Map tData = {
     'platform_detect': '^1.4.0',
     'plugin_platform_interface': '^1.0.2',
     'safe_config': '^2.0.2',
-    'sdk': '\'>=2.1.0 <3.0.0\'',
-    'test': '^1.9.4' // for compatibility with flutter_test
+    'sdk': '\'>=2.5.0 <3.0.0\'',
+    'source_gen': '^0.9.5',
+    'test': '^1.9.4', // for compatibility with flutter_test
+    'yaml': '^2.2.0'
   },
   'description': {
     'adapter': 'A Flutter plugin adapter component.',
