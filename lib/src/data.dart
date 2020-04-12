@@ -341,7 +341,9 @@ void setTemplateArgs(
     //RegExp
     var regExp = RegExp(r'<<([^>]*)>>');
     var match = regExp.firstMatch(yaml.meta.name);
-    Config.replaceParam = match.group(1);
+    if (match != null) {
+      Config.replaceParam = match.group(1);
+    }
     _argParser.addOption('name',
         abbr: 'n',
         valueHelp: 'string',
@@ -355,9 +357,9 @@ void setTemplateArgs(
     // }
   }
 
-  // always add --help
+  // always add --help for parsing, but hide it - already printed as sysparam
   _argParser.addFlag('help',
-      defaultsTo: false, negatable: false, help: 'Print this message');
+      defaultsTo: false, hide: true, negatable: false, help: 'Print this message');
 
   // // always add --fixpoint
   // _argParser.addFlag('Y', defaultsTo: false, negatable: false,
@@ -460,6 +462,7 @@ void setTemplateArgs(
     if (yaml.note != null) {
       print('\nNote: ${yaml.note}');
     }
+    print('');
     exit(0);
   }
 
